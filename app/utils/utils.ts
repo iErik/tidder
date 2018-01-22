@@ -42,7 +42,6 @@ export function abbreviate(num, maxPlaces?, forcePlaces?, forceLetter?) {
     return annotate(num, maxPlaces, forcePlaces, forceLetter);
   }
 
-
   if (num >= 1e12) abbr = 'T'
   else if (num >= 1e9) abbr = 'B'
   else if (num >= 1e6) abbr = 'M'
