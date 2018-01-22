@@ -1,0 +1,72 @@
+@import '~styles/helpers/module';
+
+//  Variables
+//  ---------
+
+//  Object Structure
+//  ----------------
+
+:host {
+  .comment-editor-layout {
+    display: flex;
+    flex-direction: column;
+
+    max-width: 900px;
+    margin: 10px 8.6767895879%;
+
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 3px;
+
+    @include themify {
+      $bgDarkenAmount: if(map-get($theme, 'isDark'), 2%, 2.5%);
+      $borderDarkenAMount: if(map-get($theme, 'isDark'), 4.5%, 7.5%);
+
+      background-color: darken(background-color(), $bgDarkenAmount);
+      border-color: darken(background-color(), $borderDarkenAMount);
+    }
+
+    &.is-child {
+      padding-top: 0px;
+      border-radius: 0;
+
+      .comment-editor-textarea { margin-top: 10px; }
+    }
+  }
+
+  .comment-editor-textarea {
+    margin: 5px 0 5px;
+
+    .textarea {
+      width: 100%;
+      min-height: 60px;
+
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
+
+      @include themify {
+        color: rgba(foreground-color(), 0.5);
+        &:focus { color: foreground-color(); }
+      }
+
+      background: transparent;
+      border: 0;
+      outline: 0 !important;
+      resize: none;
+    }
+  }
+
+  .comment-editor-actions {
+    display: flex;
+    font-size: 0.87em;
+
+    padding: 0px 20px 10px 20px;
+
+    background-color: inherit;
+
+    .comment-editor-action {
+      margin-right: 15px;
+      background-color: inherit;
+    }
+  }
+}

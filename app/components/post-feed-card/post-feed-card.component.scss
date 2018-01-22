@@ -1,0 +1,220 @@
+@import '~styles/helpers/module';
+
+//  Variables
+//  ---------
+
+$post-card-max-width: 1100px;
+$post-card-min-width: 260px;
+
+$post-card-height: 80px;
+
+//  Object Structure
+//  ----------------
+
+:host {
+  display: flex;
+
+  //height: $post-card-height;
+  width:  100%;
+
+  min-width: $post-card-min-width;
+  max-width: $post-card-max-width;
+
+  @include themify { background-color: background-color(); }
+
+  .post-score {
+    font-size: .625rem;
+
+    margin: 0px 20px 0px 0px;
+    padding-top: 10px;
+  }
+
+  .post-contents {
+    display: flex;
+    flex-direction: column;
+
+    flex-grow: 1;
+    min-width: 0;
+
+    margin: 0 10px 0 5px;;
+
+    .post-sub {
+      display: flex;
+      flex-shrink: 0;
+
+      .meta-sub {
+        font-size: .46875rem;
+        font-weight: 600;
+        @include themify { color: primary-color(); }
+
+        text-transform: uppercase;
+        letter-spacing: 1.7px;
+      }
+    }
+
+    .post-link {
+      display: flex;
+      //flex-grow: 2;
+
+      margin: 5px 0;
+
+      .link {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        /* autoprefixer: off */
+        -webkit-box-orient: vertical;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        font-size: .78125rem;
+        font-weight: 400;
+
+        letter-spacing: 0.3px;
+        line-height: 1.4;
+        text-align: start;
+        -webkit-font-smoothing: antialiased;
+
+        &:hover { text-decoration: underline; cursor: pointer; }
+      }
+    }
+
+    .post-meta {
+      flex-shrink: 0;
+
+      .meta {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        font-size: .65625rem;
+        font-weight: 400;
+        letter-spacing: 0.2px;
+        -webkit-font-smoothing: antialiased;
+
+        margin: 0;
+
+        @include themify {
+          @if (foreground-color('muted')) {
+            color: foreground-color('muted');
+          } @else {
+            color: rgba(foreground-color(), 0.5);
+          }
+        }
+      }
+
+      .meta-author {
+        font-weight: 600;
+
+        @include themify {
+          @if (primary-color('light')) {
+            color: primary-color('light');
+          } @else {
+            color: lighten(primary-color(), 5%);
+          }
+        }
+      }
+    }
+
+    .post-actions {
+      display: flex;
+      margin: 3px 0 0 0;
+
+      .post-action {
+        display: flex;
+        margin: 0px 12px 0px 0px;
+
+        .btn-action {
+          font-size:      8px;
+          font-weight:    600;
+          text-transform: uppercase;
+          letter-spacing: 0.2px;
+        }
+      }
+    }
+  }
+
+  .wrapper-thumbnail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .post-thumbnail {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      flex-shrink: 0;
+      height: 65px;
+      width: 95px;
+
+      background-size:     cover;
+      background-position: center center;
+
+      border-radius: 3px;
+      margin-bottom: 10px;
+
+      @include themify {
+        @if (map-get($theme, 'isDark')) {
+          background-color: darken(foreground-color(), 1%);
+
+          .static-thumbnail {
+            background-color: darken(foreground-color(), 13%);
+
+            @include icon { color: lighten(foreground-color(), 10%); }
+          }
+        } @else {
+          background-color: lighten(foreground-color(), 57%);
+
+          .static-thumbnail {
+            background-color: lighten(foreground-color(), 43%);
+
+            @include icon { color: lighten(foreground-color(), 60%); }
+          }
+        }
+      }
+
+      .static-thumbnail {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 40px;
+        height: 40px;
+
+        border-radius: 100%;
+
+        @include icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          &.icn-spoiler { font-size: 1.5em; }
+        }
+      }
+    }
+
+    .post-comments {
+      display: flex;
+      align-items: center;
+
+      font-size: .65625rem;
+      font-weight: 400;
+      letter-spacing: 0.2px;
+
+      @include icon { margin-right: 5px; }
+
+      @include themify {
+        @if (foreground-color('muted')) {
+          color: foreground-color('muted');
+        } @else {
+          color: rgba(foreground-color(), 0.5);
+        }
+
+        @if (map-get($theme, 'isDark')) {
+          -webkit-font-smoothing: antialiased;
+        }
+      }
+    }
+  }
+}

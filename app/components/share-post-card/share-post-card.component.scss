@@ -1,0 +1,84 @@
+@import '~styles/helpers/module';
+
+//  Variables
+//  ---------
+
+$card-width: 500px;
+$card-border-radius: 4px;
+
+$social-icon-width:  58px;
+$social-icon-height: 58px;
+$social-icon-border-radius: 8px;
+
+//  Object Structure
+//  ----------------
+
+:host {
+  display: flex;
+  flex-direction: column;
+
+  width:  $card-width;
+  height: auto;
+
+  border-radius: $card-border-radius;
+
+  @include themify { background-color: background-color(); }
+
+  margin-top: 7.5%;
+
+  padding: 30px 50px;
+
+  .social-icons {
+    display: flex;
+    justify-content: center;
+
+    .social-icon {
+      display: flex;
+      margin-right: 25px;
+
+      &:last-child { margin: 0; }
+    }
+
+    .btn-social {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      width:  $social-icon-width;
+      height: $social-icon-height;
+
+      border-radius: $social-icon-border-radius;
+
+      &.facebook { background-color: #2C4484; font-size: 24px; }
+      &.twitter { background-color: #459AE8; }
+      &.tumblr { background-color: #28364A; font-size: 22px; }
+
+      @include icon {
+        display: flex;
+
+        font-size: 1.7em;
+        color: #FFF;
+      }
+    }
+  }
+
+  .wrapper-input {
+    display: flex;
+    align-items: center;
+
+    margin: 25px 0 0;
+
+    .label {
+      letter-spacing: 0.5px;
+      -webkit-font-smoothing: antialiased;
+      margin: 0 13px 0 0;
+    }
+
+    .input {
+      flex-grow: 1;
+      font-size: 13px;
+
+      padding: 8px 10px;
+    }
+  }
+}

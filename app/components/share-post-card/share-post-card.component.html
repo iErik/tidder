@@ -1,0 +1,22 @@
+<div class="social-icons">
+  <div class="social-icon">
+    <button class="btn-social facebook" (click)="shareOnFacebook()">
+      <i class="icn-facebook"></i>
+    </button>
+  </div>
+  <div class="social-icon">
+    <button class="btn-social twitter" (click)="shareOnTwitter()">
+      <i class="icn-twitter"></i>
+    </button>
+  </div>
+  <div class="social-icon">
+    <button class="btn-social tumblr" (click)="shareOnTumblr()">
+      <i class="icn-tumblr"></i>
+    </button>
+  </div>
+</div>
+
+<div class="wrapper-input">
+  <p class="label">Link: </p>
+  <input type="text" class="input" [(ngModel)]="postLink">
+</div>

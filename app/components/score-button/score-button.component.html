@@ -1,0 +1,17 @@
+<button
+  (click)="onUpvote.emit(likes ? 0 : 1)"
+  [ngClass]="{ 'btn-vote upvote': true, 'is-active': likes === true }"
+>
+    <i class="icn-arrow-up"></i>
+</button>
+
+<div class="wrapper-score">
+  <span class="score">{{ score }}</span>
+</div>
+
+<button
+  (click)="onDownvote.emit(likes === false ? 0 : -1)"
+  [ngClass]="{ 'btn-vote downvote': true, 'is-active': likes === false }"
+>
+  <i class="icn-arrow-down"></i>
+</button>

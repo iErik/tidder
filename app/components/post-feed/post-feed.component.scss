@@ -1,0 +1,74 @@
+@import '~styles/helpers/module';
+
+//  Variables
+//  ---------
+
+
+//  Object Structure
+//  ----------------
+
+:host {
+  display: flex;
+  flex-direction: column;
+
+  // TODO: remove hardcoded topbar-height, maybe move the $topbar-height
+  // variable to a top-level module.
+  height: calc(100vh - 45px);
+
+  border-right-width: 1px;
+  border-right-style: solid;
+
+  @include themify {
+    @if (map-get($theme, 'isDark')) {
+      @if (background-color('light')) {
+        border-right-color: background-color('light');
+      } @else {
+        border-right-color: lighten(background-color(), 9%);
+      }
+    } @else {
+      border-right-color: darken(background-color(), 15%);
+    }
+  }
+
+  .wrapper-feed-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-grow: 1;
+
+    position: relative;
+
+    .feed-spinner {
+      display: flex;
+      align-items: center;
+
+      position: absolute;
+      top: 20%;
+
+      .dot-spinner { font-size: 12px; }
+    }
+  }
+
+  .feed-list {
+    position: relative;
+    z-index: 10;
+
+    overflow: scroll;
+    flex-grow: 1;
+    padding-top: 20px;
+
+    .feed-entries {
+      padding: 0 8.6767895879%;
+      margin: 0;
+    }
+
+    .feed-entry {
+      padding: 12.5px 0;
+
+      &:first-child { padding-top: 0px; }
+
+      list-style-type: none;
+      margin: 0;
+    }
+  }
+}

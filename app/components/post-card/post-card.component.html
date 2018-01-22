@@ -1,0 +1,102 @@
+<div class="post-card-layout">
+  <div class="post-card">
+
+    <div class="post-info">
+      <div class="post-score">
+        <score-button
+          [score]="postScore"
+          [likes]="post.likes"
+          (onUpvote)="votePost($event)"
+          (onDownvote)="votePost($event)">
+        </score-button>
+      </div>
+
+      <div class="post-header">
+        <div class="post-sub">
+          <a [routerLink]="['/r', post.subreddit]" class="meta-sub">
+            {{ post.subreddit }}
+          </a>
+        </div>
+
+        <div class="post-link">
+          <a href="#" class="link"
+            (click)="openExternalLink($event)">
+            {{ post.title }}
+          </a>
+        </div>
+
+        <div class="post-meta">
+          <p class="meta">
+            Submitted
+            {{ post.created_utc * 1000 | amTimeAgo }}
+            by
+            <span class="meta-author">{{ post.author }}</span>
+          </p>
+        </div>
+
+        <div class="post-actions">
+          <div class="post-action">
+            <span class="btn-action">
+              <a [routerLink]="post.permalink" target="_blank">
+                {{ post.num_comments }} comments
+              </a>
+            </span>
+          </div>
+          <div class="post-action">
+            <button type="button" class="btn-action" (click)="savePost(!post.saved)">
+              {{ post.saved ? 'Unsave' : 'Save' }}
+            </button>
+          </div>
+          <div class="post-action">
+            <button type="button" class="btn-action"
+              (click)="emitFeedAction('report')"
+              [disabled]="post.reported">
+              {{ post.reported ? 'Reported' : 'Report' }}
+            </button>
+          </div>
+          <div class="post-action">
+            <button type="button" class="btn-action" (click)="emitFeedAction('share')">
+              Share
+            </button>
+          </div>
+          <div class="post-action">
+            <button type="button" class="btn-action"
+              *ngIf="hasContent()"
+              (click)="toggleCollapse()" >
+              {{ isCollapsed ? 'Uncollapse' : 'Collapse' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-content"
+      *ngIf="hasContent()"
+      [ngClass]="{ 'is-collapsed': isCollapsed }">
+
+      <div class="post-text typography" *ngIf="post.is_self"
+        (click)="openExternalLink($event, true)"
+        [innerHtml]="selfText">
+      </div>
+
+      <div class="post-media" *ngIf="isEmbbeded()"
+        [innerHtml]="postMedia">
+      </div>
+
+      <div class="post-image" *ngIf="isImage()">
+        <img class="image" [src]="postImage">
+      </div>
+
+      <div class="post-video" *ngIf="isVideo()">
+        <video class="video"
+          [autoplay]="!post.is_video"
+          [attr.controls]="post.is_video ? true : null"
+          [loop]="!post.is_video"
+          [muted]="!post.is_video"
+          [src]="videoSource">
+        </video>
+      </div>
+    </div>
+
+  </div>
+</div>

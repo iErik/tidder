@@ -1,0 +1,116 @@
+<div class="tab-group">
+  <div class="tab"
+    [ngClass]="{ 'is-active': post.kind === 'link' }"
+    (click)="updatePostKind('link')">
+    <div class="wrapper-label">
+      <span class="tab-label">Link</span>
+    </div>
+  </div>
+
+  <!--
+  <div class="tab"
+    [ngClass]="{ 'is-active': post.kind === 'image' }"
+    (click)="updatePostKind('image')">
+    <div class="wrapper-label">
+      <span class="tab-label">Image</span>
+    </div>
+  </div>
+  -->
+
+  <div class="tab"
+    [ngClass]="{ 'is-active': post.kind === 'self' }"
+    (click)="updatePostKind('self')">
+    <div class="wrapper-label">
+      <span class="tab-label">Text</span>
+    </div>
+  </div>
+</div>
+
+<form class="form-group"
+  (ngSubmit)="submitPost()"
+  #postForm="ngForm"
+  [hidden]="submissionSuccess">
+
+  <div class="form-input">
+    <label for="post-title" class="label">Title</label>
+    <input id="post-title" name="postTitle" type="text" class="input"
+      required
+      placeholder="Title..."
+      [(ngModel)]="post.title">
+  </div>
+
+  <div class="form-input">
+    <label for="post-sub" class="label">Subreddit</label>
+    <tag-input
+      required
+      name="postSub"
+      secondaryPlaceholder="Subreddit..."
+      theme="minimal"
+      class="tag-input"
+      inputClass="tag-input-inner"
+      [(ngModel)]="post.sr"
+      [maxItems]="1"
+      [addOnBlur]="true"
+      [ripple]="false"
+      [onlyFromAutocomplete]="true"
+      [modelAsStrings]="true">
+
+      <tag-input-dropdown
+        offset="30 5"
+        class="tag-input-dropdown"
+        [autocompleteObservable]="subAutoComplete"
+        [appendToBody]="false"
+        [keepOpen]="true"
+        [showDropdownIfEmpty]="true">
+      </tag-input-dropdown>
+
+    </tag-input>
+  </div>
+
+  <div class="form-input" *ngIf="post.kind === 'link'">
+    <label for="post-url" class="label">URL</label>
+    <input id="post-url" name="postUrl" type="text" class="input"
+      placeholder="URL..."
+      [(ngModel)]="post.url">
+  </div>
+
+  <div class="form-input" *ngIf="post.kind === 'self'">
+    <label for="post-text" class="label">Text</label>
+    <textarea id="post-text" name="postText" class="textarea"
+      [(ngModel)]="post.text">
+    </textarea>
+  </div>
+
+  <div class="form-errors" *ngIf="errors.length > 0">
+    <span *ngFor="let error of errors" class="error">
+      {{ error.reason }}
+    </span>
+  </div>
+
+  <div class="form-controls">
+    <div class="form-control">
+      <submit-button
+        [isDisabled]="postForm.form.pristine || postForm.form.invalid"
+        [isLoading]="loadingSubmission">
+        Submit
+      </submit-button>
+    </div>
+    <div class="form-control">
+      <button type="button" class="button secondary" (click)="emitCancel()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</form>
+
+<div class="form-success" *ngIf="submissionSuccess">
+  <p>Your post was successfully submitted!</p>
+  <div class="controls">
+    <a class="button" [routerLink]="postLink">
+      Go to post
+    </a>
+    <button type="button" class="button secondary" (click)="emitCancel()">
+      Close
+    </button>
+  </div>
+</div>

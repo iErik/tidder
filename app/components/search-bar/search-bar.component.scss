@@ -1,0 +1,77 @@
+@import '~styles/helpers/module';
+
+//  Variables
+//  ---------
+
+$search-bar-border-radius: 12px;
+$search-input-font-size: 1em;
+
+//  Object Structure
+//  ----------------
+
+:host {
+  display: flex;
+  align-items: center;
+
+  border-width: 1px;
+  border-style: solid;
+  border-radius: $search-bar-border-radius;
+
+  @include themify {
+    @if (map-get($theme, 'isDark')) {
+      @if (background-color('light')) {
+        border-color: background-color('light');
+      } @else {
+        border-color: lighten(background-color(), 9%);
+      }
+    } @else {
+      border-color: darken(background-color(), 15%);
+    }
+  }
+
+  padding: 2.5px 10px;
+
+  .btn-trigger {
+    order: 0;
+
+    @include icon {
+      font-size: .625em;
+      @include themify { color: rgba(foreground-color(), 0.3); }
+      transition: color 350ms;
+    }
+  }
+
+  .search-bar-input {
+    order: 1;
+
+    font-size: .79375em;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+
+    padding: 0 10px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+
+    width: 100px;
+
+    transition: width 150ms ease-out;
+
+    &:focus, &:not([ng-reflect-model=""]) {
+      width: 140px;
+      transition: width 200ms ease-in;
+
+      @include themify {
+        & ~ .btn-trigger {
+          @include icon { color: foreground-color() !important; }
+        }
+      }
+    }
+
+    @include themify {
+      &::placeholder {
+        color: rgba(foreground-color(), 0.3);
+      }
+    }
+  }
+}

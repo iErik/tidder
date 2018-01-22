@@ -1,0 +1,69 @@
+@import '~styles/helpers/module';
+
+//  Variables
+//  ---------
+
+$btn-upvote-color: #00AA4A;
+$btn-downvote-color: #F53334;
+
+//  Object Structure
+//  ----------------
+
+:host {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  .wrapper-score {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: auto;
+
+    .score {
+      position: absolute;
+      align-self: center;
+
+      font-size: 1em;
+      font-weight: 600;
+
+      @include themify {
+        @if (foreground-color('dark')) {
+          color: foreground-color('dark');
+        } @else {
+          color: darken(foreground-color(), 15.3%);
+        }
+      }
+
+      -webkit-font-smoothing: antialiased;
+    }
+  }
+
+  .btn-vote {
+    display: flex;
+    justify-content: center;
+
+    &:first-child { margin-bottom: 1.2em; }
+    &:last-child { margin-top: 1.25em; }
+
+    @include themify {
+      @include icon {
+        font-size: .87em;
+
+        @if (foreground-color('dark')) {
+          color: foreground-color('dark');
+        } @else {
+          color: darken(foreground-color(), 15.3%);
+        }
+      }
+    }
+
+    &.upvote.is-active { @include icon { color: $btn-upvote-color; } }
+    &.downvote.is-active { @include icon { color: $btn-downvote-color; } }
+  }
+}

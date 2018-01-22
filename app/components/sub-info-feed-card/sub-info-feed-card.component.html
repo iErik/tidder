@@ -1,0 +1,48 @@
+<div class="card-thumbnail">
+  <span
+   [ngClass]="{ 'thumbnail': 'true', 'is-static': !subInfo.icon_img }"
+   [ngStyle]="{ 'background-image': 'url(' + subInfo.icon_img + ')' }"
+  >
+    <i *ngIf="!subInfo.icon_img" class="icn"></i>
+  </span>
+</div>
+
+<div class="card-contents">
+  <div class="card-title">
+    <a [routerLink]="subInfo.url" class="card-link">
+      {{ subInfo.title }}
+    </a>
+  </div>
+
+  <div class="card-meta">
+    <p class="meta">
+      <span class="meta-link">
+        <a [routerLink]="subInfo.url" class="link bold-text">
+          {{ subInfo.display_name_prefixed }}
+        </a>
+      </span>
+      <span class="meta-info">
+        {{ subscriberCount }}
+        subscribers, a community for
+        {{ relativeCreationDate }}
+      </span>
+    </p>
+  </div>
+
+  <div class="card-description">
+    <p class="description">
+      {{ subInfo.public_description }}
+    </p>
+  </div>
+</div>
+
+<div class="card-actions">
+  <div class="card-action">
+    <button
+      (click)="subscribeUser()"
+      [ngClass]="{ 'btn-action': true, 'is-checked': subInfo.user_is_subscriber }">
+
+      <i [ngClass]="subInfo.user_is_subscriber ? 'icn-check' : 'icn-plus'"></i>
+    </button>
+  </div>
+</div>

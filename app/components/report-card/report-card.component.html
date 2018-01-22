@@ -1,0 +1,80 @@
+<div class="card-title">
+  <p class="title">We're sorry something's wrong. How can we help?</p>
+</div>
+
+<form class="form-group"
+  [formGroup]="reportForm"
+  (ngSubmit)="submitForm()"
+  *ngIf="!loadingRules && !reportSubmitted">
+
+  <div class="form-inputs" [hidden]="isRuleReason">
+    <div class="form-input" *ngIf="subRules.length > 0">
+      <label class="wrapper-input">
+        <input type="radio" class="input-radio" formControlName="reason" value="subRules">
+        <p class="label">It breaks {{ thing.subreddit_name_prefixed }}'s rules</p>
+      </label>
+    </div>
+
+    <div class="form-input">
+      <label class="wrapper-input">
+        <input type="radio" class="input-radio" formControlName="reason"
+          [value]="['site_reason', 'Spam']">
+        <p class="label">This is spam</p>
+      </label>
+    </div>
+
+    <div class="form-input">
+      <label class="wrapper-input">
+        <input type="radio" class="input-radio" formControlName="reason"
+          [value]="['site_reason', 'Threatening, harassing, or inciting violence']">
+        <p class="label">It threatens or incites violence or physical harm</p>
+      </label>
+    </div>
+
+    <div class="form-input">
+      <label class="wrapper-input">
+        <input type="radio" class="input-radio" formControlName="reason"
+          [value]="['site_reason', 'Personal and confidential information']">
+        <p class="label">
+          This reveals private and confidential information bout someone
+        </p>
+      </label>
+    </div>
+  </div>
+
+  <div class="form-inputs" [hidden]="!isRuleReason">
+    <div class="form-input" *ngFor="let rule of subRules">
+      <label class="wrapper-input">
+        <input type="radio" class="input-radio" formControlName="reason"
+          [value]="['rule_reason', rule.violation_reason]">
+        <p class="label">{{ rule.short_name }}</p>
+      </label>
+    </div>
+  </div>
+
+  <div class="form-controls">
+    <div class="form-control">
+      <submit-button
+        [isDisabled]="reportForm.pristine || reportForm.invalid"
+        [isLoading]="loadingSubmission">
+        {{ reportForm.get('reason').value === 'subRules' ? 'Next' : 'Submit' }}
+      </submit-button>
+    </div>
+    <div class="form-control">
+      <button type="button" class="button secondary" (click)="rollbackForm()">
+        {{ isRuleReason ? 'Back' : 'Cancel' }}
+      </button>
+    </div>
+  </div>
+</form>
+
+<div class="form-success" *ngIf="reportSubmitted">
+  <p class="">We've submitted your report. Thanks for letting us know!</p>
+  <button type="button" class="button secondary" (click)="emitCancel()">
+    Close
+  </button>
+</div>
+
+<div class="wrapper-spinner" *ngIf="loadingRules">
+  <div class="bar-spinner"></div>
+</div>

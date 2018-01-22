@@ -1,0 +1,149 @@
+@import '~styles/helpers/module';
+
+//  Variables
+//  ---------
+
+//  Object Structure
+//  ----------------
+
+:host {
+  margin: 15px 0 0;
+  flex-grow: 1;
+
+  .wrapper-comment-editor {
+    margin-top: -18px;
+    margin-bottom: 20px;
+  }
+
+  .comments-controls {
+    display: flex;
+    justify-content: space-between;
+
+    max-width: 1200px;
+    min-width: 500px;
+
+    padding: 0 5px;
+    margin: 0 8.6767895879%;
+    margin-bottom: 20px;
+
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+
+    @include themify {
+      @if (map-get($theme, 'isDark')) {
+        @if (background-color('light')) {
+          border-bottom-color: background-color('light');
+        } @else {
+          border-bottom-color: lighten(background-color(), 9%);
+        }
+      } @else {
+        border-bottom-color: darken(background-color(), 15%);
+      }
+    }
+
+    .comments-meta {
+      display: flex;
+      align-items: center;
+
+      .meta {
+        font-size: .59375rem;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+
+        @include themify { color: rgba(foreground-color(), 0.65); }
+
+        -webkit-font-smoothing: antialiased;
+      }
+
+      @include icon {
+        display: flex;
+        margin-right: 5px;
+
+        font-size: .59375rem;
+        @include themify { color: rgba(foreground-color(), 0.65); }
+      }
+    }
+
+    .comments-modes {
+      display: flex;
+
+      .comments-mode {
+        margin-left: 15px;
+        padding-bottom: 5px;
+
+        .link-btn {
+          font-size: .59375rem;
+          font-weight: 600;
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
+          @include themify { color: rgba(foreground-color(), 0.65); }
+
+          -webkit-font-smoothing: antialiased;
+
+          &:hover { text-decoration: none; }
+        }
+
+        @include themify { &.active .link-btn { color: foreground-color(); } }
+      }
+    }
+  }
+
+  .wrapper-feed-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 51px 0 49px 0;
+
+    .feed-spinner { font-size: .875rem; }
+  }
+
+  .comments-feed-entries {
+    padding: 0 8.6767895879%;
+
+    margin:  0;
+    list-style-type: none;
+  }
+
+  .comments-feed-entry {
+    margin:  0px 0px 9px;
+    padding: 0;
+
+  }
+
+  // TODO: In need of a rewrite
+  .comments-morechildren {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 30px 5% 20px 5%;
+    padding-top: 20px;
+
+    border-top-width: 1px;
+    border-top-style: solid;
+
+    @include themify {
+      @if (map-get($theme, 'isDark')) {
+        @if (background-color('light')) {
+          border-top-color: background-color('light');
+        } @else {
+          border-top-color: lighten(background-color(), 9%);
+        }
+      } @else {
+        border-top-color: darken(background-color(), 15%);
+      }
+    }
+
+    .btn-load {
+      font-size: .6875rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+
+      padding: .625em 1.875em;
+      width: auto;
+    }
+  }
+}
