@@ -1,0 +1,94 @@
+.container {
+  @include flex-grid-row(collapse, none);
+
+  &.inner { @include flex-grid-column; }
+  &.stack { flex-flow: column nowrap !important; }
+  &.full-size { min-height: 100vh; min-width: 100vw; }
+  &.collapse-self { padding-right: 0; padding-left: 0; }
+  &.has-gutters { @include grid-column-gutter; }
+
+  > .container:not(.has-gutters) { @include grid-col-collapse; }
+
+  &.collapse {
+    > .column, .columns, .container { @include grid-col-collapse; }
+    > .column > .row, .columns > .row, .container > .row, > .row, > .container {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+}
+
+.root-container {
+  @include themify {
+    background-color: background-color();
+    color: foreground-color();
+  }
+}
+
+.ng-outlet {
+  width: 100%;
+  height: 100%;
+
+  > ng-component {
+    @extend .container;
+    @extend .align-start;
+
+    // This value must match the height of the TopbarComponent,
+    // of course, it would be much better if we didn't have to
+    // hardcore this value directly in here.
+    padding-top: 45px;
+
+    // We're hardcoding the Topbar height in here, which is absolutely
+    // not good
+    box-sizing: content-box;
+    width: 100vw;
+    height: calc(100vh - 45px);
+  }
+}
+
+.overlay-container {
+  display: flex;
+  flex-direction: column;
+
+  position: fixed;
+  z-index:  200;
+  top:      0px;
+  left:     0px;
+
+  width:  100vw;
+  height: 100vh;
+
+  overflow-y: scroll;
+
+  background-color: rgba(30, 30, 30, 0.82);
+
+  .btn-close {
+    position: fixed;
+    right:    30px;
+    top:      calc(20px + 45px);
+
+    @include icon {
+      font-size: 1.125rem;
+      @include themify { color: foreground-color(); }
+    }
+  }
+
+  .overlay-contents {
+    display: flex;
+    flex-grow: 1;
+    align-items: flex-start;
+    justify-content: center;
+
+    margin-top: 45px;
+  }
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}

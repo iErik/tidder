@@ -1,0 +1,104 @@
+//  Theme Modifiers
+//  ---------------
+
+.background-base {
+  @include themify { background-color: background-color(); }
+}
+
+.background-light {
+  @include themify { backgrund-color: background-color('light'); }
+}
+
+.background-dark {
+  @include themify { background-color: background-color('dark'); }
+}
+
+//  Flexbox Modifiers
+//  -----------------
+
+.flex-box { display: flex; }
+
+.content-start {
+  align-content: flex-start;
+}
+
+.content-end {
+  align-content: flex-end;
+}
+
+.align-start {
+  align-items: flex-start;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.align-end {
+  align-items: flex-end;
+}
+
+.justify-start {
+  justify-content: flex-start;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-edges {
+  justify-content: space-between;
+}
+
+.justify-spaced {
+  justify-content: space-around;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+
+//  Grid Modifiers
+//  --------------
+
+.collapse-self {
+  padding: 0 !important;
+}
+
+.no-scroll {
+  overflow: hidden;
+}
+
+//  Text Modifiers
+//  --------------
+
+.type-decorative {
+  font-family: $font-decorative !important;
+}
+
+.sup-text {
+  font-size: 1em;
+  font-weight: 600;
+
+  text-transform: uppercase;
+  letter-spacing: 1.7px;
+}
+
+//  Other
+//  -----
+
+.hidden, [hidden] {
+  display: none !important;
+}
+
+.scrollable {
+  overflow: scroll;
+}
+
+.bold-text {
+  font-weight: 600 !important;
+}
+
+.normal-text {
+  font-weight: 400 !important;
+}

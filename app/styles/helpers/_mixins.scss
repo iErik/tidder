@@ -1,0 +1,86 @@
+$theme: null;
+
+@mixin themify($scope: 'both', $themes: $appThemes) {
+  @each $theme-name, $colors in $themes {
+    @if $scope == 'local' {
+      &.theme-#{$theme-name} {
+         $theme: $colors !global;
+
+         @content;
+
+         $theme: null !global;
+       }
+    } @else if $scope == 'parent' {
+      .theme-#{$theme-name} & {
+         $theme: $colors !global;
+
+         @content;
+
+         $theme: null !global;
+       }
+    } @else if $scope == 'both' {
+      .theme-#{$theme-name} &,
+      &.theme-#{$theme-name} {
+         $theme: $colors !global;
+
+         @content;
+
+         $theme: null !global;
+       }
+    }
+  }
+}
+
+@function primary-color($key: 'base') {
+  @if map-has-key(map-get($theme, 'primary'), $key) {
+    @return map-get(map-get($theme, 'primary'), $key);
+  } @else {
+    @return false;
+  }
+}
+
+@function secondary-color($key: 'base') {
+  @if map-has-key(map-get($theme, 'secondary'), $key) {
+    @return map-get(map-get($theme, 'secondary'), $key);
+  } @else {
+    @return false;
+  }
+}
+
+@function accent-color($key: 'base') {
+  @if map-has-key(map-get($theme, 'accent'), $key) {
+    @return map-get(map-get($theme, 'accent'), $key);
+  } @else {
+    @return false;
+  }
+}
+
+@function background-color($key: 'base') {
+  @if map-has-key(map-get($theme, 'background'), $key) {
+    @return map-get(map-get($theme, 'background'), $key);
+  } @else {
+    @return false;
+  }
+}
+
+@function foreground-color($key: 'base') {
+  @if map-has-key(map-get($theme, 'foreground'), $key) {
+    @return map-get(map-get($theme, 'foreground'), $key);
+  } @else {
+    @return false;
+  }
+}
+
+@function type-scale($scale) {
+  @return map-get($type-scale, $scale);
+}
+
+@mixin icon {
+  .fa,
+  .icn,
+  [data-icon],
+  [class^="icn-"],
+  [class*=" icn-"] {
+    @content;
+  }
+}
