@@ -1,0 +1,26 @@
+{ "clientId": "SQQZtXuPBE9H8A"
+, "baseURI": "https://www.reddit.com"
+, "authBaseURI": "https://oauth.reddit.com"
+, "loginUrl": "https://www.reddit.com/api/v1/authorize"
+, "logoutUrl": "#"
+, "redirectUri": "http://localhost"
+, "enableOidc": false
+, "requireHttps": false
+, "scope":
+    [ "read"
+    , "edit"
+    , "vote"
+    , "save"
+    , "flair"
+    , "submit"
+    , "report"
+    , "account"
+    , "history"
+    , "identity"
+    , "wikiread"
+    , "modconfig"
+    , "subscribe"
+    , "mysubreddits"
+    , "privatemessages"
+    ]
+}
