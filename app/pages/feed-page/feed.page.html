@@ -1,0 +1,45 @@
+<div class="collapse inner container align-start">
+  <div class="overlay-container" *ngIf="showOverlay">
+    <button type="button" class="btn-close" (click)="closeOverlay()">
+      <i class="icn-close"></i>
+    </button>
+
+    <div class="overlay-contents">
+      <!-- As much as it pains me to have to hardcode strings
+          in a template like that, I still haven't found a better
+          way to handle that.
+      -->
+
+      <post-submit
+        *ngIf="overlayData.type === 'submit'"
+        (onCancel)="closeOverlay()">
+      </post-submit>
+
+      <report-card
+        *ngIf="overlayData.type === 'report'"
+        [thing]="overlayData.thing"
+        (onCancel)="closeOverlay()">
+      </report-card>
+
+      <share-post-card
+        *ngIf="overlayData.type === 'share'"
+        [post]="overlayData.thing">
+      </share-post-card>
+    </div>
+  </div>
+
+  <div class="flex-column small-5 columns">
+    <post-feed
+      [currentPost]="currentPost"
+      (onFeedAction)="handleFeedAction($event)">
+    </post-feed>
+  </div>
+
+  <div class="small-7 columns">
+    <post-viewer
+      *ngIf="hasPost()"
+      [currentPost]="currentPost"
+      (onFeedAction)="handleFeedAction($event)">
+    </post-viewer>
+  </div>
+</div>
