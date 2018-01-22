@@ -1,0 +1,13 @@
+*.DS_STORE
+*.cache
+*.log
+*.db
+
+.DS_STORE
+.cache
+.bundle
+.sass-cache
+node_modules
+node_modules/
+release
+release/
