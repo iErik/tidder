@@ -1,0 +1,141 @@
+@import '~styles/helpers/module';
+
+//  Variables
+//  ---------
+
+//  Object Structure
+//  ----------------
+
+:host {
+  -webkit-app-region: drag;
+
+  display: flex;
+  justify-content: space-between;
+
+  position: fixed;
+  z-index: 300;
+  top: 0px;
+  left: 0px;
+
+  width: 100%;
+  height: $topbar-height;
+
+  padding: 0 25px;
+
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+
+  @include themify {
+    background-color: background-color();
+    color: foreground-color();
+
+    @if (map-get($theme, 'isDark')) {
+      @if (background-color('light')) {
+        border-bottom-color: background-color('light');
+      } @else {
+        border-bottom-color: lighten(background-color(), 9%);
+      }
+    } @else {
+      border-bottom-color: darken(background-color(), 15%);
+    }
+
+    @if (map-get($theme, 'topbarShadow')) {
+      box-shadow: 0px 2px 12px -3px rgba(0, 0, 0, 0.25);
+    }
+  }
+
+  .section {
+    display: flex;
+    align-items: center;
+  }
+
+  .topbar-controls {
+    z-index: 20;
+
+    display: flex;
+
+    .topbar-control {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:not(:last-child) { margin-right: 15px; }
+
+      @include icon {
+        display: flex;
+        font-size: 1.13em;
+      }
+    }
+  }
+
+  .page-label {
+    position: absolute;
+    width: calc(100% - 50px);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-grow: 1;
+
+    .label {
+      font-weight:    400;
+      font-size:      0.875rem;
+      letter-spacing: 3.5px;
+      line-height:    $topbar-height;
+      @include themify { color: foreground-color() }
+
+      cursor: default;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+  }
+
+  .user-links {
+    z-index: 20;
+
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+
+    .links { display: flex; }
+
+    .login-link {
+      &:not(:last-child) { margin-right: 25px; }
+
+      .link-btn {
+        text-transform: uppercase;
+        font-weight:    600;
+        font-size:      0.6875em;
+        line-height:    $topbar-height;
+        letter-spacing: 0.3px;
+        @include themify { color: primary-color(); }
+
+        -webkit-font-smoothing: antialiased;
+
+        &:hover { text-decoration: none; }
+      }
+    }
+
+    .user-meta {
+      margin-right: 25px;
+
+      p {
+        font-weight: 600;
+        font-size:   0.6875em;
+        line-height: $topbar-height;
+        @include themify { color: primary-color(); }
+
+        -webkit-font-smoothing: antialiased;
+        margin: 0;
+      }
+    }
+  }
+
+  .wrapper-window-controls {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    margin-left: 15px;
+  }
+}
