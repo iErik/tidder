@@ -57,7 +57,7 @@ $search-input-font-size: 1em;
 
     transition: width 150ms ease-out;
 
-    &:focus, &:not([ng-reflect-model=""]) {
+    &:focus, &.is-active {
       width: 140px;
       transition: width 200ms ease-in;
 

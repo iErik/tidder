@@ -2,7 +2,7 @@
   [(ngModel)]="searchQuery"
   [placeholder]="inputPlaceholder"
   type="text"
-  class="search-bar-input"
+  [ngClass]="{ 'search-bar-input': true, 'is-active': searchQuery.trim() }"
 >
 <button class="btn-unstyle btn-trigger">
   <i class="icn-search"></i>
