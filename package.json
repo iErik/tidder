@@ -22,7 +22,6 @@
   "build": {
     "productName": "Tidder",
     "appId": "org.isidore.Tidder",
-    "electronVersion": "1.7.10",
     "directories": {
       "buildResources": "resources",
       "output": "release",
@@ -34,16 +33,7 @@
       "main.js",
       "package.json",
       "yarn.lock"
-    ],
-    "mac": {
-      "target": "zip"
-    },
-    "win": {
-      "target": ["zip", "portable", "nsis"]
-    },
-    "linux": {
-      "target": ["AppImage", "snap", "deb", "rpm", "pacman", "tar.gz", "dir"]
-    }
+    ]
   },
   "devDependencies": {
     "@angular-devkit/build-optimizer": "^0.0.38",
