@@ -11,5 +11,5 @@
   flex-direction: column;
 
   height: calc(100vh - 45px);
-  overflow: scroll;
+  overflow-y: auto;
 }
