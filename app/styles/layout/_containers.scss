@@ -19,6 +19,8 @@
 }
 
 .root-container {
+  &:not(.darwin) { border-radius: $app-border-radius; }
+
   @include themify {
     background-color: background-color();
     color: foreground-color();
@@ -33,16 +35,11 @@
     @extend .container;
     @extend .align-start;
 
-    // This value must match the height of the TopbarComponent,
-    // of course, it would be much better if we didn't have to
-    // hardcore this value directly in here.
-    padding-top: 45px;
+    padding-top: $topbar-height;
 
-    // We're hardcoding the Topbar height in here, which is absolutely
-    // not good
     box-sizing: content-box;
     width: 100vw;
-    height: calc(100vh - 45px);
+    height: calc(100vh - $topbar-height);
   }
 }
 
@@ -65,7 +62,7 @@
   .btn-close {
     position: fixed;
     right:    30px;
-    top:      calc(20px + 45px);
+    top:      calc(20px + $topbar-height);
 
     @include icon {
       font-size: 1.125rem;
@@ -79,7 +76,7 @@
     align-items: flex-start;
     justify-content: center;
 
-    margin-top: 45px;
+    margin-top: $topbar-height;
   }
 }
 

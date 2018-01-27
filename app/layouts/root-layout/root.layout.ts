@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 
-const settings = require('electron-settings');
-
 import { UserService } from 'services/user-service/user.service';
 
 import { ISubscription } from 'rxjs/Subscription';
+
+const settings = require('electron-settings');
+const os = require('os');
 
 @Component({
   selector: 'root-layout',
@@ -12,6 +13,7 @@ import { ISubscription } from 'rxjs/Subscription';
 })
 
 export class RootLayout implements OnInit, OnDestroy {
+  public platform:string = os.platform();
   public showSidebar = false;
   public updatingState = true;
 
@@ -25,8 +27,6 @@ export class RootLayout implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    console.log("settings: ", settings);
-
     this.userStateSubscription = this.user.updatingState$
       .subscribe((isUpdating) => {
         this.zone.run(() => {
@@ -39,13 +39,11 @@ export class RootLayout implements OnInit, OnDestroy {
       });
 
     this.appThemeObserver = settings.watch('appTheme', newTheme => {
-      console.log("Changes to appTheme detected")
       this.zone.run(() => this.cdr.detectChanges());
     });
   }
 
   ngOnDestroy() {
-    console.log("RootLayout.OnDestroy")
     this.userStateSubscription.unsubscribe();
     this.appThemeObserver.dispose();
   }
