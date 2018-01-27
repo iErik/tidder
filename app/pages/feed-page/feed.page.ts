@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, DoCheck, OnDestroy, ChangeDetectorRef  } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 
 import { FeedService } from 'services/feed-service/feed.service';
@@ -30,12 +30,10 @@ export class FeedPage implements OnInit, OnDestroy {
     private user: UserService,
 
     private route: ActivatedRoute,
-    private router: Router,
-    private cdr: ChangeDetectorRef
+    private router: Router
   ) { }
 
   ngOnInit() {
-    console.log("FeedPage.OnInit")
     this.routerSubscription = this.router.events
       .skip(1)
       .filter(ev => ev instanceof NavigationEnd)
@@ -65,7 +63,6 @@ export class FeedPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    console.log("FeedPage.Destroy");
     this.routerSubscription.unsubscribe();
   }
 
