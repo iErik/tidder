@@ -7,20 +7,19 @@
 //  ----------------
 
 :host {
-  -webkit-app-region: drag;
-
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: center;
 
   position: fixed;
   z-index: 300;
   top: 0px;
   left: 0px;
 
+  -webkit-app-region: drag;
+
   width: 100%;
   height: $topbar-height;
-
-  padding: 0 25px;
 
   border-bottom-width: 1px;
   border-bottom-style: solid;
@@ -45,8 +44,18 @@
   }
 
   .section {
+    position: absolute;
+    z-index: 300;
+
+    height: 100%;
+
     display: flex;
     align-items: center;
+
+    -webkit-app-region: no-drag;
+
+    &.section-left { left: 0px; padding-left: 25px; }
+    &.section-right { right: 0px; padding-right: 25px; }
   }
 
   .topbar-controls {
@@ -69,14 +78,12 @@
   }
 
   .page-label {
-    position: absolute;
-    width: calc(100% - 50px);
-
     display: flex;
     align-items: center;
     justify-content: center;
 
-    flex-grow: 1;
+    -webkit-app-region: drag;
+    user-select: none;
 
     .label {
       font-weight:    400;
@@ -138,4 +145,9 @@
     height: 100%;
     margin-left: 15px;
   }
+}
+
+:not(.darwin) :host {
+  border-top-left-radius: $app-border-radius;
+  border-top-right-radius: $app-border-radius;
 }
