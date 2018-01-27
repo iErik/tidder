@@ -20,6 +20,20 @@
     position: relative;
     z-index: 500;
 
+    &:not(.darwin) .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      height: 100%;
+      cursor: pointer;
+
+      font-size: 14.5px;
+      &:nth-child(2) { margin: 0 25px; }
+
+      @include icon { @include themify { color: foreground-color(); } }
+    }
+
     &.darwin {
       .btn {
         display: flex;
