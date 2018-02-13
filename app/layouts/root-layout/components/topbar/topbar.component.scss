@@ -146,8 +146,3 @@
     margin-left: 15px;
   }
 }
-
-:not(.darwin) :host {
-  border-top-left-radius: $app-border-radius;
-  border-top-right-radius: $app-border-radius;
-}

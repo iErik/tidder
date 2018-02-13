@@ -5,7 +5,6 @@ import { UserService } from 'services/user-service/user.service';
 import { ISubscription } from 'rxjs/Subscription';
 
 const settings = require('electron-settings');
-const os = require('os');
 
 @Component({
   selector: 'root-layout',
@@ -13,7 +12,6 @@ const os = require('os');
 })
 
 export class RootLayout implements OnInit, OnDestroy {
-  public platform:string = os.platform();
   public showSidebar = false;
   public updatingState = true;
 

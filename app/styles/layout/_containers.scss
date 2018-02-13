@@ -19,8 +19,6 @@
 }
 
 .root-container {
-  &:not(.darwin) { border-radius: $app-border-radius; }
-
   @include themify {
     background-color: background-color();
     color: foreground-color();
@@ -62,7 +60,7 @@
   .btn-close {
     position: fixed;
     right:    30px;
-    top:      calc(20px + $topbar-height);
+    top:      calc(20px + #{$topbar-height});
 
     @include icon {
       font-size: 1.125rem;

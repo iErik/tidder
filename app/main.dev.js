@@ -55,7 +55,6 @@ async function openMainWindow() {
 
     show: false,
     frame: false,
-    transparent: process.platform === 'darwin' ? false : true
   });
 
   mainWindow.loadURL(entryFile);
@@ -69,7 +68,7 @@ async function openMainWindow() {
     mainWindow = null;
   });
 
-  //if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === 'development') {
     mainWindow.webContents.on('context-menu', (e, props) => {
       const { x, y } = props;
 
@@ -80,11 +79,15 @@ async function openMainWindow() {
         }
       }]).popup(mainWindow);
     });
-  //}
+  }
 }
 
 app.on('ready', openMainWindow);
-app.on('activate', openMainWindow);
+
+app.on('activate', () => {
+  if (mainWindow === null)
+    openMainWindow()
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin')
