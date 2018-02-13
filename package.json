@@ -1,9 +1,10 @@
 {
   "name": "tidder",
-  "description": "An awesome multi-platform reddit client",
+  "description": "An multi-platform reddit client built with web technologies",
+  "repository": "iErik/tidder",
   "productName": "Tidder",
-  "version": "1.0.0",
-  "license": "GPL-2.0",
+  "version": "1.0.0-beta.1",
+  "license": "GPL-2.0-only",
   "author": {
     "name": "Erik Isidore",
     "email": "ericssonico@protonmail.ch",
@@ -21,6 +22,7 @@
   },
   "build": {
     "productName": "Tidder",
+    "artifactName": "${productName} Beta.${ext}",
     "appId": "org.isidore.Tidder",
     "directories": {
       "buildResources": "resources",
@@ -33,7 +35,31 @@
       "main.js",
       "package.json",
       "yarn.lock"
-    ]
+    ],
+    "mac": {
+      "category": "public.app-category.social-networking",
+      "target": "zip"
+    },
+    "linux": {
+      "category": "Feed",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        },
+        {
+          "target": "deb",
+          "arch": ["x64"]
+        },
+        {
+          "target": "rpm",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "win": {
+      "target": "portable"
+    }
   },
   "devDependencies": {
     "@angular-devkit/build-optimizer": "^0.0.38",
