@@ -1,6 +1,5 @@
 import {
   Component,
-  DoCheck,
   Input,
   Output,
   EventEmitter,
