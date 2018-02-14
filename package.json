@@ -3,7 +3,7 @@
   "description": "An multi-platform reddit client built with web technologies",
   "repository": "iErik/tidder",
   "productName": "Tidder",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "license": "GPL-2.0-only",
   "author": {
     "name": "Erik Isidore",
