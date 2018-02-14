@@ -13,7 +13,7 @@
 
   // TODO: remove hardcoded topbar-height, maybe move the $topbar-height
   // variable to a top-level module.
-  height: calc(100vh - 45px);
+  height: calc(100vh - #{$topbar-height});
 
   border-right-width: 1px;
   border-right-style: solid;
@@ -71,4 +71,8 @@
       margin: 0;
     }
   }
+}
+
+.root-container:not(.darwin) :host {
+  height: calc(100vh - #{$topbar-height + ($win32-border-width * 2)});
 }

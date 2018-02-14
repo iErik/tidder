@@ -19,6 +19,38 @@
 }
 
 .root-container {
+  &:not(.darwin) {
+    width: 100vw;
+    height: 100vh;
+
+    border-width: 1px;
+    border-style: solid;
+
+    @include themify {
+
+      // This probably isn't ideal, maybe we should have a way
+      // to allow themes to explicitly define their own border color
+      @if (map-get($theme, 'isDark')) {
+        border-color: rgba(foreground-color(), 0.3);
+      } @else {
+        border-color: rgba(foreground-color(), 0.6);
+      }
+    }
+
+    .container.full-size {
+      min-width: calc(100vw - #{$win32-border-width * 2});
+      min-height: calc(100vh - #{$win32-border-width * 2});
+    }
+
+    .overlay-container {
+      width: calc(100vw - #{$win32-border-width * 2});
+      height: calc(100vw - #{$win32-border-width * 2});
+
+      top: $win32-border-width;
+      left: $win32-border-width;
+    }
+  }
+
   @include themify {
     background-color: background-color();
     color: foreground-color();
@@ -37,7 +69,7 @@
 
     box-sizing: content-box;
     width: 100vw;
-    height: calc(100vh - $topbar-height);
+    height: calc(100vh - #{$topbar-height});
   }
 }
 
@@ -53,7 +85,7 @@
   width:  100vw;
   height: 100vh;
 
-  overflow-y: scroll;
+  overflow-y: auto;
 
   background-color: rgba(30, 30, 30, 0.82);
 
@@ -77,6 +109,10 @@
     margin-top: $topbar-height;
   }
 }
+
+
+//  Flex Containers
+//  ---------------
 
 .flex-column {
   display: flex;

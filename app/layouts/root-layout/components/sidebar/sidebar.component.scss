@@ -174,3 +174,8 @@ $display-thumbnails: false;
     }
   }
 }
+
+.root-container:not(.darwin) :host {
+  height: calc(100% - #{$topbar-height + $win32-border-width});
+  &.is-active { left: $win32-border-width; }
+}

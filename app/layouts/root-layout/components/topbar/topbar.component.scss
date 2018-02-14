@@ -146,3 +146,10 @@
     margin-left: 15px;
   }
 }
+
+.root-container:not(.darwin) :host {
+  width: calc(100% - #{$win32-border-width * 2});
+
+  top: $win32-border-width;
+  left: $win32-border-width;
+}
