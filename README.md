@@ -3,9 +3,21 @@ Tidder is an open-source Reddit Client built entirely with web technologies,
 the project is currently under beta development phase and it's available for
 download for Windows, macOS and Linux.
 
+If you're interesed, you can also check out the entire design process for this
+project on [this GitLab repo](https://gitlab.com/Isidore/tidder-mockup), there
+you can find the Sketch project file, icons, fonts and everything that was
+used during the design process of this project.
+
+Much of this project is based on an earlier project that I ended up abandoning
+in favor of the Tidder app, if you're curious about the evolution of the Tidder
+project, you can also take a look at the
+[design project](https://gitlab.com/Isidore/reddit-redesign-mockup) and the
+actual (kind of) working [code](https://gitlab.com/Isidore/reddit-redesign) of
+this earlier concept of the project on my GitLab account.
+
 ## Building
 
-### Build Requirements
+### Requirements
 
 - Node.js 6.x or later
 - npm 3.10.x or later
@@ -103,3 +115,5 @@ npm run build:pack:multi
 ```
 
 ## Screenshot
+
+![Application Screenshot](/resources/screenshot.png?raw=true)
