@@ -1,7 +1,7 @@
 ## Tidder
-Tidder is an open-source Reddit Client built entirely with web technologies,
-the project is currently under beta development phase and it's available for
-download for Windows, macOS and Linux.
+Tidder (reddit backwards) is an open-source Reddit Client built entirely with
+web technologies, the project is currently under beta development phase and
+it's available for download for Windows, macOS and Linux.
 
 If you're interesed, you can also check out the entire design process for this
 project on [this GitLab repo](https://gitlab.com/Isidore/tidder-mockup), there
@@ -98,7 +98,7 @@ You'll also need to install the rpm package:
 sudo apt-get install --no-install-recommends -y rpm
 ```
 
-Replace `apt-get` with your distributions's package manager.
+Replace `apt-get` with your distribution's package manager.
 
 #### Windows
 
