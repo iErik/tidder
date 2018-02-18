@@ -1,5 +1,5 @@
 ## Tidder
-Tidder (reddit backwards) is an open-source Reddit Client built entirely with
+Tidder (reddit backwards) is an open-source Reddit client built entirely with
 web technologies, the project is currently under beta development phase and
 it's available for download for Windows, macOS and Linux.
 
@@ -25,8 +25,8 @@ this earlier concept of the project on my GitLab account.
 
 ### Building for development
 
-To run the development version of the application localy you can simply run
-in a terminal:
+To run the development version of the application localy you can simply run the
+following command in a terminal:
 
 ```bash
 npm run dev
@@ -39,7 +39,8 @@ the application's assets are re-compiled and re-sent to the running application
 whenever any change is made to app's code. This is called
 [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/),
 any changes made to the application's code should reflect in the running app
-window.
+window, but in some cases this may cause Angular 2 change detection to break
+for some reason.
 
 ### Buidling for production
 
@@ -99,6 +100,12 @@ sudo apt-get install --no-install-recommends -y rpm
 ```
 
 Replace `apt-get` with your distribution's package manager.
+
+After that you can run:
+
+```bash
+npm run build:pack:multi
+```
 
 #### Windows
 
