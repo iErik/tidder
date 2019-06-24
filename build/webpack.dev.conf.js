@@ -30,25 +30,13 @@ module.exports = merge(baseWebpackConfig, {
   module: {
     rules:
     [
-      { test: /\.ts$/
-      , use:
-          [ { loader: '@angularclass/hmr-loader' }
-          , { loader: 'awesome-typescript-loader'
-            , options: { configFileName: 'tsconfig.webpack.json' }
-            }
-          , { loader: 'angular2-template-loader' }
-          ]
-      , include: [ path.join(projectRoot, 'app') ]
-      , exclude: [/\.(spec|e2e)\.ts$/]
-      }
-      ,
       { test: /\.(scss|css)$/
       , use:
           [ { loader: 'style-loader' }
           , { loader: 'css-loader' }
           , { loader: 'postcss-loader'
             , options:
-              { plugins: [ autoprefixer({ browsers: ['electron 1.7'] }) ]
+              { plugins: [ autoprefixer({ browsers: ['electron 5.0'] }) ]
               , sourceMap: config.dev.cssSourceMap
               , sourceMapContents: false
               }

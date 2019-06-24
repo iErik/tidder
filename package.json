@@ -3,7 +3,7 @@
   "description": "An multi-platform reddit client built with web technologies",
   "repository": "iErik/tidder",
   "productName": "Tidder",
-  "version": "1.0.0-beta.2",
+  "version": "2.0.0-alpha.1",
   "license": "GPL-2.0-only",
   "author": {
     "name": "Erik Isidore",
@@ -45,15 +45,21 @@
       "target": [
         {
           "target": "AppImage",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "deb",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "rpm",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ]
     },
@@ -62,48 +68,35 @@
     }
   },
   "devDependencies": {
-    "@angular-devkit/build-optimizer": "^0.0.38",
-    "@angular/compiler": "^5.2.0",
-    "@angular/compiler-cli": "^5.2.0",
-    "@angular/core": "^5.2.0",
-    "@angularclass/hmr-loader": "^3.0.4",
-    "@ngtools/webpack": "^1.9.4",
-    "@types/node": "9.3.0",
-    "angular2-template-loader": "^0.6.2",
-    "autoprefixer": "^7.2.4",
-    "awesome-typescript-loader": "^3.4.1",
-    "connect-history-api-fallback": "^1.5.0",
-    "cross-env": "^5.1.3",
-    "css-loader": "^0.28.7",
-    "electron": "^1.7.10",
-    "electron-builder": "^19.52.1",
-    "electron-debug": "^1.5.0",
-    "electron-devtools-installer": "^2.2.3",
-    "eventsource-polyfill": "^0.9.6",
-    "express": "^4.16.2",
+    "cross-env": "^5.2.0",
+    "css-loader": "^3.0.0",
+    "devtron": "^1.4.0",
+    "electron": "^5.0.5",
+    "electron-builder": "^20.44.4",
+    "electron-debug": "^3.0.0",
+    "electron-devtools-installer": "^2.2.4",
+    "express": "^4.17.1",
     "extract-text-webpack-plugin": "^3.0.2",
-    "file-loader": "^1.1.6",
-    "friendly-errors-webpack-plugin": "^1.6.1",
-    "html-loader": "^0.5.1",
-    "html-webpack-plugin": "^2.30.1",
-    "ngc-webpack": "^4.1.2",
-    "node-sass": "^4.7.2",
-    "node-sass-json-importer": "^3.0.2",
-    "ora": "^1.3.0",
-    "postcss-loader": "^2.0.9",
-    "raw-loader": "^0.5.1",
-    "reflect-metadata": "^0.1.10",
-    "resolve-url-loader": "^2.2.1",
-    "sass-loader": "^6.0.6",
-    "shelljs": "^0.7.8",
-    "style-loader": "^0.19.1",
-    "to-string-loader": "^1.1.5",
-    "tslint": "^5.8.0",
-    "typescript": "^2.6.2",
-    "url-loader": "^0.6.2",
-    "webpack": "^3.10.0",
-    "webpack-dev-middleware": "^2.0.3",
-    "webpack-hot-middleware": "^2.21.0",
-    "webpack-merge": "^4.1.1"
+    "file-loader": "^4.0.0",
+    "friendly-errors-webpack-plugin": "^1.7.0",
+    "json-loader": "^0.5.7",
+    "minimist": "^1.2.0",
+    "node-sass": "^4.12.0",
+    "node-sass-json-importer": "^4.1.0",
+    "ora": "^3.4.0",
+    "postcss-loader": "^3.0.0",
+    "react-hot-loader": "^4.11.1",
+    "redux-logger": "^3.0.6",
+    "resolve-url-loader": "^3.1.0",
+    "sass-loader": "^7.1.0",
+    "shelljs": "^0.8.3",
+    "style-loader": "^0.23.1",
+    "ts-loader": "^6.0.4",
+    "typescript": "^3.5.2",
+    "url-loader": "^2.0.0",
+    "webpack": "^4.35.0",
+    "webpack-dev-middleware": "^3.7.0",
+    "webpack-hot-middleware": "^2.25.0",
+    "webpack-merge": "^4.2.1"
   }
 }

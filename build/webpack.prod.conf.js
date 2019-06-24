@@ -54,13 +54,6 @@ module.exports = merge(baseWebpackConfig,
          })
        , include: [ utils.srcPath('styles') ]
       }
-      ,
-      { test: /(?:\.ngfactory\.js|\.ngstyle\.js|\.ts)$/
-      , use:
-        [ { loader: '@angular-devkit/build-optimizer/webpack-loader' }
-        , { loader: '@ngtools/webpack' }
-        ]
-      }
     ]
   }
 
@@ -96,13 +89,6 @@ module.exports = merge(baseWebpackConfig,
   , new webpack.optimize.CommonsChunkPlugin(
       { name: 'manifest'
       , chunks: ['vendor']
-      })
-
-  , new ngcWebpack.NgcWebpackPlugin(
-      { skipCodeGeneration: false
-      , tsConfigPath: './tsconfig.aot.json'
-      , mainPath: 'app/main.ts'
-      , entryModule: 'app/core/app.module#AppModule'
       })
 
     // It moves every require("style.css") in entry chunks into a
