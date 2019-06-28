@@ -15,7 +15,7 @@ const cssSourceMapProd = (env === 'production' && config.build.cssSourceMap);
 const useCssSourceMap = cssSourceMapDev || cssSourceMapProd;
 
 module.exports =
-{ entry: { app: ['./app/app.js'] }
+{ entry: { app: ['./app/app.tsx'] }
 
 , output:
   { path: config.build.assetsRoot
@@ -27,21 +27,28 @@ module.exports =
   }
 
 , resolve:
-  { extensions: ['.js', '.ts', '.tsx', '.sass', '.scss', '.json']
-  , modules: [path.join(__dirname, '../app/node_modules')]
+  { extensions: ['.js', '.jsx', '.ts', '.tsx', '.sass', '.scss', '.json']
   , alias:
-      { 'app': path.resolve(__dirname, '../app')
-      , 'core': path.resolve(__dirname, '../app/core')
-      , 'utils': path.resolve(__dirname, '../app/utils')
-      , 'pages': path.resolve(__dirname, '../app/pages')
-      , 'config': path.resolve(__dirname, '../app/config')
-      , 'layouts': path.resolve(__dirname, '../app/layouts')
-      , 'services': path.resolve(__dirname, '../app/services')
-      , 'components': path.resolve(__dirname, '../app/components')
+    { 'app': path.resolve(__dirname, '../app')
+    , 'containers': path.resolve(__dirname, '../app/containers')
+    , 'components': path.resolve(__dirname, '../app/components')
+    , 'layouts': path.resolve(__dirname, '../app/layouts')
+    , 'pages': path.resolve(__dirname, '../app/pages')
 
-      , 'styles': path.resolve(__dirname, '../app/styles')
-      , 'static': path.resolve(__dirname, '../app/static')
-      }
+    , 'collections': path.resolve(__dirname, '../app/database/collections')
+    , 'database': path.resolve(__dirname, '../app/database')
+    , 'seeds': path.resolve(__dirname, '../app/database/seeds')
+    , 'storage': path.resolve(__dirname, '../app/storage')
+
+    , 'store': path.resolve(__dirname, '../app/store')
+    , 'reducers': path.resolve(__dirname, '../app/reducers')
+    , 'actions': path.resolve(__dirname, '../app/actions')
+    , 'sagas': path.resolve(__dirname, '../app/sagas')
+
+    , 'styles': path.resolve(__dirname, '../app/styles')
+    , 'config': path.resolve(__dirname, '../app/config')
+    , 'utils': path.resolve(__dirname, '../app/utils')
+    }
   }
 
 //, externals: Object.keys(externals || {})
@@ -50,18 +57,44 @@ module.exports =
   { rules:
     [
       { test: /\.tsx?$/
-      , loader: 'ts-loader'
+      , loader: 'awesome-typescript-loader'
       , include: [ path.join(projectRoot, 'app') ]
       , exclude: /node_modules/
       }
       ,
+      /*
+      { test: /\.(j|t)sx?$/
+      , include: [ path.join(projectRoot, 'app') ]
+      , exclude: /node_modules/
+      , use:
+        { loader: 'babel-loader'
+        , options:
+          { cacheDirectory: true
+          , babelrc: false
+          , presets:
+            [ [ '@babel/preset-env'
+              //, { targets: { browsers: 'last 2 versions' } }
+              ],
+              '@babel/preset-typescript',
+              '@babel/preset-react',
+            ],
+            plugins:
+              [ ['@babel/plugin-proposal-decorators', { legacy: true }]
+              , ['@babel/plugin-proposal-class-properties', { loose: true }]
+              , 'react-hot-loader/babel'
+              ]
+          }
+        }
+      }
+      ,
+      */
       { test: /\.(scss|css)$/
       , use:
           [ { loader: 'to-string-loader' }
           , { loader: 'css-loader' }
           , { loader: 'postcss-loader'
             , options:
-              { plugins: [ autoprefixer({ browsers: ['electron 5.0'] }) ]
+              { plugins: [ autoprefixer() ]
               }
             }
           , { loader: 'sass-loader'

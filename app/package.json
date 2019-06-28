@@ -2,10 +2,24 @@
   "name": "tidder",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "./main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "electron-settings": "^3.2.0",
+    "history": "^4.9.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-redux": "^7.1.0",
+    "react-router-dom": "^5.0.1",
+    "react-router-redux": "^4.0.8",
+    "redux": "^4.0.1",
+    "redux-electron-store": "^0.6.4",
+    "redux-logger": "^3.0.6",
+    "redux-ui": "^0.1.1"
+  },
+  "devDependencies": {}
 }

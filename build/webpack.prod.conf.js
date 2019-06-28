@@ -38,7 +38,7 @@ module.exports = merge(baseWebpackConfig,
              }
            , { loader: 'postcss-loader'
              , options:
-               { plugins: [autoprefixer({ browsers: ['electron 1.7'] })]
+               { plugins: [autoprefixer()]
                , sourceMap: config.build.cssSourceMap
                }
              }

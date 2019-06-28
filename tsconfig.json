@@ -1,25 +1,35 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "baseUrl": "./app",
-    "paths": {
-      "utils": [ "./app/utils" ],
-      "core": [ "./app/core" ],
-      "pages": [ "./app/pages" ],
-      "styles": [ "./app/styles" ],
-      "static": [ "./app/static" ],
-      "config": [ "./app/config" ],
-      "layouts": [ "./app/layouts" ],
-      "services": [ "./app/services" ],
-      "components": [ "./app/components" ]
-    },
     "sourceMap": true,
+    "baseUrl": "./app",
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "lib": [ "es2015", "dom" ],
+    "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "lib": [ "es2015", "dom" ],
-    "noImplicitAny": false,
-    "suppressImplicitAnyIndexErrors": true
+    "jsx": "react",
+    "suppressImplicitAnyIndexErrors": true,
+    "paths": {
+      "app": [ "./app" ],
+      "containers": [ "./app/containers" ],
+      "components": [ "./app/compoonents" ],
+      "layouts": [ "./app/layouts" ],
+
+      "collections": [ "./app/database/collections" ],
+      "databse": [ "./app/database" ],
+      "seeds": [ "./app/database/seeds" ],
+      "storage": [ "./app/storage" ],
+
+      "store": [ "./app/store" ],
+      "reducers": [ "./app/reducers" ],
+      "actions": [ "./app/actions" ],
+      "sagas": [ "./app/sagas" ],
+
+      "styles": [ "./app/styles" ],
+      "config": [ "./app/config" ],
+      "utils": [ "./app/utils" ]
+    },
   }
 }

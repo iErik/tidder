@@ -11,9 +11,9 @@
     "url": "https://github.com/ierik"
   },
   "scripts": {
-    "dev": "node build/dev-server.js",
-    "start-dev": "cross-env NODE_ENV=development electron ./app/main.dev",
-    "build": "node build/build.js",
+    "dev": "ts-node build/dev-server.js",
+    "start-dev": "cross-env NODE_ENV=development electron -r ts-node/register ./app/main.dev.ts",
+    "build": "ts-node build/build.js",
     "build:pack": "npm run build && node_modules/.bin/electron-builder",
     "build:pack:multi": "npm run build && node_modules/.bin/electron-builder -mlw --x64",
     "build:pack:mac": "npm run build && node_modules/.bin/electron-builder --mac --x64",
@@ -67,7 +67,25 @@
       "target": "portable"
     }
   },
+  "browserslist": [
+    "electron 5.0"
+  ],
   "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/plugin-proposal-decorators": "^7.4.4",
+    "@babel/polyfill": "^7.4.4",
+    "@babel/preset-env": "^7.4.5",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/preset-typescript": "^7.3.3",
+    "@babel/register": "^7.4.4",
+    "@types/node": "^12.0.10",
+    "@types/react": "^16.8.22",
+    "@types/react-dom": "^16.8.4",
+    "autoprefixer": "^9.6.0",
+    "awesome-typescript-loader": "^5.2.1",
+    "babel-loader": "^8.0.6",
+    "babel-register": "^6.26.0",
     "cross-env": "^5.2.0",
     "css-loader": "^3.0.0",
     "devtron": "^1.4.0",
@@ -79,6 +97,7 @@
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^4.0.0",
     "friendly-errors-webpack-plugin": "^1.7.0",
+    "html-webpack-plugin": "^3.2.0",
     "json-loader": "^0.5.7",
     "minimist": "^1.2.0",
     "node-sass": "^4.12.0",
@@ -91,11 +110,12 @@
     "sass-loader": "^7.1.0",
     "shelljs": "^0.8.3",
     "style-loader": "^0.23.1",
-    "ts-loader": "^6.0.4",
+    "ts-node": "^8.3.0",
     "typescript": "^3.5.2",
     "url-loader": "^2.0.0",
     "webpack": "^4.35.0",
     "webpack-dev-middleware": "^3.7.0",
+    "webpack-hot-client": "^4.1.1",
     "webpack-hot-middleware": "^2.25.0",
     "webpack-merge": "^4.2.1"
   }

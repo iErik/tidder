@@ -11,17 +11,17 @@ const config = require('../config');
 if (!process.env.NODE_ENV)
   process.env.NODE_ENV = JSON.parse(config.dev.env.NODE_ENV);
 
-var app = express();
-var compiler = webpack(webpackConfig);
+const app = express();
+const compiler = webpack(webpackConfig);
 
-var PORT = process.env.PORT || config.dev.port;
-var URI = 'http://localhost:' + PORT
+const PORT = process.env.PORT || config.dev.port;
+const URI = 'http://localhost:' + PORT
 
-var hotMiddleware = webpackHotMiddleware(compiler, {
+const hotMiddleware = webpackHotMiddleware(compiler, {
   log: () => { }
 });
 
-var devMiddleware = webpackDevMiddleware(compiler, {
+const devMiddleware = webpackDevMiddleware(compiler, {
   publicPath: webpackConfig.output.publicPath,
   logLevel: 'silent'
 });

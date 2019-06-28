@@ -14,9 +14,10 @@ const baseWebpackConfig = require('./webpack.base.conf');
 const projectRoot = path.resolve(__dirname, '../');
 const port = process.env.PORT || config.dev.port;
 
-Object.keys(baseWebpackConfig.entry).forEach(function(name) {
+
+Object.keys(baseWebpackConfig.entry).forEach((name) => {
   baseWebpackConfig.entry[name] =
-    [`webpack-hot-middleware/client?path=http://localhost:${port}/__webpack_hmr`
+    [ `webpack-hot-middleware/client?reload=true&path=http://localhost:${port}/__webpack_hmr`
     ].concat(baseWebpackConfig.entry[name]);
 });
 
@@ -36,7 +37,7 @@ module.exports = merge(baseWebpackConfig, {
           , { loader: 'css-loader' }
           , { loader: 'postcss-loader'
             , options:
-              { plugins: [ autoprefixer({ browsers: ['electron 5.0'] }) ]
+              { plugins: [ autoprefixer() ]
               , sourceMap: config.dev.cssSourceMap
               , sourceMapContents: false
               }
@@ -54,15 +55,23 @@ module.exports = merge(baseWebpackConfig, {
     ]
   },
 
+  //mode: 'development',
   // eval-source-map is faster for development
   devtool: '#eval-source-map',
   target: 'electron-renderer',
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoEmitOnErrorsPlugin(),
     new webpack.LoaderOptionsPlugin({ debug: true }),
-    new webpack.DefinePlugin({ 'process.env': config.dev.env }),
+    new webpack.DefinePlugin({
+      __DEV__: true,
+      'process.env.NODE_ENV': JSON.stringify(config.dev.env.NODE_ENV),
+      'process.env.PORT': JSON.stringify(config.dev.env.PORT)
+    }),
 
     new FriendlyErrors(),
-  ]
+  ],
+  node: {
+    __dirname: false,
+    __filename: false
+  }
 });
