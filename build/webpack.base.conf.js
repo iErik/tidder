@@ -29,7 +29,8 @@ module.exports =
 , resolve:
   { extensions: ['.js', '.jsx', '.ts', '.tsx', '.sass', '.scss', '.json']
   , alias:
-    { 'app': path.resolve(__dirname, '../app')
+    { 'react-dom': '@hot-loader/react-dom'
+    , 'app': path.resolve(__dirname, '../app')
     , 'containers': path.resolve(__dirname, '../app/containers')
     , 'components': path.resolve(__dirname, '../app/components')
     , 'layouts': path.resolve(__dirname, '../app/layouts')
@@ -56,24 +57,17 @@ module.exports =
 , module:
   { rules:
     [
-      { test: /\.tsx?$/
-      , loader: 'awesome-typescript-loader'
-      , include: [ path.join(projectRoot, 'app') ]
-      , exclude: /node_modules/
-      }
-      ,
-      /*
       { test: /\.(j|t)sx?$/
       , include: [ path.join(projectRoot, 'app') ]
       , exclude: /node_modules/
       , use:
         { loader: 'babel-loader'
         , options:
-          { cacheDirectory: true
+          { cacheDirectory: false
           , babelrc: false
           , presets:
             [ [ '@babel/preset-env'
-              //, { targets: { browsers: 'last 2 versions' } }
+              , { targets: { browsers: 'electron 5.0' } }
               ],
               '@babel/preset-typescript',
               '@babel/preset-react',
@@ -87,7 +81,6 @@ module.exports =
         }
       }
       ,
-      */
       { test: /\.(scss|css)$/
       , use:
           [ { loader: 'to-string-loader' }

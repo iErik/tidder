@@ -55,7 +55,7 @@ module.exports = merge(baseWebpackConfig, {
     ]
   },
 
-  //mode: 'development',
+  mode: 'development',
   // eval-source-map is faster for development
   devtool: '#eval-source-map',
   target: 'electron-renderer',
