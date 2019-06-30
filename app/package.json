@@ -1,25 +1,26 @@
 {
   "name": "tidder",
-  "version": "1.0.0",
-  "description": "",
+  "description": "An awesome multi-platform reddit client",
+  "productName": "Tidder",
+  "version": "2.0.0-alpha.1",
+  "license": "GPL-2.0",
   "main": "./main.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "author": {
+    "name": "Erik Isidore",
+    "email": "ericssonico@protonmail.ch",
+    "url": "https://github.com/ierik"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
+    "connected-react-router": "^6.4.0",
     "electron-settings": "^3.2.0",
     "history": "^4.9.0",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
+    "react": "16.8.4",
+    "react-dom": "16.8.4",
     "react-redux": "^7.1.0",
     "react-router-dom": "^5.0.1",
-    "react-router-redux": "^4.0.8",
     "redux": "^4.0.1",
     "redux-electron-store": "^0.6.4",
     "redux-logger": "^3.0.6",
     "redux-ui": "^0.1.1"
-  },
-  "devDependencies": {}
+  }
 }

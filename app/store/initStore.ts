@@ -3,9 +3,10 @@ import { createStore, applyMiddleware, compose } from 'redux'
 import { electronEnhancer } from 'redux-electron-store'
 import { createLogger } from 'redux-logger'
 
-import { routerMiddleware } from 'react-router-redux'
+import { routerMiddleware } from 'connected-react-router'
+import createHistory from './hashHistory'
 
-import createRootReducer from '../reducers'
+import createRootReducer from './reducers'
 
 const logger = createLogger({ level: 'info', collapsed: true })
 
@@ -19,12 +20,11 @@ export default function configureStore(scope = 'main', filter = defaultFilter) {
     ? (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
     : compose;
 
-  if (scope === 'renderer')
-    var history = require('./hashHistory')
-
-  const router = scope === 'main' ? undefined : routerMiddleware(history)
+  const router = routerMiddleware(createHistory(scope))
   const reducer = createRootReducer(scope)
-  const middleware = [router, logger]
+  const middleware = scope === 'main'
+    ? [logger]
+    : [router, logger]
 
   const enhancer = scope === 'main'
     ? composeEnhancers(
@@ -39,8 +39,8 @@ export default function configureStore(scope = 'main', filter = defaultFilter) {
   const store = createStore(reducer, enhancer)
 
   if (scope === 'renderer' && (module as any).hot) {
-    (module as any).hot.accept('../reducers', () =>
-      store.replaceReducer(require('../reducers'))
+    (module as any).hot.accept('./reducers', () =>
+      store.replaceReducer(require('./reducers'))
     );
   }
 

@@ -1,4 +1,7 @@
-import { createBrowserHistory } from 'history'
+import { createBrowserHistory, createMemoryHistory } from 'history'
 
-const hashHistory = createBrowserHistory()
-export default hashHistory
+export default (scope = 'renderer') => {
+  return scope === 'renderer'
+    ? createBrowserHistory()
+    : createMemoryHistory()
+}

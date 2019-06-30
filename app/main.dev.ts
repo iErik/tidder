@@ -1,111 +1,113 @@
-import { app, BrowserWindow, ipcMain, Menu } from 'electron'
-// import settings from 'electron-settings'
-// import defaults from './config/settings'
+import { app, ipcMain, BrowserWindow, Menu } from 'electron'
+import initStore from './store/initStore'
 
-import configureStore from './store/configureStore'
+export default class Main {
+  static mainWindow: Electron.BrowserWindow
+  static application: Electron.App
+  static BrowserWindow: typeof BrowserWindow
+  static reduxStore: any
 
-let mainWindow = null
+  static mainWindowOpts: Object =
+    { width: 1080
+    , height: 660
+    , minWidht: 960
+    , minHeight: 260
+    , show: false
+    , frame: false
+    , hasShadow: true
+    , webPreferences: { nodeIntegration: true }
+    }
 
-if (process.env.NODE_ENV === 'production') {
-  const sourceMapSupport = require('source-map-support')
-  sourceMapSupport.install()
-}
+  private static initEnvironment () {
+    if (process.env.NODE_ENV === 'production')
+      require('source-map-support').install()
 
-if (process.env.NODE_ENV === 'development') {
-  require('electron-debug')()
+    if (process.env.NODE_ENV === 'development') {
+      require('electron-debug')()
 
-  const path = require('path')
-  const modulesPath = path.join(__dirname, '..', 'app', 'node_modules')
-  require('module').globalPaths.push(modulesPath)
-}
+      const path = require('path')
+      const modulesPath = path.join(__dirname, '..', 'app', 'node_modules')
+      require('module').globalPaths.push(modulesPath)
+    }
+  }
 
-const installExtensions = async () => {
-  if (process.env.NODE_ENV === 'development') {
+  private static async installExtensions () {
     const installer = require('electron-devtools-installer')
     const forceDownload = !!process.env.UPGRADE_EXTENSIONS
 
-    const extensions = [
-      'REACT_DEVELOPER_TOOLS',
-      'REDUX_DEVTOOLS'
-    ]
+    const extensions =
+      [ 'REACT_DEVELOPER_TOOLS'
+      , 'REDUX_DEVTOOLS'
+      ]
 
     return Promise
       .all(extensions.map(ex => installer.default(installer[ex], forceDownload)))
       .catch(console.log)
   }
-}
 
-/*
-const initialSetup = async () => {
-  settings.defaults(defaults)
-  const runInitialSetup = await settings.get('runInitialSetup')
-
-  if (runInitialSetup) {
-    await runSeeders()
-    await settings.set('runInitialSetup', false)
-  }
-}
-*/
-
-
-async function openMainWindow () {
-  await installExtensions()
-
-  // const store = configureStore('main')
-  const entryFile = process.env.NODE_ENV === 'development'
-    ? `file://${__dirname}/app.dev.html`
-    : `file://${__dirname}/app.html`
-
-  mainWindow = new BrowserWindow({
-    width: 1080,
-    height: 660,
-    minWidth: 960,
-    minHeight: 260,
-
-    show: false,
-    frame: false,
-    hasShadow: true,
-
-    webPreferences: {
-      nodeIntegration: true
-    }
-  })
-
-  mainWindow.loadURL(entryFile)
-
-  mainWindow.webContents.on('did-finish-load', () => {
-    mainWindow.show()
-    mainWindow.focus()
-  })
-
-  mainWindow.on('closed', () => mainWindow = null)
-
-  /*
-  ipcMain.on('renderer-reload', (ev, action) => {
-    delete require.cache[require.resolve('./reducers')]
-    store.replaceReducer(require('./reducers'))
+  private static onRendererReload (ev: Event) {
+    delete require.cache[require.resolve('./store/reducers')]
+    Main.reduxStore.replaceReducer(require('./store/reducers'))
     ev.returnValue = true
-  })
-  */
+  }
 
-  if (process.env.NODE_ENV === 'development') {
-    mainWindow.webContents.on('context-menu', (e, props) => {
-      const { x, y } = props
+  private static onDevCtxMenu (_: Event, props: { x: Number, y: Number }) {
+    const { x, y } = props
 
-      Menu.buildFromTemplate([{
-        label: 'Inspect element',
-        click: () => mainWindow.inspectElement(x, y)
-      }]).popup(mainWindow)
+    Menu.buildFromTemplate([{
+      label: 'Inspect element',
+      click: () => (Main.mainWindow as any).inspectElement(x, y)
+    }]).popup(Main.mainWindow as any)
+  }
+
+  private static onWindowAllClosed () {
+    if (process.platform !== 'darwin')
+      Main.application.quit()
+  }
+
+  private static onClose () {
+    Main.mainWindow = null
+  }
+
+  private static async onReady () {
+    if (Main.mainWindow) return
+
+    if (process.env.NODE_ENV === 'development')
+      await Main.installExtensions()
+
+    Main.reduxStore = initStore()
+
+    const appFile = process.env.NODE_ENV === 'development'
+      ? 'app.dev.html'
+      : 'app.html'
+
+    Main.mainWindow = new Main.BrowserWindow(Main.mainWindowOpts)
+    Main.mainWindow.loadURL(`file://${__dirname}/${appFile}`)
+    Main.mainWindow.on('closed', Main.onClose)
+
+    Main.mainWindow.webContents.on('did-finish-load', () => {
+      Main.mainWindow.show()
+      Main.mainWindow.focus()
     })
+
+    if (process.env.NODE_ENV === 'development')
+      Main.mainWindow.webContents.on('context-menu', Main.onDevCtxMenu)
+
+    ipcMain.on('renderer-reload', Main.onRendererReload)
+  }
+
+  static main (app: Electron.App, browserWindow: typeof BrowserWindow) {
+    Main.initEnvironment()
+
+    Main.BrowserWindow = browserWindow
+    Main.application = app
+
+    Main.application.on('ready', Main.onReady)
+    Main.application.on('activate', Main.onReady)
+    Main.application.on('window-all-closed', Main.onWindowAllClosed)
   }
 }
 
-app.on('ready', openMainWindow)
 
-app.on('activate', () => {
-  if (mainWindow === null) openMainWindow()
-})
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit()
-})
+// Initialize app
+Main.main(app, BrowserWindow)

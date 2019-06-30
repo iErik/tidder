@@ -23,9 +23,10 @@
       "storage": [ "./app/storage" ],
 
       "store": [ "./app/store" ],
-      "reducers": [ "./app/reducers" ],
-      "actions": [ "./app/actions" ],
-      "sagas": [ "./app/sagas" ],
+      "services": [ "./app/store/services" ],
+      "reducers": [ "./app/store/reducers" ],
+      "actions": [ "./app/store/actions" ],
+      "sagas": [ "./app/store/sagas" ],
 
       "styles": [ "./app/styles" ],
       "config": [ "./app/config" ],

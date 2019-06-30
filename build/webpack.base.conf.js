@@ -29,8 +29,7 @@ module.exports =
 , resolve:
   { extensions: ['.js', '.jsx', '.ts', '.tsx', '.sass', '.scss', '.json']
   , alias:
-    { 'react-dom': '@hot-loader/react-dom'
-    , 'app': path.resolve(__dirname, '../app')
+    { 'app': path.resolve(__dirname, '../app')
     , 'containers': path.resolve(__dirname, '../app/containers')
     , 'components': path.resolve(__dirname, '../app/components')
     , 'layouts': path.resolve(__dirname, '../app/layouts')
@@ -42,9 +41,10 @@ module.exports =
     , 'storage': path.resolve(__dirname, '../app/storage')
 
     , 'store': path.resolve(__dirname, '../app/store')
-    , 'reducers': path.resolve(__dirname, '../app/reducers')
-    , 'actions': path.resolve(__dirname, '../app/actions')
-    , 'sagas': path.resolve(__dirname, '../app/sagas')
+    , 'services': path.resolve(__dirname, '../app/store/services')
+    , 'reducers': path.resolve(__dirname, '../app/store/reducers')
+    , 'actions': path.resolve(__dirname, '../app/store/actions')
+    , 'sagas': path.resolve(__dirname, '../app/store/sagas')
 
     , 'styles': path.resolve(__dirname, '../app/styles')
     , 'config': path.resolve(__dirname, '../app/config')
@@ -63,19 +63,18 @@ module.exports =
       , use:
         { loader: 'babel-loader'
         , options:
-          { cacheDirectory: false
+          { cacheDirectory: true
           , babelrc: false
           , presets:
-            [ [ '@babel/preset-env'
-              , { targets: { browsers: 'electron 5.0' } }
+              [ [ '@babel/preset-env'
+                , { targets: { browsers: 'electron 5.0' } } ]
+              , '@babel/preset-typescript'
+              , '@babel/preset-react',
               ],
-              '@babel/preset-typescript',
-              '@babel/preset-react',
-            ],
             plugins:
               [ ['@babel/plugin-proposal-decorators', { legacy: true }]
               , ['@babel/plugin-proposal-class-properties', { loose: true }]
-              , 'react-hot-loader/babel'
+              //, 'react-hot-loader/babel'
               ]
           }
         }
