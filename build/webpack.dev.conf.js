@@ -21,7 +21,7 @@ Object.keys(baseConfig.entry).forEach((name) => {
     ].concat(baseConfig.entry[name]);
 });
 
-module.exports = merge(baseConfig,
+module.exports = merge.smart(baseConfig,
 { output:
     { path: config.dev.assetsRoot
     , publicPath: config.dev.assetsPublicPath
@@ -36,24 +36,16 @@ module.exports = merge(baseConfig,
 , module:
     { rules:
         [
-          { test: /\.(scss|css)$/
-          , include: [ utils.srcPath('styles') ]
+          { test: /\.(sa|sc|c)ss$/
           , use:
-              [ { loader: 'style-loader' }
-              , { loader: 'css-loader' }
-              , { loader: 'postcss-loader'
+              [ { loader: 'postcss-loader'
                 , options:
-                  { plugins: [ autoprefixer() ]
-                  , sourceMap: config.dev.cssSourceMap
+                  { sourceMap: config.dev.cssSourceMap
                   , sourceMapContents: false
                   }
                 }
               , { loader: 'sass-loader'
-                , options:
-                  { sourceMap: config.dev.cssSourceMap
-                  , importer: jsonImporter
-                  , includePaths: [ path.resolve(__dirname, '../app/config') ]
-                  }
+                , options: { sourceMap: config.dev.cssSourceMap }
                 }
               ]
           }

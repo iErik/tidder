@@ -29,26 +29,26 @@ module.exports =
 , resolve:
   { extensions: ['.js', '.jsx', '.ts', '.tsx', '.sass', '.scss', '.json']
   , alias:
-    { 'app': path.resolve(__dirname, '../app')
-    , 'containers': path.resolve(__dirname, '../app/containers')
-    , 'components': path.resolve(__dirname, '../app/components')
-    , 'layouts': path.resolve(__dirname, '../app/layouts')
-    , 'pages': path.resolve(__dirname, '../app/pages')
+    { '@app': path.resolve(__dirname, '../app')
+    , '@containers': path.resolve(__dirname, '../app/containers')
+    , '@components': path.resolve(__dirname, '../app/components')
+    , '@layouts': path.resolve(__dirname, '../app/layouts')
+    , '@pages': path.resolve(__dirname, '../app/pages')
 
-    , 'collections': path.resolve(__dirname, '../app/database/collections')
-    , 'database': path.resolve(__dirname, '../app/database')
-    , 'seeds': path.resolve(__dirname, '../app/database/seeds')
-    , 'storage': path.resolve(__dirname, '../app/storage')
+    , '@collections': path.resolve(__dirname, '../app/database/collections')
+    , '@database': path.resolve(__dirname, '../app/database')
+    , '@seeds': path.resolve(__dirname, '../app/database/seeds')
+    , '@storage': path.resolve(__dirname, '../app/storage')
 
-    , 'store': path.resolve(__dirname, '../app/store')
-    , 'services': path.resolve(__dirname, '../app/store/services')
-    , 'reducers': path.resolve(__dirname, '../app/store/reducers')
-    , 'actions': path.resolve(__dirname, '../app/store/actions')
-    , 'sagas': path.resolve(__dirname, '../app/store/sagas')
+    , '@store': path.resolve(__dirname, '../app/store')
+    , '@services': path.resolve(__dirname, '../app/store/services')
+    , '@reducers': path.resolve(__dirname, '../app/store/reducers')
+    , '@actions': path.resolve(__dirname, '../app/store/actions')
+    , '@sagas': path.resolve(__dirname, '../app/store/sagas')
 
-    , 'styles': path.resolve(__dirname, '../app/styles')
-    , 'config': path.resolve(__dirname, '../app/config')
-    , 'utils': path.resolve(__dirname, '../app/utils')
+    , '@styles': path.resolve(__dirname, '../app/styles')
+    , '@config': path.resolve(__dirname, '../app/config')
+    , '@utils': path.resolve(__dirname, '../app/utils')
     }
   }
 
@@ -80,9 +80,9 @@ module.exports =
         }
       }
       ,
-      { test: /\.(scss|css)$/
+      { test: /\.(sa|sc|c)ss$/
       , use:
-          [ { loader: 'to-string-loader' }
+          [ { loader: 'style-loader' }
           , { loader: 'css-loader' }
           , { loader: 'postcss-loader'
             , options:
@@ -96,7 +96,6 @@ module.exports =
               }
             }
           ]
-      , exclude: [ utils.srcPath('styles') ]
       }
       ,
       { test: /\.html$/

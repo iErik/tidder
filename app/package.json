@@ -13,6 +13,7 @@
   "dependencies": {
     "connected-react-router": "^6.4.0",
     "electron-settings": "^3.2.0",
+    "foundation-sites": "^6.5.3",
     "history": "^4.9.0",
     "react": "16.8.4",
     "react-dom": "16.8.4",
