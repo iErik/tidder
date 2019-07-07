@@ -1,4 +1,5 @@
 {
+  "include": [ "./app/**/*" ],
   "compilerOptions": {
     "target": "es5",
     "sourceMap": true,
@@ -12,25 +13,25 @@
     "jsx": "react",
     "suppressImplicitAnyIndexErrors": true,
     "paths": {
-      "@app": [ "./app" ],
-      "@containers": [ "./app/containers" ],
-      "@components": [ "./app/compoonents" ],
-      "@layouts": [ "./app/layouts" ],
+      "@app*": [ ".*" ],
+      "@containers*": [ "containers*" ],
+      "@components*": [ "components*" ],
+      "@layouts*": [ "layouts*" ],
 
-      "@collections": [ "./app/database/collections" ],
-      "@databse": [ "./app/database" ],
-      "@seeds": [ "./app/database/seeds" ],
-      "@storage": [ "./app/storage" ],
+      "@collections*": [ "database/collections*" ],
+      "@databse*": [ "database*" ],
+      "@seeds*": [ "database/seeds*" ],
+      "@storage*": [ "storage*" ],
 
-      "@store": [ "./app/store" ],
-      "@services": [ "./app/store/services" ],
-      "@reducers": [ "./app/store/reducers" ],
-      "@actions": [ "./app/store/actions" ],
-      "@sagas": [ "./app/store/sagas" ],
+      "@store*": [ "store*" ],
+      "@services*": [ "store/services*" ],
+      "@reducers*": [ "store/reducers*" ],
+      "@actions*": [ "store/actions*" ],
+      "@sagas*": [ "store/sagas*" ],
 
-      "@styles": [ "./app/styles" ],
-      "@config": [ "./app/config" ],
-      "@utils": [ "./app/utils" ]
+      "@styles*": [ "styles*" ],
+      "@config*": [ "config*" ],
+      "@utils*": [ "utils*" ]
     }
   }
 }

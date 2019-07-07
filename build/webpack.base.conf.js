@@ -91,7 +91,7 @@ module.exports =
             }
           , { loader: 'sass-loader'
             , options:
-              { importer: jsonImporter
+              { importer: jsonImporter()
               , includePaths: [ path.resolve(__dirname, '../app/config') ]
               }
             }
