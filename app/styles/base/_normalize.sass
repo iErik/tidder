@@ -12,6 +12,10 @@ body
   margin: 0
   padding: 0
 
+html, body
+  width: 100vw
+  height: 100vh
+
 
 // HTML5 display definitions
 //////////////////////////////
@@ -166,8 +170,11 @@ button,
 html input[type="button"], // 1
 input[type="reset"],
 input[type="submit"]
-  -webkit-appearance: button // 2
+  -webkit-appearance: none // 2
   cursor: pointer // 3
+  margin: 0
+  padding: 0
+  outline: none
 
 // Re-set default cursor for disabled elements.
 button[disabled], html input[disabled]

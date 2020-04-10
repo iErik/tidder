@@ -1,0 +1,39 @@
+$theme: null
+
+@mixin themify ($scope: 'both', $themes: $appThemes)
+  @each $theme-name, $colors in $themes
+    @if $scope == 'local'
+      &.theme-#{$theme-name}
+        $theme: $colors !global
+        @content
+        $theme: null !global
+    @else if $scope == 'parent'
+      .theme-#{$theme-name} &
+        $theme: $colors !global
+        @content
+        $theme: null !global
+    @else if $scope == 'both'
+      .theme-#{$theme-name} &,o
+      &.theme-#{$theme-name}
+        $theme: $colors !global
+        @content
+        $theme: null !global
+
+
+@function color ($map: 'primary', $key: 'base')
+  @if map-has-key(map-get($theme, $map), $key)
+    @return map-get(map-get($theme, $map), $key)
+
+  @return false
+
+@function type-scale ($scale)
+  @return map-get($type-scale, $scale)
+
+
+@mixin icon
+  .fa,
+  .icn,
+  [data-icon],
+  [class^="icn-"],
+  [class*=" icn-"]
+    @content

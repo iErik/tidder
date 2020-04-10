@@ -11,7 +11,7 @@ import createRootReducer from './reducers'
 const logger = createLogger({ level: 'info', collapsed: true })
 
 const defaultFilter = {
-  routing: true,
+  router: true,
   ui: true
 }
 

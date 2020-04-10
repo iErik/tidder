@@ -1,0 +1,100 @@
+@import '~@styles/reference/module'
+
+// Variables
+// ---------
+
+$topbar-height: 45px
+
+// Object Definition
+// -----------------
+
+.Topbar
+  position: relative
+  display: flex
+  align-items: center
+  justify-content: center
+
+  -webkit-app-region: drag
+
+  width: 100%
+  height: $topbar-height
+
+  border-bottom-width: 1px
+  border-bottom-style: solid
+
+  +themify
+    background-color: color('background')
+    color: color('foreground')
+
+    @if map-get($theme, 'isDark')
+      @if color('background', 'light')
+        border-bottom-color: color('background', 'light')
+      @else
+        border-bottom-color: lighten(color('background'), 9%)
+    @else
+      border-bottom-color: darken(color('background'), 15%)
+
+    @if map-get($theme, 'topbarShadow')
+      box-shadow: 0px 2px 12px -3px rgba(0, 0, 0, 0.25)
+
+
+  // Topbar Sections
+  // ---------------
+
+  &-section
+    display: flex
+    align-items: center
+
+    // TODO: Review z-index hierarchy
+    position: absolute
+    z-index: 20
+    height: 100%
+
+    -webkit-app-region: no-drag
+
+    &.-left
+      left: 0px
+      padding-left: 25px
+    &.-right
+      right: 0px
+      padding-right: 25px
+
+
+  // Topbar Center/PageLabel
+  // -----------------------
+
+  &-center
+    display: flex
+    align-items: center
+    justify-content: center
+
+    -webkit-app-region: drag
+    user-select: none
+
+  &-pageLabel
+    font-weight: 400
+    font-size: 14px
+    letter-spacing: 3.5px
+    line-height: $topbar-height
+
+    cursor: default
+    user-select: none
+    -webkit-font-smoothing: antialiased
+
+    +themify
+      color: color('foreground')
+
+
+  // Topbar Controls
+  // ---------------
+
+  &-controls
+    display: flex
+
+  &-control
+    display: flex
+    align-items: center
+    justify-content: center
+
+    &:not(:last-child)
+      margin-right: 15px

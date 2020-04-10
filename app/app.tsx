@@ -4,12 +4,10 @@ import { Provider } from 'react-redux'
 import { Route } from 'react-router-dom'
 import { ConnectedRouter } from 'connected-react-router'
 
+import RootLayout from '@containers/RootLayout'
 import createHistory from '@store/hashHistory'
 import initStore from '@store/initStore'
-
-import './styles/index'
-
-import RootLayout from '@containers/RootLayout'
+import '@styles'
 
 const store = initStore('renderer')
 
