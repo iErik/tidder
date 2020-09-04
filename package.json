@@ -87,7 +87,7 @@
     "html-loader": "^0.5.1",
     "html-webpack-plugin": "^2.30.1",
     "ngc-webpack": "^4.1.2",
-    "node-sass": "^4.7.2",
+    "node-sass": "^4.13.1",
     "node-sass-json-importer": "^3.0.2",
     "ora": "^1.3.0",
     "postcss-loader": "^2.0.9",
