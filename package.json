@@ -95,7 +95,7 @@
     "reflect-metadata": "^0.1.10",
     "resolve-url-loader": "^2.2.1",
     "sass-loader": "^6.0.6",
-    "shelljs": "^0.7.8",
+    "shelljs": "^0.8.5",
     "style-loader": "^0.19.1",
     "to-string-loader": "^1.1.5",
     "tslint": "^5.8.0",
