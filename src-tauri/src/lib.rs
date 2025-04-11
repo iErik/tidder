@@ -1,7 +1,9 @@
-#[cfg_attr(mobile, tauri::mobile_entry_point)]
+use tauri_plugin_deep_link::DeepLinkExt;
+
+//#[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   tauri::Builder::default()
-    //.plugin(tauri_plugin_deep_link::init())
+    .plugin(tauri_plugin_deep_link::init())
     .setup(|app| {
       if cfg!(debug_assertions) {
         app.handle().plugin(
@@ -9,6 +11,11 @@ pub fn run() {
             .level(log::LevelFilter::Info)
             .build(),
         )?;
+      }
+
+      #[cfg(any(windows, target_os = "linux"))]
+      {
+        app.deep_link().register_all()?;
       }
 
       Ok(())
