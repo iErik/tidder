@@ -1,0 +1,10 @@
+[toolchain]
+channel = "nightly-2025-04-11"
+components = [
+  "rustc",
+  "cargo",
+  "rust-std",
+  "rust-analyzer"
+]
+targets = [ "x86_64-unknown-linux-gnu" ]
+profile = "default"
