@@ -1,0 +1,17 @@
+/*
+ * @type -> Either 'title', 'display' or 'body'
+ * @size-> Either 'p', 'h1', 'h2', 'h3', 'h4', 'h5', or 'h6'
+ */
+
+// TODO: Use variables for text size
+@mixin typography ($type: body, $size: p) {
+  @if $type == display {
+    text-transform: uppercase;
+
+    @if $size == h1 {
+      font-size: 16px;
+      letter-spacing: 16px;
+      font-weight: 400;
+    }
+  }
+}

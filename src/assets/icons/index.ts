@@ -1,0 +1,7 @@
+export { default as IcnClose } from './close.svg?react'
+export { default as IcnMaximize } from './maximize.svg?react'
+export { default as IcnMinimize } from './minimize.svg?react'
+export { default as IcnUpvote } from './upvote.svg?react'
+export { default as IcnDownvote } from './downvote.svg?react'
+export { default as IcnChatBubble } from './chat-bubble.svg?react'
+export { default as IcnMenu } from './menu.svg?react'

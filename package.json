@@ -4,21 +4,26 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "tauri": "tauri"
+    "dev": "bunx --bun vite",
+    "build": "bunx --bun tsc -b && vite build",
+    "preview": "bunx --bun vite preview",
+    "tauri": "bunx --bun tauri"
   },
   "dependencies": {
+    "@devvit/protos": "^0.11.12",
+    "@devvit/public-api": "^0.11.12",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-deep-link": "^2.2.1",
     "@tauri-apps/plugin-opener": "^2",
+    "@tauri-apps/plugin-store": "^2.2.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-router": "^7.5.0",
+    "sass-embedded": "^1.86.3"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2.4.1",
     "@eslint/js": "^9.21.0",
+    "@tauri-apps/cli": "^2.4.1",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
@@ -28,6 +33,7 @@
     "globals": "^15.15.0",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
-    "vite": "^6.2.0"
+    "vite": "^6.2.0",
+    "vite-plugin-svgr": "^4.3.0"
   }
 }

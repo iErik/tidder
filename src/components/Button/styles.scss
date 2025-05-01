@@ -1,0 +1,10 @@
+.Button {
+  --webkit-appearance: none;
+  all: unset;
+  display: flex;
+
+  height: fit-content;
+  width: fit-content;
+
+  cursor: pointer;
+}

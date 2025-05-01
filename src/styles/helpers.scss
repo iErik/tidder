@@ -1,0 +1,3 @@
+@function color($name, $variant: base) {
+  @return var(--#{$name}-#{$variant});
+}

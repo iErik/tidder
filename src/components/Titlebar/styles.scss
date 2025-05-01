@@ -1,0 +1,38 @@
+@use "@styles/mixins";
+@use "@styles/helpers";
+
+.WindowControls {
+  display: flex;
+  gap: 17px;
+}
+
+.Titlebar {
+  height: 50px;
+  background-color: var(--background-base);
+  border-bottom: 1px solid var(--border-color);
+
+  display: flex;
+  flex-wrap: nowrap;
+
+  padding: 0 25px;
+
+  .icon {
+    fill: helpers.color(foreground);
+  }
+
+  > .title {
+    flex-grow: 1;
+
+    > .text {
+      @include mixins.typography(display, h1);
+      font-weight: 200;
+      color: helpers.color(foreground);
+    }
+  }
+
+  > .section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
