@@ -37,7 +37,7 @@
     "reflect-metadata": "^0.1.10",
     "rxjs": "^5.4.0",
     "source-map-support": "^0.5.1",
-    "underscore": "^1.8.3",
+    "underscore": "^1.12.1",
     "webpack-dev-server": "^2.11.0",
     "webpack-hot-middleware": "^2.21.0",
     "zone.js": "^0.8.12"
