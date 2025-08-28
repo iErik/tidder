@@ -1429,8 +1429,8 @@ jsprim@^1.2.2:
     verror "1.10.0"
 
 jsrsasign@^8.0.3:
-  version "8.0.4"
-  resolved "https://registry.yarnpkg.com/jsrsasign/-/jsrsasign-8.0.4.tgz#3f7b8238844f126b496a7556ec9f4b511f95f861"
+  version "8.0.24"
+  resolved "https://registry.yarnpkg.com/jsrsasign/-/jsrsasign-8.0.24.tgz#fc26bac45494caac3dd8f69c1f95847c4bda6c83"
 
 killable@^1.0.0:
   version "1.0.0"
