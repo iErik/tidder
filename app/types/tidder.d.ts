@@ -1,5 +1,10 @@
 // Native features exposed by electron/preload.js.
 
+interface TidderAuthTokens {
+  accessToken: string;
+  expiresIn: number;
+}
+
 interface TidderBridge {
   platform: string;
 
@@ -12,9 +17,20 @@ interface TidderBridge {
   openExternal(url: string): void;
   openPopup(url: string, width: number, height: number, title?: string): void;
 
-  // Resolves with the OAuth hash fragment (including the leading '#'), or null
-  // if the login window was closed.
-  login(url: string): Promise<string | null>;
+  // Reddit login in the system browser (see electron/auth.js).
+  auth: {
+    // Tokens once logged in, null if the user declined or cancelled, or
+    // { error } if the login couldn't be completed.
+    login(): Promise<TidderAuthTokens | { error: string } | null>;
+    cancel(): void;
+
+    // New tokens, null if there's no usable session, or { error } if Reddit
+    // couldn't be reached (worth retrying later).
+    refresh(): Promise<TidderAuthTokens | { error: string } | null>;
+
+    // Revokes and forgets the stored session.
+    logout(): Promise<void>;
+  };
 
   settings: {
     get(key: string): any;

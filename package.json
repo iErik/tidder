@@ -66,7 +66,6 @@
     "@angular/platform-browser": "~22.2.0",
     "@angular/router": "~22.2.0",
     "@types/underscore": "^1.13.0",
-    "angular-oauth2-oidc": "^22.0.2",
     "concurrently": "^10.0.5",
     "cross-env": "^10.1.0",
     "electron": "^44.4.5",
