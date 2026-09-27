@@ -13,6 +13,7 @@ import oauthConfig from 'config/authConfig.json';
 @Injectable()
 export class UserService {
   private _userData: any;
+  private logoutTimer: any;
 
   private updatingState = new BehaviorSubject<boolean>(false);
   public updatingState$ = this.updatingState.asObservable();
@@ -49,13 +50,24 @@ export class UserService {
     let expiresAt = JSON.parse(localStorage.getItem('expires_at'));
     let expireTime = (expiresAt - 300000) - Date.now();
 
-    setTimeout(this.logout.bind(this), expireTime);
+    clearTimeout(this.logoutTimer);
+    this.logoutTimer = setTimeout(this.logout.bind(this), expireTime);
 
     this.http.get(`${oauthConfig.authBaseURI}/api/v1/me.json`, options)
-      .subscribe((res) => {
-        this._userData = res;
-        this.updatingState.next(false);
-        this.userLoggedIn.next(false);
+      .subscribe({
+        next: (res) => {
+          this._userData = res;
+          this.updatingState.next(false);
+          this.userLoggedIn.next(false);
+        },
+        error: (err) => {
+          // Reddit rejected the token (revoked or expired), so the user is
+          // effectively logged out and should see the login screen again.
+          if (err.status === 401 || err.status === 403)
+            this.logout();
+          else
+            this.updatingState.next(false);
+        }
       });
   }
 
@@ -86,7 +98,9 @@ export class UserService {
     console.log("loggin out")
 
     this.updatingState.next(true);
+    clearTimeout(this.logoutTimer);
     this.oAuthService.logOut();
+    this._userData = null;
     this.userLoggedIn.next(false);
     this.updatingState.next(false);
   }

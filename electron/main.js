@@ -124,16 +124,24 @@ ipcMain.on('window:popup', (ev, url, width, height, title) => {
 
 // Reddit login: opens Reddit's authorize page in its own window and resolves
 // with the hash fragment (including the leading '#') Reddit appends to the
-// redirect URI, or null if the user closes the window.
+// redirect URI, or null if the user closes the window. While a login window
+// is already open, further requests just focus it and resolve with null.
+
+let authWindow = null;
 
 ipcMain.handle('auth:login', (ev, url) => {
   if (!url.startsWith(`${oauthConfig.loginUrl}?`))
     throw new Error('Unexpected login URL');
 
+  if (authWindow && !authWindow.isDestroyed()) {
+    authWindow.focus();
+    return null;
+  }
+
   return new Promise((resolve) => {
     let settled = false;
 
-    const authWindow = new BrowserWindow({
+    const loginWindow = new BrowserWindow({
       width: 875,
       height: 600,
       show: false,
@@ -141,13 +149,15 @@ ipcMain.handle('auth:login', (ev, url) => {
       webPreferences: { sandbox: true }
     });
 
+    authWindow = loginWindow;
+
     const finish = (result) => {
       if (settled) return;
       settled = true;
       resolve(result);
 
-      if (!authWindow.isDestroyed())
-        authWindow.destroy();
+      if (!loginWindow.isDestroyed())
+        loginWindow.destroy();
     };
 
     const handleNavigation = (navEv, newUrl) => {
@@ -160,12 +170,12 @@ ipcMain.handle('auth:login', (ev, url) => {
       finish(hashIndex === -1 ? '' : newUrl.slice(hashIndex));
     };
 
-    authWindow.webContents.on('will-redirect', handleNavigation);
-    authWindow.webContents.on('will-navigate', handleNavigation);
-    authWindow.once('ready-to-show', () => authWindow.show());
-    authWindow.on('closed', () => finish(null));
+    loginWindow.webContents.on('will-redirect', handleNavigation);
+    loginWindow.webContents.on('will-navigate', handleNavigation);
+    loginWindow.once('ready-to-show', () => loginWindow.show());
+    loginWindow.on('closed', () => finish(null));
 
-    authWindow.loadURL(url);
+    loginWindow.loadURL(url);
   });
 });
 

@@ -23,7 +23,7 @@ export class RootLayout implements OnInit, OnDestroy {
 
   constructor(
     private cdr: ChangeDetectorRef,
-    private user: UserService,
+    public user: UserService,
     private zone: NgZone
   ) { }
 

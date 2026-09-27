@@ -18,10 +18,10 @@ export class SubredditService {
     private userService: UserService
   ) { }
 
+  // The app is only usable while logged in (Reddit blocks the public
+  // .json endpoints), so every request goes through the OAuth API.
   get apiRootURL(): string {
-    return this.userService.isAuthenticated()
-      ? apiConfig.authBaseURI
-      : apiConfig.baseURI;
+    return apiConfig.authBaseURI;
   }
 
   get reqOptions(): { headers:HttpHeaders, params:any } {

@@ -18,10 +18,10 @@ export class MultiredditService {
     private user: UserService
   ) { }
 
+  // The app is only usable while logged in (Reddit blocks the public
+  // .json endpoints), so every request goes through the OAuth API.
   get apiRootURL(): string {
-    return this.user.isAuthenticated()
-      ? apiConfig.authBaseURI
-      : apiConfig.baseURI;
+    return apiConfig.authBaseURI;
   }
 
   get reqOptions(): { headers:HttpHeaders, params:any } {
