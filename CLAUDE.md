@@ -40,7 +40,7 @@ There is no test suite and no linter. `ng build` type-checks the app and its tem
   - `components/` is one `ComponentsModule`.
 - **Auth**: Reddit's authorization-code flow for installed apps, in the system browser. It's configured in `app/config/authConfig.json`.
   - The `redirectUri` there (`http://127.0.0.1:65010/callback`) must exactly match the one registered at reddit.com/prefs/apps.
-  - `electron/auth.js`, in the main process, does the login:
+  - `electron/auth/`, in the main process, does the login. `browser-login.js` has the flow; `parseCallback()` is the pure decision logic for a request, and a `LoginAttempt` holds one login in progress. `tokens.js` has the token requests and refresh-token storage. It:
     - starts an HTTP server on the redirect URI's address, then opens the authorize URL with `shell.openExternal`
     - checks `state` on the callback, then exchanges the code (Basic auth `client_id:` with an empty secret, via `net.fetch`)
     - closes the server afterwards

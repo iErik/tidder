@@ -79,7 +79,7 @@ export class UserService {
   }
 
   // Opens Reddit's login page in the system browser. The main process
-  // (see electron/auth.js) waits for Reddit to redirect back to Tidder.
+  // (see electron/auth/browser-login.js) waits for Reddit to redirect back.
   login(): void {
     if (this.loginStatus.getValue().state === 'waiting') {
       // Already waiting: this just opens the login page in the browser again.

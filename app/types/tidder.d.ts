@@ -17,7 +17,7 @@ interface TidderBridge {
   openExternal(url: string): void;
   openPopup(url: string, width: number, height: number, title?: string): void;
 
-  // Reddit login in the system browser (see electron/auth.js).
+  // Reddit login in the system browser (see electron/auth/).
   auth: {
     // Tokens once logged in, null if the user declined or cancelled, or
     // { error } if the login couldn't be completed.

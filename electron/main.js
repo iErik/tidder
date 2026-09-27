@@ -123,7 +123,7 @@ ipcMain.on('window:popup', (ev, url, width, height, title) => {
   popup.loadURL(url);
 });
 
-// Reddit login (see auth.js). Errors are returned as { error } rather than
+// Reddit login (see auth/). Errors are returned as { error } rather than
 // thrown, so the renderer gets a readable message.
 
 ipcMain.handle('auth:login', async () => {
