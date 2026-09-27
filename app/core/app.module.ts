@@ -6,8 +6,6 @@ import {
   withInterceptorsFromDi
 } from '@angular/common/http';
 
-import { provideOAuthClient }               from 'angular-oauth2-oidc';
-
 import { ServicesModule }                   from 'services/services.module';
 import { LayoutsModule }                    from 'layouts/layouts.module';
 import { PagesModule }                      from 'pages/pages.module';
@@ -29,7 +27,6 @@ import { CustomRouteReuseStrategy }         from './app.definitions';
   providers: [
     provideZoneChangeDetection(),
     provideHttpClient(withInterceptorsFromDi()),
-    provideOAuthClient(),
 
     {
       provide: RouteReuseStrategy,

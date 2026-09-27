@@ -1,6 +1,8 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 
-import { UserService } from 'services/user-service/user.service';
+import { Observable } from 'rxjs';
+
+import { UserService, LoginStatus } from 'services/user-service/user.service';
 
 @Component({
   standalone: false,
@@ -11,9 +13,17 @@ import { UserService } from 'services/user-service/user.service';
 })
 
 export class LoginScreenComponent {
-  constructor(private user: UserService) { }
+  public status$: Observable<LoginStatus>;
+
+  constructor(private user: UserService) {
+    this.status$ = user.loginStatus$;
+  }
 
   login(): void {
     this.user.login();
+  }
+
+  cancel(): void {
+    this.user.cancelLogin();
   }
 }

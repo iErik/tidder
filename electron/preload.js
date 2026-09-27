@@ -29,7 +29,12 @@ contextBridge.exposeInMainWorld('tidder', {
   openPopup: (url, width, height, title) =>
     ipcRenderer.send('window:popup', url, width, height, title),
 
-  login: (url) => ipcRenderer.invoke('auth:login', url),
+  auth: {
+    login: () => ipcRenderer.invoke('auth:login'),
+    cancel: () => ipcRenderer.send('auth:cancel'),
+    refresh: () => ipcRenderer.invoke('auth:refresh'),
+    logout: () => ipcRenderer.invoke('auth:logout')
+  },
 
   settings: {
     get: (key) => settingsCache[key],

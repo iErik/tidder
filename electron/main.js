@@ -1,6 +1,7 @@
 const path = require('path');
-const { app, BrowserWindow, ipcMain, Menu, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, session, shell } = require('electron');
 
+const auth = require('./auth');
 const settings = require('./settings');
 
 const devServerUrl = process.env.TIDDER_DEV_URL;
@@ -122,65 +123,44 @@ ipcMain.on('window:popup', (ev, url, width, height, title) => {
   popup.loadURL(url);
 });
 
-// Reddit login: opens Reddit's authorize page in its own window and resolves
-// with the hash fragment (including the leading '#') Reddit appends to the
-// redirect URI, or null if the user closes the window. While a login window
-// is already open, further requests just focus it and resolve with null.
+// Reddit login (see auth/). Errors are returned as { error } rather than
+// thrown, so the renderer gets a readable message.
 
-let authWindow = null;
+ipcMain.handle('auth:login', async () => {
+  try {
+    const tokens = await auth.login();
 
-ipcMain.handle('auth:login', (ev, url) => {
-  if (!url.startsWith(`${oauthConfig.loginUrl}?`))
-    throw new Error('Unexpected login URL');
+    if (tokens && mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
+      mainWindow.focus();
 
-  if (authWindow && !authWindow.isDestroyed()) {
-    authWindow.focus();
-    return null;
+      if (process.platform === 'darwin')
+        app.focus({ steal: true });
+    }
+
+    return tokens;
+  } catch (err) {
+    return { error: err.message };
   }
-
-  return new Promise((resolve) => {
-    let settled = false;
-
-    const loginWindow = new BrowserWindow({
-      width: 875,
-      height: 600,
-      show: false,
-      parent: mainWindow || undefined,
-      webPreferences: { sandbox: true }
-    });
-
-    authWindow = loginWindow;
-
-    const finish = (result) => {
-      if (settled) return;
-      settled = true;
-      resolve(result);
-
-      if (!loginWindow.isDestroyed())
-        loginWindow.destroy();
-    };
-
-    const handleNavigation = (navEv, newUrl) => {
-      if (!newUrl.startsWith(oauthConfig.redirectUri))
-        return;
-
-      navEv.preventDefault();
-
-      const hashIndex = newUrl.indexOf('#');
-      finish(hashIndex === -1 ? '' : newUrl.slice(hashIndex));
-    };
-
-    loginWindow.webContents.on('will-redirect', handleNavigation);
-    loginWindow.webContents.on('will-navigate', handleNavigation);
-    loginWindow.once('ready-to-show', () => loginWindow.show());
-    loginWindow.on('closed', () => finish(null));
-
-    loginWindow.loadURL(url);
-  });
 });
+
+ipcMain.on('auth:cancel', () => auth.cancelLogin());
+ipcMain.handle('auth:refresh', () => auth.refresh());
+ipcMain.handle('auth:logout', () => auth.logout());
 
 app.whenReady().then(() => {
   settings.load();
+
+  // Reddit asks API clients to identify themselves with a descriptive
+  // User-Agent instead of a generic browser one.
+  session.defaultSession.webRequest.onBeforeSendHeaders(
+    { urls: [`${oauthConfig.authBaseURI}/*`] },
+    (details, callback) => {
+      details.requestHeaders['User-Agent'] = auth.userAgent();
+      callback({ requestHeaders: details.requestHeaders });
+    });
+
   openMainWindow();
 });
 

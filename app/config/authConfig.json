@@ -1,11 +1,12 @@
 { "clientId": "SQQZtXuPBE9H8A"
 , "baseURI": "https://www.reddit.com"
 , "authBaseURI": "https://oauth.reddit.com"
-, "loginUrl": "https://www.reddit.com/api/v1/authorize"
-, "logoutUrl": "#"
-, "redirectUri": "http://localhost"
-, "enableOidc": false
-, "requireHttps": false
+, "authorizeUrl": "https://www.reddit.com/api/v1/authorize"
+, "tokenUrl": "https://www.reddit.com/api/v1/access_token"
+, "revokeUrl": "https://www.reddit.com/api/v1/revoke_token"
+, "redirectUri": "http://127.0.0.1:65010/callback"
+, "duration": "permanent"
+, "developer": "Lhaer"
 , "scope":
     [ "read"
     , "edit"

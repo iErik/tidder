@@ -20,6 +20,8 @@ $heading-button-spacing: 25px;
 }
 
 .login-prompt {
+  position: relative;
+
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -58,6 +60,61 @@ $heading-button-spacing: 25px;
   transition: background-color 300ms ease-in-out;
 }
 
+// While waiting for the browser, the button's space holds a short note.
+// The text buttons and error messages hang below the prompt so the
+// heading doesn't move when they appear.
+.login-waiting {
+  margin: 0;
+
+  height: 40px;
+  line-height: 40px;
+
+  font-family: $font-sans;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1.875px;
+  text-transform: uppercase;
+  -webkit-font-smoothing: antialiased;
+}
+
+.login-actions {
+  position: absolute;
+  top: 100%;
+
+  display: flex;
+  gap: 20px;
+}
+
+.btn-link {
+  padding: 0;
+
+  border: 0;
+  background: none;
+
+  font-family: $font-sans;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1.875px;
+  text-transform: uppercase;
+  -webkit-font-smoothing: antialiased;
+
+  cursor: pointer;
+}
+
+.login-error {
+  position: absolute;
+  top: 100%;
+
+  width: 320px;
+  margin: 15px 0 0;
+
+  font-family: $font-sans;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  -webkit-font-smoothing: antialiased;
+}
+
 //  Theming
 //  -------
 
@@ -71,5 +128,9 @@ $heading-button-spacing: 25px;
 
       &:hover { background-color: darken(primary-color(), 5%); }
     }
+
+    .login-waiting { color: foreground-color(); }
+    .btn-link { color: primary-color(); }
+    .login-error { color: rgba(foreground-color(), 0.8); }
   }
 }

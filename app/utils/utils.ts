@@ -72,9 +72,3 @@ export function togglePageScroll(scrollState: boolean) {
     document.body.className = document.body.className.replace('no-scroll', '');
   }
 }
-
-export function generateStateString(length: number) {
-    let str = "";
-    for ( ; str.length < length; str += Math.random().toString( 36 ).substr( 2 ) );
-    return str.substr( 0, length );
-}

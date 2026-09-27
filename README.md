@@ -39,6 +39,17 @@ npm install
 
 Electron downloads its own binary the first time it runs.
 
+### Reddit app registration
+
+Tidder logs in through your default browser, and Reddit then redirects back
+to a small local server the app runs during login. The Reddit app whose client
+ID is in `app/config/authConfig.json` must be an "installed app" with this
+redirect URI, set at [reddit.com/prefs/apps](https://www.reddit.com/prefs/apps):
+
+```
+http://127.0.0.1:65010/callback
+```
+
 ### Building for development
 
 To run the development version of the application locally, run:
