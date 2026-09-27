@@ -2,12 +2,9 @@ import { NgModule }                         from '@angular/core';
 import { CommonModule }                     from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule }                     from '@angular/router';
-import { BrowserAnimationsModule }          from '@angular/platform-browser/animations';
 
-import { MomentModule }                     from 'angular2-moment';
-import { TagInputModule }                   from 'ngx-chips';
+import { MomentModule }                     from 'ngx-moment';
 import { InfiniteScrollModule }             from 'ngx-infinite-scroll';
-//import { TextareaAutosizeModule }           from 'ngx-textarea-autosize';
 
 import { SubInfoFeedCardComponent }         from './sub-info-feed-card';
 import { PostFeedFiltersComponent }         from './post-feed-filters';
@@ -55,11 +52,8 @@ const components =
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    BrowserAnimationsModule,
 
-//    TextareaAutosizeModule,
     InfiniteScrollModule,
-    TagInputModule,
     MomentModule
   ],
 

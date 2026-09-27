@@ -1,4 +1,4 @@
-@import '~styles/helpers/module';
+@import 'styles/helpers/module';
 
 //  Variables
 //  ---------
@@ -178,4 +178,20 @@
       }
     }
   }
+}
+
+//  Menu Animations
+//  ---------------
+
+.fade-enter {
+  animation: fade-in 200ms;
+}
+
+.fade-leave {
+  animation: fade-in 200ms reverse;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }

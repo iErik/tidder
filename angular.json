@@ -1,0 +1,61 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm",
+    "analytics": false
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "tidder": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "outputPath": "dist/renderer",
+            "index": "app/index.html",
+            "browser": "app/main.ts",
+            "polyfills": ["zone.js"],
+            "tsConfig": "tsconfig.app.json",
+            "allowedCommonJsDependencies": ["moment"],
+            "baseHref": "./",
+            "assets": [],
+            "styles": ["app/styles/index.scss"],
+            "stylePreprocessorOptions": {
+              "includePaths": ["app"],
+              "sass": {
+                "silenceDeprecations": ["import", "global-builtin", "color-functions", "slash-div", "if-function"]
+              }
+            }
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "all",
+              "budgets": [
+                { "type": "initial", "maximumWarning": "4mb", "maximumError": "8mb" },
+                { "type": "anyComponentStyle", "maximumWarning": "64kb", "maximumError": "128kb" }
+              ]
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": { "buildTarget": "tidder:build:production" },
+            "development": { "buildTarget": "tidder:build:development" }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    }
+  }
+}

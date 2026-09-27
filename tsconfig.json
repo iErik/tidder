@@ -1,25 +1,32 @@
 {
+  "compileOnSave": false,
   "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "baseUrl": "./app",
-    "paths": {
-      "utils": [ "./app/utils" ],
-      "core": [ "./app/core" ],
-      "pages": [ "./app/pages" ],
-      "styles": [ "./app/styles" ],
-      "static": [ "./app/static" ],
-      "config": [ "./app/config" ],
-      "layouts": [ "./app/layouts" ],
-      "services": [ "./app/services" ],
-      "components": [ "./app/components" ]
-    },
-    "sourceMap": true,
-    "emitDecoratorMetadata": true,
+    "outDir": "./dist/out-tsc",
+    "target": "ES2022",
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "dom"],
     "experimentalDecorators": true,
-    "lib": [ "es2015", "dom" ],
+    "importHelpers": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "sourceMap": true,
     "noImplicitAny": false,
-    "suppressImplicitAnyIndexErrors": true
+    "strict": false,
+    "paths": {
+      "core/*": ["./app/core/*"],
+      "utils/*": ["./app/utils/*"],
+      "pages/*": ["./app/pages/*"],
+      "config/*": ["./app/config/*"],
+      "layouts/*": ["./app/layouts/*"],
+      "services/*": ["./app/services/*"],
+      "components/*": ["./app/components/*"]
+    }
+  },
+  "angularCompilerOptions": {
+    "strictTemplates": false,
+    "strictInjectionParameters": true
   }
 }

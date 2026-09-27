@@ -1,8 +1,10 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 
 import { PostsService } from 'services/posts-service/posts.service';
 
 @Component({
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'comment-editor',
   templateUrl: './comment-editor.component.html',
   styleUrls: [ './comment-editor.component.scss' ]

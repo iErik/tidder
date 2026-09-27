@@ -15,6 +15,7 @@ import { UserService } from 'services/user-service/user.service';
 import { findWhere, where, isEmpty } from 'underscore';
 
 @Component({
+  standalone: false,
   selector: 'comment-feed',
   templateUrl: './comment-feed.component.html',
   styleUrls: [ './comment-feed.component.scss' ],

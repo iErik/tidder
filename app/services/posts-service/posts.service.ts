@@ -3,13 +3,12 @@ import { HttpClient, HttpResponse, HttpHeaders, HttpParams } from '@angular/comm
 
 import { UserService } from 'services/user-service/user.service';
 
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/catch';
+import { Observable, throwError } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 import { each, where, findWhere, findIndex, filter } from 'underscore';
 
-const apiConfig = require('config/authConfig.json');
+import apiConfig from 'config/authConfig.json';
 
 @Injectable()
 export class PostsService {
@@ -43,8 +42,7 @@ export class PostsService {
 
     return this.http
       .get(postsUri, { ...this.reqOptions, params })
-      .map((res:any) => res.data)
-      .catch(this.handleError)
+      .pipe(map((res:any) => res.data), catchError(this.handleError))
   }
 
   getSavedPosts(sort='hot', after='', limit='15', type='link'): Observable<any> {
@@ -53,8 +51,7 @@ export class PostsService {
 
     return this.http
       .get(`${this.apiRootURL}/user/${userName}/saved`, { ...this.reqOptions, params })
-      .map((res:any) => res.data)
-      .catch(this.handleError);
+      .pipe(map((res:any) => res.data), catchError(this.handleError));
   }
 
   //  TODO: Rename to searchPosts
@@ -67,8 +64,7 @@ export class PostsService {
 
     return this.http
       .get(postsUri, { ...this.reqOptions, params })
-      .map((res:any) => res.data)
-      .catch(this.handleError);
+      .pipe(map((res:any) => res.data), catchError(this.handleError));
   }
 
   // TODO: Make sure the sorting mode works
@@ -77,8 +73,7 @@ export class PostsService {
 
     return this.http
       .get(`${this.apiRootURL}/r/${sr}/comments/${postId}/.json`, { ...this.reqOptions, params })
-      .map(res => ({ post: res[0].data.children[0].data, comments: res[1].data.children }))
-      .catch(this.handleError)
+      .pipe(map(res => ({ post: res[0].data.children[0].data, comments: res[1].data.children })), catchError(this.handleError))
   }
 
   getMoreComments(postId:string, children:string[], sort:string, limit_children = false): Observable<any> {
@@ -92,8 +87,7 @@ export class PostsService {
 
     return this.http
       .get(`${this.apiRootURL}/api/morechildren.json`, { ...this.reqOptions, params })
-      .map(this.unflattenPostComments)
-      .catch(this.handleError);
+      .pipe(map(this.unflattenPostComments), catchError(this.handleError));
   }
 
   submitPost(post): Observable<any> {
@@ -101,8 +95,7 @@ export class PostsService {
 
     return this.http
       .post(`${this.apiRootURL}/api/submit`, { }, { ...this.reqOptions, params })
-      .map((res:any) => res.json)
-      .catch(this.handleError);
+      .pipe(map((res:any) => res.json), catchError(this.handleError));
   }
 
   submitComment(comment): Observable<any> {
@@ -110,8 +103,7 @@ export class PostsService {
 
     return this.http
       .post(`${this.apiRootURL}/api/comment`, { }, { ...this.reqOptions, params })
-      .map((res:any) => res.json)
-      .catch(this.handleError);
+      .pipe(map((res:any) => res.json), catchError(this.handleError));
   }
 
   saveThing(id: string): Observable<any> {
@@ -119,8 +111,7 @@ export class PostsService {
 
     return this.http
       .post(`${this.apiRootURL}/api/save`, {}, { ...this.reqOptions, params })
-      .map((res:any) => res.json)
-      .catch(this.handleError);
+      .pipe(map((res:any) => res.json), catchError(this.handleError));
   }
 
   unsaveThing(id: string): Observable<any> {
@@ -128,8 +119,7 @@ export class PostsService {
 
     return this.http
       .post(`${this.apiRootURL}/api/unsave/`, {}, { ...this.reqOptions, params })
-      .map((res:any) => res.json)
-      .catch(this.handleError);
+      .pipe(map((res:any) => res.json), catchError(this.handleError));
   }
 
   vote(id: string, dir: number): Observable<any> {
@@ -137,8 +127,7 @@ export class PostsService {
 
     return this.http
       .post(`${this.apiRootURL}/api/vote`, {}, { ...this.reqOptions, params })
-      .map((res:any) => res.json)
-      .catch(this.handleError);
+      .pipe(map((res:any) => res.json), catchError(this.handleError));
   }
 
   reportThing(thing_id: string, reason: object): Observable<any> {
@@ -146,8 +135,7 @@ export class PostsService {
 
     return this.http
       .post(`${this.apiRootURL}/api/report`, {}, { ...this.reqOptions, params })
-      .map((res:any) => res.json)
-      .catch(this.handleError);
+      .pipe(map((res:any) => res.json), catchError(this.handleError));
   }
 
   private handleError(error: HttpResponse<Error> | any): Observable<any> {
@@ -162,7 +150,7 @@ export class PostsService {
     }
 
     console.error(errMsg);
-    return Observable.throw(errMsg);
+    return throwError(() => errMsg);
   }
 
   private unflattenPostComments(res: any): any {

@@ -1,23 +1,25 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 
 import { FeedService } from 'services/feed-service/feed.service';
 import { UserService } from 'services/user-service/user.service';
 
-import { ISubscription } from 'rxjs/Subscription';
-import 'rxjs/add/operator/skip';
+import { Subscription } from 'rxjs';
+import { filter, skip } from 'rxjs/operators';
 
 import { isEmpty } from 'underscore';
 import { togglePageScroll } from 'utils/utils';
 
 @Component({
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './feed.page.html',
   providers: [ FeedService ]
 })
 
 export class FeedPage implements OnInit, OnDestroy {
   public currentPost: any;
-  private routerSubscription: ISubscription;
+  private routerSubscription: Subscription;
 
   // We could perhaps create a separate service for FeedActions
   public showOverlay: boolean = false;
@@ -35,8 +37,10 @@ export class FeedPage implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.routerSubscription = this.router.events
-      .skip(1)
-      .filter(ev => ev instanceof NavigationEnd)
+      .pipe(
+        skip(1),
+        filter((ev): ev is NavigationEnd => ev instanceof NavigationEnd)
+      )
       .subscribe((ev: NavigationEnd) => this.changeSource());
 
     this.changeSource();

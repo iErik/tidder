@@ -11,3 +11,8 @@ node_modules
 node_modules/
 release
 release/
+
+.direnv/
+dist/
+.angular/
+app/styles/helpers/_themes.generated.scss

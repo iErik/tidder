@@ -1,4 +1,4 @@
-@import '~styles/helpers/module';
+@import 'styles/helpers/module';
 
 //  Variables
 //  ---------
@@ -57,7 +57,7 @@ $btn-red-color:   #E3472F;
 }
 
 // Select the actual content that goes into the component.
-:host /deep/ {
+:host ::ng-deep {
   .label {
     font-size: 12px;
     font-weight: 400;

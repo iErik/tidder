@@ -4,20 +4,21 @@ import {
   DoCheck,
   Input,
   OnInit,
-  OnDestroy
+  OnDestroy,
+  ChangeDetectionStrategy
 } from '@angular/core';
 
 import { MultiredditService } from 'services/multireddit-service/multireddit.service';
 import { SubredditService } from 'services/subreddit-service/subreddit.service';
 import { UserService } from 'services/user-service/user.service';
 
-import { ISubscription } from 'rxjs/Subscription';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
+import { Subscription, BehaviorSubject, Observable } from 'rxjs';
 
 import { map, sortBy, reject, findIndex, isEmpty } from 'underscore';
 
 @Component({
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-sidebar',
   templateUrl: 'sidebar.component.html',
   styleUrls: [ 'sidebar.component.scss' ]
@@ -26,7 +27,7 @@ import { map, sortBy, reject, findIndex, isEmpty } from 'underscore';
 export class SidebarComponent implements OnInit, OnDestroy {
   @Input() isActive: boolean = false;
 
-  private multiEventsSubscription: ISubscription;
+  private multiEventsSubscription: Subscription;
   public multiredditList: Array<any> = [];
   public loadingMultiList: boolean = false;
 

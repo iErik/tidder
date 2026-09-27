@@ -1,5 +1,3 @@
-import { remote } from 'electron';
-
 //  I had to write this function because Boolean(-1) will return true,
 //  and while this is correct, this is not always what you want.
 export function numToBoolean(num) {
@@ -7,25 +5,7 @@ export function numToBoolean(num) {
 }
 
 export function popupWindow(url:string, w:number, h:number, title?: string): void {
-  let popWindow = new remote.BrowserWindow({
-    width: w,
-    height: h,
-    show: true,
-    title: title || '',
-    webPreferences: { nodeIntegration: false }
-  });
-
-  popWindow.loadURL(url);
-
-  popWindow.on('ready-to-show', () => {
-    popWindow.show();
-    popWindow.focus();
-  });
-
-  popWindow.on('closed', () => {
-    popWindow.destroy();
-    popWindow = null;
-  });
+  window.tidder.openPopup(url, w, h, title);
 }
 
 export function capitalizeFirstLetter(string) {

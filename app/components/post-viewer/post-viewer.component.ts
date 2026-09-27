@@ -8,6 +8,7 @@ import {
 
 
 @Component({
+  standalone: false,
   selector: 'post-viewer',
   templateUrl: './post-viewer.component.html',
   styleUrls: [ './post-viewer.component.scss' ],

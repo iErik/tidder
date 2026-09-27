@@ -3,14 +3,10 @@ import { HttpClient, HttpResponse, HttpHeaders, HttpParams } from '@angular/comm
 
 import { OAuthService } from 'angular-oauth2-oidc';
 
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
-
-import { remote } from 'electron';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 import { generateStateString } from 'utils/utils';
-const oauthConfig = require('config/authConfig.json');
+import oauthConfig from 'config/authConfig.json';
 
 // TODO: Create a proper events API
 
@@ -35,6 +31,10 @@ export class UserService {
     this.oAuthService.requireHttps = oauthConfig.requireHttps;
 
     this.oAuthService.oidc = oauthConfig.enableOidc;
+
+    // Newer versions of angular-oauth2-oidc append the redirect URI to the
+    // logout URL by default; Tidder's logout URL is just the app's root route.
+    this.oAuthService.redirectUriAsPostLogoutRedirectUriFallback = false;
     this.oAuthService.setStorage(localStorage);
 
     if (this.isAuthenticated() && !this._userData)
@@ -61,34 +61,24 @@ export class UserService {
 
   login(): void {
     let stateString = generateStateString(32);
-    let authWindow = new remote.BrowserWindow({
-      width: 875,
-      height: 600,
-      webPreferences: { nodeIntegration: false }
-    });
 
-    authWindow.loadURL(
+    let loginUrl =
       `${oauthConfig.loginUrl}?` + `client_id=${oauthConfig.clientId}` +
       `&redirect_uri=${oauthConfig.redirectUri}` +
       `&scope=${oauthConfig.scope.join(',')}` +
       `&state=${stateString}` +
-      `&response_type=token`
-    )
+      `&response_type=token`;
 
-    authWindow.on('ready-to-show', () => authWindow.show());
+    // The login window lives in the main process (see electron/main.js),
+    // which hands back the hash fragment Reddit redirects to.
+    window.tidder.login(loginUrl).then((hashFragment) => {
+      if (!hashFragment) return;
 
-    authWindow.webContents.on('will-navigate', (ev, newUrl) => {
-      let urlHash = newUrl.match(/^https?:\/\/localhost\/(.*)/);
-
-      if (urlHash && urlHash.length > 1) {
-        this.oAuthService.tryLogin({
-          customHashFragment: urlHash[1],
-          disableOAuth2StateCheck: true,
-        }).then(this.getIdentity.bind(this));
-
-        authWindow.destroy();
-        authWindow = null;
-      }
+      this.oAuthService.tryLogin({
+        customHashFragment: hashFragment,
+        disableOAuth2StateCheck: true,
+        disableNonceCheck: true,
+      }).then(this.getIdentity.bind(this));
     });
   }
 
