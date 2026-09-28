@@ -3,14 +3,12 @@ import { HttpClient, HttpResponse, HttpHeaders, HttpParams } from '@angular/comm
 
 import { UserService } from 'services/user-service/user.service';
 
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/observable/throw';
+import { Observable, throwError } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 import * as _ from 'underscore';
 
-const apiConfig = require('config/authConfig.json');
+import apiConfig from 'config/authConfig.json';
 
 @Injectable()
 export class SubredditService {
@@ -20,10 +18,10 @@ export class SubredditService {
     private userService: UserService
   ) { }
 
+  // The app is only usable while logged in (Reddit blocks the public
+  // .json endpoints), so every request goes through the OAuth API.
   get apiRootURL(): string {
-    return this.userService.isAuthenticated()
-      ? apiConfig.authBaseURI
-      : apiConfig.baseURI;
+    return apiConfig.authBaseURI;
   }
 
   get reqOptions(): { headers:HttpHeaders, params:any } {
@@ -38,34 +36,25 @@ export class SubredditService {
 
     return this.http
       .post(`${this.apiRootURL}/api/site_admin`, { }, reqOptions)
-      .catch(this.handleError);
+      .pipe(catchError(this.handleError));
   }
 
   getSubInfo(srName: string): Observable<any> {
     return this.http
       .get(`${this.apiRootURL}/r/${srName}/about.json`, this.reqOptions)
-      .map((res:any) => res.data)
-      .catch(this.handleError);
+      .pipe(map((res:any) => res.data), catchError(this.handleError));
   }
 
   getSubRules(srName: string): Observable<any> {
     return this.http
       .get(`${this.apiRootURL}/r/${srName}/about/rules.json`, this.reqOptions)
-      .catch(this.handleError);
+      .pipe(catchError(this.handleError));
   }
 
   getSubMods(srName: string): Observable<any> {
     return this.http
       .get(`${this.apiRootURL}/r/${srName}/about/moderators.json`, this.reqOptions)
-      .map((res:any) => res.data)
-      .catch(this.handleError);
-  }
-
-  getSubStyle(srName: string): Observable<any> {
-    return this.http
-      .get(`${apiConfig.baseURI}/r/${srName}/about/stylesheet.json`)
-      .map(this.parseSubStyle)
-      .catch(this.handleError);
+      .pipe(map((res:any) => res.data), catchError(this.handleError));
   }
 
   setUserFlair(srName: string, flair_enabled: boolean): Observable<any> {
@@ -76,8 +65,7 @@ export class SubredditService {
 
     return this.http
       .post(`${this.apiRootURL}/r/${srName}/api/setflairenabled`, {}, reqOptions)
-      .map((res:any) => res.json)
-      .catch(this.handleError);
+      .pipe(map((res:any) => res.json), catchError(this.handleError));
   }
 
   searchSubs(term:string, sort = 'relevance', after = '', limit = '15'): Observable<any> {
@@ -85,8 +73,7 @@ export class SubredditService {
 
     return this.http
       .get(`${this.apiRootURL}/search.json?q=${term}&type=sr`, reqOptions)
-      .map((res:any) => res.data)
-      .catch(this.handleError);
+      .pipe(map((res:any) => res.data), catchError(this.handleError));
   }
 
   searchSubNames(query: string, exact=false, include_over_18=true): Observable<any> {
@@ -100,8 +87,7 @@ export class SubredditService {
 
     return this.http
       .post(`${this.apiRootURL}/api/search_reddit_names.json`, body, reqOptions)
-      .map((res:any) => res.names)
-      .catch(this.handleError);
+      .pipe(map((res:any) => res.names), catchError(this.handleError));
   }
 
   getUserSubs(where = 'subscriber', after: string, limit = '25'): Observable<any> {
@@ -109,8 +95,7 @@ export class SubredditService {
 
     return this.http
       .get(`${this.apiRootURL}/subreddits/mine/${where}/.json`, reqOptions)
-      .map(this.mapSubListing)
-      .catch(this.handleError);
+      .pipe(map(this.mapSubListing), catchError(this.handleError));
   }
 
   getSubs(where = 'popular', after: string, limit = '25'): Observable<any> {
@@ -118,8 +103,7 @@ export class SubredditService {
 
     return this.http
       .get(`${this.apiRootURL}/subreddits/${where}/.json`, reqOptions)
-      .map(this.mapSubListing)
-      .catch(this.handleError);
+      .pipe(map(this.mapSubListing), catchError(this.handleError));
   }
 
   subscribeUser(sr: string, action: string): Observable<any> {
@@ -127,24 +111,7 @@ export class SubredditService {
 
     return this.http
       .post(`${this.apiRootURL}/api/subscribe`, {}, reqOptions)
-      .catch(this.handleError);
-  }
-
-  private parseSubStyle(res: any): string {
-    var stylesheet = res.data.stylesheet;
-    var images = res.data.images;
-
-    let re = new RegExp("%{2}(?![()])([A-Za-z0-9_\-]+)%{2}", "g");
-
-    return stylesheet.replace(re, (match, imgName) => {
-      let imgUrl = '';
-
-      images.forEach((image) => {
-        if (image.name === imgName) imgUrl = image.url;
-      });
-
-      return imgUrl;
-    });
+      .pipe(catchError(this.handleError));
   }
 
   private mapSubListing(res: any): string {
@@ -165,6 +132,6 @@ export class SubredditService {
     }
 
     console.error(errMsg);
-    return Observable.throw(error);
+    return throwError(() => error);
   }
 }

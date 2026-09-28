@@ -1,28 +1,16 @@
-import { Component } from '@angular/core';
-import { trigger, style, animate, transition } from '@angular/animations';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
-const settings = require('electron-settings');
-const appThemes = require('config/themes.json').appThemes;
+import themesConfig from 'config/themes.json';
+
+const settings = window.tidder.settings;
+const appThemes = themesConfig.appThemes;
 
 @Component({
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'theme-picker',
   templateUrl: './theme-picker.component.html',
-  styleUrls: [ './theme-picker.component.scss' ],
-
-  animations: [
-    trigger(
-    'enterAnimation'
-    , [ transition(':enter',
-        [ style({ opacity: 0 })
-        , animate('200ms', style({ opacity: 1 }))
-        ])
-      , transition(':leave',
-        [ style({ opacity: 1 })
-        , animate('200ms', style({ opacity: 0 }))
-        ])
-      ]
-    )
-  ]
+  styleUrls: [ './theme-picker.component.scss' ]
 })
 
 export class ThemePickerComponent {

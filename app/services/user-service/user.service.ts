@@ -1,22 +1,26 @@
-import { Injectable, NgZone } from '@angular/core';
-import { HttpClient, HttpResponse, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { OAuthService } from 'angular-oauth2-oidc';
+import { BehaviorSubject } from 'rxjs';
 
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
+import oauthConfig from 'config/authConfig.json';
 
-import { remote } from 'electron';
+// Refresh the access token this long before it expires, and wait this long
+// before retrying when Reddit can't be reached.
+const REFRESH_MARGIN = 5 * 60 * 1000;
+const REFRESH_RETRY_DELAY = 60 * 1000;
 
-import { generateStateString } from 'utils/utils';
-const oauthConfig = require('config/authConfig.json');
+export interface LoginStatus {
+  state: 'idle' | 'waiting' | 'error';
+  message?: string;
+}
 
 // TODO: Create a proper events API
 
 @Injectable()
 export class UserService {
   private _userData: any;
+  private refreshTimer: any;
 
   private updatingState = new BehaviorSubject<boolean>(false);
   public updatingState$ = this.updatingState.asObservable();
@@ -24,101 +28,156 @@ export class UserService {
   private userLoggedIn  = new BehaviorSubject<boolean>(false);
   public  userLoggedIn$ = this.userLoggedIn.asObservable();
 
-  constructor(private http: HttpClient, private oAuthService: OAuthService) { }
+  private loginStatus = new BehaviorSubject<LoginStatus>({ state: 'idle' });
+  public  loginStatus$ = this.loginStatus.asObservable();
+
+  constructor(private http: HttpClient) { }
 
   setup(): void {
-    this.oAuthService.loginUrl = oauthConfig.loginUrl;
-    this.oAuthService.logoutUrl = oauthConfig.logoutUrl;
-    this.oAuthService.redirectUri = oauthConfig.redirectUri;
-    this.oAuthService.clientId = oauthConfig.clientId;
-    this.oAuthService.scope = oauthConfig.scope.join(',');
-    this.oAuthService.requireHttps = oauthConfig.requireHttps;
-
-    this.oAuthService.oidc = oauthConfig.enableOidc;
-    this.oAuthService.setStorage(localStorage);
-
-    if (this.isAuthenticated() && !this._userData)
+    if (this.hasValidToken()) {
+      this.userLoggedIn.next(true);
+      this.scheduleRefresh();
       this.getIdentity();
-  }
+      return;
+    }
 
-  getIdentity(): void {
-    console.log("Getting User Identity...");
-
+    // The access token is gone or expired; the main process may still have
+    // a refresh token from a previous session to log in with silently.
     this.updatingState.next(true);
-    let options = { headers: this.getAuthenticatedHeaders() };
-    let expiresAt = JSON.parse(localStorage.getItem('expires_at'));
-    let expireTime = (expiresAt - 300000) - Date.now();
 
-    setTimeout(this.logout.bind(this), expireTime);
-
-    this.http.get(`${oauthConfig.authBaseURI}/api/v1/me.json`, options)
-      .subscribe((res) => {
-        this._userData = res;
+    window.tidder.auth.refresh().then((result) => {
+      if (!result) {
         this.updatingState.next(false);
-        this.userLoggedIn.next(false);
-      });
-  }
-
-  login(): void {
-    let stateString = generateStateString(32);
-    let authWindow = new remote.BrowserWindow({
-      width: 875,
-      height: 600,
-      webPreferences: { nodeIntegration: false }
-    });
-
-    authWindow.loadURL(
-      `${oauthConfig.loginUrl}?` + `client_id=${oauthConfig.clientId}` +
-      `&redirect_uri=${oauthConfig.redirectUri}` +
-      `&scope=${oauthConfig.scope.join(',')}` +
-      `&state=${stateString}` +
-      `&response_type=token`
-    )
-
-    authWindow.on('ready-to-show', () => authWindow.show());
-
-    authWindow.webContents.on('will-navigate', (ev, newUrl) => {
-      let urlHash = newUrl.match(/^https?:\/\/localhost\/(.*)/);
-
-      if (urlHash && urlHash.length > 1) {
-        this.oAuthService.tryLogin({
-          customHashFragment: urlHash[1],
-          disableOAuth2StateCheck: true,
-        }).then(this.getIdentity.bind(this));
-
-        authWindow.destroy();
-        authWindow = null;
+      } else if ('error' in result) {
+        // There's a session, but Reddit couldn't be reached. Stay logged in
+        // and keep retrying rather than asking the user to log in again.
+        this.userLoggedIn.next(true);
+        this.updatingState.next(false);
+        this.scheduleRefresh(REFRESH_RETRY_DELAY);
+      } else {
+        this.storeTokens(result);
+        this.getIdentity();
       }
     });
   }
 
-  logout(): void {
-    console.log("loggin out")
-
+  getIdentity(): void {
     this.updatingState.next(true);
-    this.oAuthService.logOut();
+    let options = { headers: this.getAuthenticatedHeaders() };
+
+    this.http.get(`${oauthConfig.authBaseURI}/api/v1/me.json`, options)
+      .subscribe({
+        next: (res) => {
+          this._userData = res;
+          this.updatingState.next(false);
+          this.userLoggedIn.next(true);
+        },
+        error: (err) => {
+          // Reddit rejected the token (revoked or expired), so the user is
+          // effectively logged out and should see the login screen again.
+          if (err.status === 401 || err.status === 403)
+            this.logout();
+          else
+            this.updatingState.next(false);
+        }
+      });
+  }
+
+  // Opens Reddit's login page in the system browser. The main process
+  // (see electron/auth/browser-login.js) waits for Reddit to redirect back.
+  login(): void {
+    if (this.loginStatus.getValue().state === 'waiting') {
+      // Already waiting: this just opens the login page in the browser again.
+      window.tidder.auth.login();
+      return;
+    }
+
+    this.loginStatus.next({ state: 'waiting' });
+
+    window.tidder.auth.login().then((result) => {
+      if (!result) {
+        this.loginStatus.next({ state: 'idle' });
+      } else if ('error' in result) {
+        this.loginStatus.next({ state: 'error', message: result.error });
+      } else {
+        this.loginStatus.next({ state: 'idle' });
+        this.storeTokens(result);
+        this.getIdentity();
+      }
+    });
+  }
+
+  cancelLogin(): void {
+    window.tidder.auth.cancel();
+  }
+
+  logout(): void {
+    this.updatingState.next(true);
+    clearTimeout(this.refreshTimer);
+
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('expires_at');
+    window.tidder.auth.logout();
+
+    this._userData = null;
+    location.hash = '';
+
     this.userLoggedIn.next(false);
     this.updatingState.next(false);
   }
 
+  // Whether there's a session, not whether the access token is still valid:
+  // after the computer sleeps, or while Reddit can't be reached, the token
+  // may have expired while a refresh is still pending.
   isAuthenticated(): boolean {
-    const expiresAt = JSON.parse(localStorage.getItem('expires_at'));
-    return new Date().getTime() < expiresAt;
+    return this.userLoggedIn.getValue();
   }
 
   getToken(): string {
-    return this.oAuthService.getAccessToken();
+    return localStorage.getItem('access_token');
   }
 
   getAuthenticatedHeaders(): HttpHeaders {
-    let accessToken = this.oAuthService.getAccessToken();
-
-    return this.isAuthenticated()
-      ? new HttpHeaders({ 'Authorization': `Bearer ${accessToken}` })
+    return this.hasValidToken()
+      ? new HttpHeaders({ 'Authorization': `Bearer ${this.getToken()}` })
       : new HttpHeaders({ });
   }
 
   get userData() {
     return this._userData || { };
+  }
+
+  private storeTokens(tokens: TidderAuthTokens): void {
+    localStorage.setItem('access_token', tokens.accessToken);
+    localStorage.setItem('expires_at', String(Date.now() + tokens.expiresIn * 1000));
+
+    this.userLoggedIn.next(true);
+    this.scheduleRefresh();
+  }
+
+  private hasValidToken(): boolean {
+    const expiresAt = JSON.parse(localStorage.getItem('expires_at'));
+    return Date.now() < expiresAt;
+  }
+
+  // Access tokens last an hour; they're renewed shortly before expiring.
+  private scheduleRefresh(delay?: number): void {
+    const expiresAt = JSON.parse(localStorage.getItem('expires_at'));
+
+    clearTimeout(this.refreshTimer);
+    this.refreshTimer = setTimeout(
+      () => this.refreshSession(),
+      delay ?? Math.max(expiresAt - REFRESH_MARGIN - Date.now(), 0));
+  }
+
+  private refreshSession(): void {
+    window.tidder.auth.refresh().then((result) => {
+      if (!result)
+        this.logout();
+      else if ('error' in result)
+        this.scheduleRefresh(REFRESH_RETRY_DELAY);
+      else
+        this.storeTokens(result);
+    });
   }
 }

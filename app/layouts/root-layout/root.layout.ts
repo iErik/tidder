@@ -1,28 +1,29 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone, ChangeDetectionStrategy } from '@angular/core';
 
 import { UserService } from 'services/user-service/user.service';
 
-import { ISubscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 
-const settings = require('electron-settings');
-const os = require('os');
+const settings = window.tidder.settings;
 
 @Component({
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'root-layout',
   templateUrl: './root.layout.html'
 })
 
 export class RootLayout implements OnInit, OnDestroy {
-  public platform = os.platform();
+  public platform = window.tidder.platform;
   public showSidebar = false;
   public updatingState = true;
 
-  private userStateSubscription: ISubscription;
+  private userStateSubscription: Subscription;
   private appThemeObserver: any;
 
   constructor(
     private cdr: ChangeDetectorRef,
-    private user: UserService,
+    public user: UserService,
     private zone: NgZone
   ) { }
 

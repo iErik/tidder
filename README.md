@@ -25,60 +25,77 @@ this earlier concept of the project on my GitLab account.
 
 ### Requirements
 
-- Node.js 6.x or later
-- npm 3.10.x or later
-- yarn (optional)
+- Node.js 24 (LTS) and npm
+
+If you use [Nix](https://nixos.org/) with flakes, the repository includes a
+`flake.nix` that provides Node.js. Run `nix develop`, or run `direnv allow`
+once if you use [direnv](https://direnv.net/) with nix-direnv.
+
+Install the dependencies with:
+
+```bash
+npm install
+```
+
+Electron downloads its own binary the first time it runs.
+
+### Reddit app registration
+
+Tidder logs in through your default browser, and Reddit then redirects back
+to a small local server the app runs during login. The Reddit app whose client
+ID is in `app/config/authConfig.json` must be an "installed app" with this
+redirect URI, set at [reddit.com/prefs/apps](https://www.reddit.com/prefs/apps):
+
+```
+http://127.0.0.1:65010/callback
+```
+
+The session is kept encrypted with the operating system's keychain. On Linux
+without a keyring (such as GNOME Keyring or KWallet) it can't be stored, so
+Tidder asks you to log in again every time it starts.
 
 ### Building for development
 
-To run the development version of the application localy you can simply run the
-following command in a terminal:
+To run the development version of the application locally, run:
 
 ```bash
 npm run dev
 ```
 
-This will actually start a local development server on port `3000` by default,
-you can change that by simply editing the `PORT` environment variable located
-in the `config/dev.env.js` file. This development server is necessary so that
-the application's assets are re-compiled and re-sent to the running application
-whenever any change is made to app's code. This is called
-[Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/),
-any changes made to the application's code should reflect in the running app
-window, but in some cases this may cause Angular 2 change detection to break
-for some reason.
+This starts the Angular development server on port `4200` and opens the app
+in Electron once the server is ready. Changes to the app's code are rebuilt
+and reloaded in the running window automatically.
 
-### Buidling for production
+To run a production build without packaging it:
 
-You can generate the application binaries for your specific platform simply
-by running:
+```bash
+npm start
+```
+
+### Building for production
+
+You can generate the application binaries for your current platform by
+running:
 
 ```bash
 npm run build:pack
 ```
 
-Once finished, you can find the application binary file unde the `release`
-directory
+Once finished, you can find the application binaries under the `release`
+directory. There are also platform-specific scripts: `build:pack:mac`
+(Intel and Apple Silicon), `build:pack:win` and `build:pack:linux`.
+
+macOS builds are ad-hoc signed. They run on the machine that built them, but
+distributing them to other people requires signing them with an Apple
+Developer ID.
 
 ### Multi-platform build
 
 Depending on your system, there are a few packages that you need to install
-first before you can actually build the application's binaries for other
-platforms.
-
-#### macOS
-
-All required system dependencies (except rpm) will be downloaded automatically
-on demand on macOS 10.12+ (macOS Sierra). You can install the rpm package with
-the [Homebrew package manager](https://brew.sh/) by running the following in a
-terminal:
-
-```bash
-brew install rpm
-```
-
-With that taken care of, you can build the app's binaries for all platforms
-by running a single command in the terminal:
+first before you can build the application's binaries for other platforms.
+See electron-builder's
+[multi-platform build guide](https://www.electron.build/multi-platform-build)
+for the details. With those installed, run:
 
 ```bash
 npm run build:pack:multi
@@ -86,46 +103,6 @@ npm run build:pack:multi
 
 Once the process is finished, you can find the application's binaries under
 the `release` directory.
-
-#### Linux
-
-You can use [Docker](https://www.electron.build/multi-platform-build#docker)
-to avoid installing system dependencies.
-
-To build the application in distributable format on Linux, you'll need the
-`icnsutils` package:
-
-```bash
-sudo apt-get install --no-install-recommends -y icnsutils
-```
-
-You'll also need to install the rpm package:
-
-```bash
-sudo apt-get install --no-install-recommends -y rpm
-```
-
-Replace `apt-get` with your distribution's package manager.
-
-After that you can run:
-
-```bash
-npm run build:pack:multi
-```
-
-#### Windows
-
-[Docker](https://www.electron.build/multi-platform-build#docker) is recommended
-to avoid installing system dependencies, but if you choose not to use Docker,
-you'll need to install Wine 2.0+ – see
-[WineHQ Binary Packages](https://www.winehq.org/download#binary).
-
-Having the required packages installed, you can simply run the following
-command in a command line:
-
-```bash
-npm run build:pack:multi
-```
 
 ## Screenshot
 

@@ -12,12 +12,8 @@ import {
 
 import { where, map, isEmpty } from 'underscore';
 
-import { Observable } from 'rxjs/Observable';
-import { ISubscription } from 'rxjs/Subscription';
-import 'rxjs/add/observable/fromEvent';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/combineLatest';
-import 'rxjs/add/operator/distinctUntilChanged';
+import { Observable, Subscription } from 'rxjs';
+import { combineLatestWith, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { MultiredditService } from 'services/multireddit-service/multireddit.service';
 import { SubredditService } from 'services/subreddit-service/subreddit.service';
@@ -27,6 +23,7 @@ import { FeedService }  from 'services/feed-service/feed.service';
 import { togglePageScroll } from 'utils/utils';
 
 @Component({
+  standalone: false,
   selector: 'post-feed',
   templateUrl: './post-feed.component.html',
   styleUrls: [ './post-feed.component.scss' ],
@@ -36,8 +33,8 @@ import { togglePageScroll } from 'utils/utils';
 export class PostFeedComponent implements OnInit, OnDestroy {
   @Input() currentPost: any;
 
-  private searchSubscription: ISubscription;
-  private feedSubscription: ISubscription;
+  private searchSubscription: Subscription;
+  private feedSubscription: Subscription;
 
   public postFeed: object[] = [];
   public subFeed: object[] = [];
@@ -65,10 +62,12 @@ export class PostFeedComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.cdr.detach();
     this.searchSubscription = this.feedService.searchQuery$
-      .combineLatest(this.feedService.sortMode$)
-      .distinctUntilChanged()
-      .debounceTime(300)
-      .combineLatest(this.feedService.feedSource$)
+      .pipe(
+        combineLatestWith(this.feedService.sortMode$),
+        distinctUntilChanged(),
+        debounceTime(300),
+        combineLatestWith(this.feedService.feedSource$)
+      )
       .subscribe((filters) => {
         console.log("filters: ", filters);
         this.reloadingPosts = true;

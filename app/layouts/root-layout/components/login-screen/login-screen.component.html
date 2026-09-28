@@ -1,0 +1,26 @@
+<div class="login-prompt" *ngIf="status$ | async as status">
+  <h1 class="heading">Sign in to Reddit</h1>
+
+  <ng-container *ngIf="status.state !== 'waiting'">
+    <button type="button" class="btn-login" (click)="login()">
+      Login in the browser
+    </button>
+
+    <p class="login-error" *ngIf="status.state === 'error'">
+      {{ status.message }}
+    </p>
+  </ng-container>
+
+  <ng-container *ngIf="status.state === 'waiting'">
+    <p class="login-waiting">Finish logging in in your browser</p>
+
+    <div class="login-actions">
+      <button type="button" class="btn-link" (click)="login()">
+        Open again
+      </button>
+      <button type="button" class="btn-link" (click)="cancel()">
+        Cancel
+      </button>
+    </div>
+  </ng-container>
+</div>

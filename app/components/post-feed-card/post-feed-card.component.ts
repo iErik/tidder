@@ -2,7 +2,8 @@ import {
   Component,
   Input, Output,
   EventEmitter,
-  ChangeDetectorRef
+  ChangeDetectorRef,
+  ChangeDetectionStrategy
 } from '@angular/core';
 
 
@@ -11,9 +12,9 @@ import { PostsService } from 'services/posts-service/posts.service';
 import { abbreviate, numToBoolean, capitalizeFirstLetter } from 'utils/utils';
 import { isEmpty } from 'underscore';
 
-var moment = require('moment');
-
 @Component({
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'post-feed-card',
   templateUrl: './post-feed-card.component.html',
   styleUrls: [ './post-feed-card.component.scss' ]

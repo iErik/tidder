@@ -5,7 +5,8 @@
     </button>
   </div>
 
-  <div class="theme-picker-menu" *ngIf="showMenu" [@enterAnimation]>
+  <div class="theme-picker-menu" *ngIf="showMenu"
+    animate.enter="fade-enter" animate.leave="fade-leave">
     <div class="menu-heading">
       <p class="heading">Themes</p>
     </div>

@@ -2,11 +2,12 @@ import { NgModule }             from '@angular/core';
 import { CommonModule }         from '@angular/common';
 import { RouterModule }         from '@angular/router';
 
-import { ComponentsModule }     from 'components/';
+import { ComponentsModule }     from 'components/components.module';
 
 import { RootLayout }           from './root.layout';
 import { SidebarComponent }     from './components/sidebar';
 import { TopbarComponent }      from './components/topbar';
+import { LoginScreenComponent } from './components/login-screen';
 
 @NgModule({
   imports: [
@@ -19,7 +20,8 @@ import { TopbarComponent }      from './components/topbar';
   declarations: [
     RootLayout,
     SidebarComponent,
-    TopbarComponent
+    TopbarComponent,
+    LoginScreenComponent
   ],
 
   exports: [ RootLayout ]

@@ -1,11 +1,14 @@
-import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 
 import { UserService } from 'services/user-service/user.service';
 
-import { ISubscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 @Component({
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-topbar',
   templateUrl: 'topbar.component.html',
   styleUrls: [ 'topbar.component.scss' ]
@@ -14,7 +17,7 @@ import { ISubscription } from 'rxjs/Subscription';
 export class TopbarComponent implements OnInit, OnDestroy {
   public pageLabel = 'FRONTPAGE';
 
-  private routerSubscription: ISubscription;
+  private routerSubscription: Subscription;
 
   @Input() isSidebarActive: boolean;
   @Output() onSidebarToggle = new EventEmitter<boolean>();
@@ -26,7 +29,7 @@ export class TopbarComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.routerSubscription = this.router.events
-      .filter(event => event instanceof NavigationEnd)
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe((ev: NavigationEnd) => {
         if (ev.url.startsWith('/r/')) {
           this.pageLabel = `r/${ev.url.replace('/r/', '').toUpperCase()}`;

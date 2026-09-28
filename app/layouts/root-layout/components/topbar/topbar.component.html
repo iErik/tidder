@@ -13,7 +13,7 @@
 </div>
 
 <div class="page-label">
-  <span class="label">{{ pageLabel }}</span>
+  <span class="label">{{ user.isAuthenticated() ? pageLabel : 'TIDDER' }}</span>
 </div>
 
 <div class="section section-right">

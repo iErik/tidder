@@ -1,10 +1,12 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 import { SubredditService } from 'services/subreddit-service/subreddit.service';
 import { PostsService } from 'services/posts-service/posts.service';
 
 @Component({
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'report-card',
   templateUrl: './report-card.component.html',
   styleUrls: [ './report-card.component.scss' ]

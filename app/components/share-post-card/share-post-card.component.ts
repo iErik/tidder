@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { popupWindow } from 'utils/utils';
 
@@ -6,6 +6,8 @@ import { popupWindow } from 'utils/utils';
 //  config json file.
 
 @Component({
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'share-post-card',
   templateUrl: './share-post-card.component.html',
   styleUrls: [ './share-post-card.component.scss' ]

@@ -1,13 +1,15 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 import { SubredditService } from 'services/subreddit-service/subreddit.service';
 
 import { abbreviate } from 'utils/utils';
 
-var moment = require('moment');
+import moment from 'moment';
 
 @Component({
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'sub-info-feed-card',
   templateUrl: './sub-info-feed-card.component.html',
   styleUrls: [ './sub-info-feed-card.component.scss' ]

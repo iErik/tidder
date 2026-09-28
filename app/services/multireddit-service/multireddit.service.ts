@@ -3,13 +3,10 @@ import { HttpClient, HttpResponse, HttpHeaders, HttpParams } from '@angular/comm
 
 import { UserService } from 'services/user-service/user.service';
 
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/catch';
+import { BehaviorSubject, Observable, Subject, throwError } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
-const apiConfig = require('config/authConfig.json');
+import apiConfig from 'config/authConfig.json';
 
 @Injectable()
 export class MultiredditService {
@@ -21,10 +18,10 @@ export class MultiredditService {
     private user: UserService
   ) { }
 
+  // The app is only usable while logged in (Reddit blocks the public
+  // .json endpoints), so every request goes through the OAuth API.
   get apiRootURL(): string {
-    return this.user.isAuthenticated()
-      ? apiConfig.authBaseURI
-      : apiConfig.baseURI;
+    return apiConfig.authBaseURI;
   }
 
   get reqOptions(): { headers:HttpHeaders, params:any } {
@@ -47,8 +44,7 @@ export class MultiredditService {
 
     return this.http
       .get(feedURI, reqOptions)
-      .map((res: any) => res.data)
-      .catch(this.handleError);
+      .pipe(map((res: any) => res.data), catchError(this.handleError));
   }
 
   searchMultiFeed(multiPath:string, q:string, sort = 'relevance', after='', limit='15'): Observable<any> {
@@ -62,8 +58,7 @@ export class MultiredditService {
 
     return this.http
       .get(feedURI, { ...this.reqOptions, params })
-      .map((res: any) => res.data)
-      .catch(this.handleError);
+      .pipe(map((res: any) => res.data), catchError(this.handleError));
   }
 
   getUserMultis(expand_srs = false): Observable<any> {
@@ -71,7 +66,7 @@ export class MultiredditService {
 
     return this.http
       .get(`${this.apiRootURL}/api/multi/mine`, { ...this.reqOptions, params })
-      .catch(this.handleError);
+      .pipe(catchError(this.handleError));
   }
 
   getMultiData(multiName:string, userName:string, expand_srs = false): Observable<any> {
@@ -79,8 +74,7 @@ export class MultiredditService {
 
     return this.http
       .get(`${this.apiRootURL}/api/multi/user/${userName}/m/${multiName}`, reqOptions)
-      .map((res: any) => res.data)
-      .catch(this.handleError);
+      .pipe(map((res: any) => res.data), catchError(this.handleError));
   }
 
   copyMulti(from:string, display_name:string): Observable<any> {
@@ -89,8 +83,7 @@ export class MultiredditService {
 
     return this.http
       .post(`${this.apiRootURL}/api/multi/copy`, { }, reqOptions)
-      .map((res: any) => res.data)
-      .catch(this.handleError);
+      .pipe(map((res: any) => res.data), catchError(this.handleError));
   }
 
   createMulti(model): Observable<any> {
@@ -105,13 +98,13 @@ export class MultiredditService {
 
     return this.http
       .put(`${this.apiRootURL}/api/multi/${multipath}`, { }, reqOptions)
-      .catch(this.handleError);
+      .pipe(catchError(this.handleError));
   }
 
   deleteMulti(multipath:string): Observable<any> {
     return this.http
       .delete(`${this.apiRootURL}/api/multi${multipath}`, this.reqOptions)
-      .catch(this.handleError);
+      .pipe(catchError(this.handleError));
   }
 
   renameMulti(from:string, display_name:string): Observable<any> {
@@ -120,20 +113,19 @@ export class MultiredditService {
 
     return this.http
       .post(`${this.apiRootURL}/api/multi/rename`, { }, reqOptions)
-      .map((res: any) => res.data)
-      .catch(this.handleError)
+      .pipe(map((res: any) => res.data), catchError(this.handleError))
   }
 
   removeFromMulti(multipath:string, srname:string): Observable<any> {
     return this.http
       .delete(`${this.apiRootURL}/api/multi/${multipath}/r/${srname}`, this.reqOptions)
-      .catch(this.handleError);
+      .pipe(catchError(this.handleError));
   }
 
   addToMulti(multipath, model): Observable<any> {
     return this.http
       .put(`${this.apiRootURL}/api/multi/${multipath}/r/${model.name}`, {})
-      .catch(this.handleError);
+      .pipe(catchError(this.handleError));
   }
 
   updateDescription(multipath, body_md: string): Observable<any> {
@@ -142,8 +134,7 @@ export class MultiredditService {
 
     return this.http
       .put(`${this.apiRootURL}/api/multi${multipath}description`, { }, reqOptions)
-      .map((res: any) => res.data)
-      .catch(this.handleError);
+      .pipe(map((res: any) => res.data), catchError(this.handleError));
   }
 
   emitAddedMulti(multi: any) {
@@ -170,6 +161,6 @@ export class MultiredditService {
     }
 
     console.error(errMsg);
-    return Observable.throw(errMsg);
+    return throwError(() => errMsg);
   }
 }

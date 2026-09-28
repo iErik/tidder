@@ -15,10 +15,8 @@ import { PostsService } from 'services/posts-service/posts.service';
 
 import { abbreviate, numToBoolean } from 'utils/utils';
 
-const remote = require('electron').remote;
-const moment = require('moment');
-
 @Component({
+  standalone: false,
   selector: 'comment-card',
   templateUrl: './comment-card.component.html',
   styleUrls: [ './comment-card.component.scss' ],
@@ -123,7 +121,7 @@ export class CommentCardComponent implements OnChanges {
     ev.stopPropagation();
 
     if (ev.target.tagName.toLowerCase() === 'a')
-      remote.shell.openExternal(ev.target.href);
+      window.tidder.openExternal(ev.target.href);
   }
 
   trackByFn(index, item): string {

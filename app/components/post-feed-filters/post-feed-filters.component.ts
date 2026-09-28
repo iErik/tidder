@@ -1,8 +1,10 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 
 import { FeedService } from 'services/feed-service/feed.service';
 
 @Component({
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'post-feed-filters',
   templateUrl: './post-feed-filters.component.html',
   styleUrls: [ './post-feed-filters.component.scss' ]

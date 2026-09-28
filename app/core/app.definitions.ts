@@ -1,3 +1,4 @@
+import { Injectable } from '@angular/core';
 import {
   RouteReuseStrategy,
   ActivatedRouteSnapshot,
@@ -7,6 +8,7 @@ import {
 // We'll only be able to have the full picture of the right
 // route reuse strategy once we have implemented lazy loading
 // in our router.
+@Injectable()
 export class CustomRouteReuseStrategy extends RouteReuseStrategy {
   private handlers: {[key: string]: DetachedRouteHandle} = {};
 

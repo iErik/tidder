@@ -6,13 +6,16 @@
     </app-topbar>
 
     <app-sidebar
-      *ngIf="!updatingState"
+      *ngIf="!updatingState && user.isAuthenticated()"
       [ngClass]="{ 'is-active': showSidebar }">
     </app-sidebar>
 
     <div class="ng-outlet inner container">
-      <router-outlet *ngIf="!updatingState">
+      <router-outlet *ngIf="!updatingState && user.isAuthenticated()">
       </router-outlet>
+
+      <app-login-screen *ngIf="!updatingState && !user.isAuthenticated()">
+      </app-login-screen>
     </div>
   </div>
 </div>

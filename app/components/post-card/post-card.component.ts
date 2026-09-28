@@ -4,7 +4,8 @@ import {
   Input,
   Output,
   EventEmitter,
-  ChangeDetectorRef
+  ChangeDetectorRef,
+  ChangeDetectionStrategy
 } from '@angular/core';
 
 import { DomSanitizer } from '@angular/platform-browser';
@@ -15,10 +16,9 @@ import { UserService } from 'services/user-service/user.service';
 import { isEmpty } from 'underscore';
 import { abbreviate, numToBoolean } from 'utils/utils';
 
-const remote = require('electron').remote
-const moment = require('moment');
-
 @Component({
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'post-card',
   templateUrl: './post-card.component.html',
   styleUrls: [ './post-card.component.scss' ],
@@ -136,9 +136,9 @@ export class PostCardComponent implements OnChanges {
     ev.stopPropagation();
 
     if (isContentLink && ev.target.tagName.toLowerCase() === 'a')
-      remote.shell.openExternal(ev.target.href);
+      window.tidder.openExternal(ev.target.href);
     else
-      remote.shell.openExternal(this.post.url);
+      window.tidder.openExternal(this.post.url);
   }
 
   emitFeedAction(type: string): void {

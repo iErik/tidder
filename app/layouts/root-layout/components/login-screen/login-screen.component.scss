@@ -1,0 +1,136 @@
+@import 'styles/helpers/module';
+
+//  Variables
+//  ---------
+
+$heading-button-spacing: 25px;
+
+//  Object Structure
+//  ----------------
+
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: content-box;
+  width: 100vw;
+  height: calc(100vh - #{$topbar-height});
+  padding-top: $topbar-height;
+}
+
+.login-prompt {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  // Sits slightly above the vertical center, as in the mockup.
+  margin-bottom: 100px;
+}
+
+.heading {
+  margin: 0 0 $heading-button-spacing;
+
+  font-family: $font-sans;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 17px;
+  letter-spacing: 2.625px;
+  text-transform: uppercase;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn-login {
+  height: 40px;
+  padding: 0 20px;
+
+  border: 0;
+  border-radius: 5px;
+
+  font-family: $font-sans;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1.875px;
+  text-transform: uppercase;
+  -webkit-font-smoothing: antialiased;
+
+  cursor: pointer;
+  transition: background-color 300ms ease-in-out;
+}
+
+// While waiting for the browser, the button's space holds a short note.
+// The text buttons and error messages hang below the prompt so the
+// heading doesn't move when they appear.
+.login-waiting {
+  margin: 0;
+
+  height: 40px;
+  line-height: 40px;
+
+  font-family: $font-sans;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1.875px;
+  text-transform: uppercase;
+  -webkit-font-smoothing: antialiased;
+}
+
+.login-actions {
+  position: absolute;
+  top: 100%;
+
+  display: flex;
+  gap: 20px;
+}
+
+.btn-link {
+  padding: 0;
+
+  border: 0;
+  background: none;
+
+  font-family: $font-sans;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1.875px;
+  text-transform: uppercase;
+  -webkit-font-smoothing: antialiased;
+
+  cursor: pointer;
+}
+
+.login-error {
+  position: absolute;
+  top: 100%;
+
+  width: 320px;
+  margin: 15px 0 0;
+
+  font-family: $font-sans;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  -webkit-font-smoothing: antialiased;
+}
+
+//  Theming
+//  -------
+
+:host {
+  @include themify {
+    .heading { color: primary-color(); }
+
+    .btn-login {
+      color: background-color();
+      background-color: primary-color();
+
+      &:hover { background-color: darken(primary-color(), 5%); }
+    }
+
+    .login-waiting { color: foreground-color(); }
+    .btn-link { color: primary-color(); }
+    .login-error { color: rgba(foreground-color(), 0.8); }
+  }
+}

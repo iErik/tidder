@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- The renderer shows HTML from Reddit and can get access tokens from the
+       preload bridge, so only the app's own scripts may run. Styles need
+       'unsafe-inline' because Angular injects component styles. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; media-src https:; frame-src https:; font-src 'self' data:; connect-src 'self' https://oauth.reddit.com https://www.reddit.com ws://localhost:*">
+  <base href="./">
+  <title>Tidder</title>
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>

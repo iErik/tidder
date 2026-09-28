@@ -41,30 +41,17 @@
 
   <div class="form-input">
     <label for="post-sub" class="label">Subreddit</label>
-    <tag-input
+    <input id="post-sub" name="postSub" type="text" class="input"
       required
-      name="postSub"
-      secondaryPlaceholder="Subreddit..."
-      theme="minimal"
-      class="tag-input"
-      inputClass="tag-input-inner"
-      [(ngModel)]="post.sr"
-      [maxItems]="1"
-      [addOnBlur]="true"
-      [ripple]="false"
-      [onlyFromAutocomplete]="true"
-      [modelAsStrings]="true">
+      autocomplete="off"
+      list="post-sub-suggestions"
+      placeholder="Subreddit..."
+      [ngModel]="post.sr[0] || ''"
+      (ngModelChange)="updateSubreddit($event)">
 
-      <tag-input-dropdown
-        offset="30 5"
-        class="tag-input-dropdown"
-        [autocompleteObservable]="subAutoComplete"
-        [appendToBody]="false"
-        [keepOpen]="true"
-        [showDropdownIfEmpty]="true">
-      </tag-input-dropdown>
-
-    </tag-input>
+    <datalist id="post-sub-suggestions">
+      <option *ngFor="let name of subSuggestions" [value]="name"></option>
+    </datalist>
   </div>
 
   <div class="form-input" *ngIf="post.kind === 'link'">

@@ -31,11 +31,14 @@ $theme: null;
   }
 }
 
+// The color helpers return null for a shade a theme doesn't define, so
+// Sass leaves the declaration out rather than writing `color: false`.
+
 @function primary-color($key: 'base') {
   @if map-has-key(map-get($theme, 'primary'), $key) {
     @return map-get(map-get($theme, 'primary'), $key);
   } @else {
-    @return false;
+    @return null;
   }
 }
 
@@ -43,7 +46,7 @@ $theme: null;
   @if map-has-key(map-get($theme, 'secondary'), $key) {
     @return map-get(map-get($theme, 'secondary'), $key);
   } @else {
-    @return false;
+    @return null;
   }
 }
 
@@ -51,7 +54,7 @@ $theme: null;
   @if map-has-key(map-get($theme, 'accent'), $key) {
     @return map-get(map-get($theme, 'accent'), $key);
   } @else {
-    @return false;
+    @return null;
   }
 }
 
@@ -59,7 +62,7 @@ $theme: null;
   @if map-has-key(map-get($theme, 'background'), $key) {
     @return map-get(map-get($theme, 'background'), $key);
   } @else {
-    @return false;
+    @return null;
   }
 }
 
@@ -67,7 +70,7 @@ $theme: null;
   @if map-has-key(map-get($theme, 'foreground'), $key) {
     @return map-get(map-get($theme, 'foreground'), $key);
   } @else {
-    @return false;
+    @return null;
   }
 }
 
