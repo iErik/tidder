@@ -6,7 +6,7 @@
 }
 
 .background-light {
-  @include themify { backgrund-color: background-color('light'); }
+  @include themify { background-color: background-color('light'); }
 }
 
 .background-dark {
