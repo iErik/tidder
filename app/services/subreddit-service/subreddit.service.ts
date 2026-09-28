@@ -57,12 +57,6 @@ export class SubredditService {
       .pipe(map((res:any) => res.data), catchError(this.handleError));
   }
 
-  getSubStyle(srName: string): Observable<any> {
-    return this.http
-      .get(`${apiConfig.baseURI}/r/${srName}/about/stylesheet.json`)
-      .pipe(map(this.parseSubStyle), catchError(this.handleError));
-  }
-
   setUserFlair(srName: string, flair_enabled: boolean): Observable<any> {
     let reqOptions = {
       ...this.reqOptions,
@@ -118,23 +112,6 @@ export class SubredditService {
     return this.http
       .post(`${this.apiRootURL}/api/subscribe`, {}, reqOptions)
       .pipe(catchError(this.handleError));
-  }
-
-  private parseSubStyle(res: any): string {
-    var stylesheet = res.data.stylesheet;
-    var images = res.data.images;
-
-    let re = new RegExp("%{2}(?![()])([A-Za-z0-9_\-]+)%{2}", "g");
-
-    return stylesheet.replace(re, (match, imgName) => {
-      let imgUrl = '';
-
-      images.forEach((image) => {
-        if (image.name === imgName) imgUrl = image.url;
-      });
-
-      return imgUrl;
-    });
   }
 
   private mapSubListing(res: any): string {

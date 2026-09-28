@@ -50,6 +50,10 @@ redirect URI, set at [reddit.com/prefs/apps](https://www.reddit.com/prefs/apps):
 http://127.0.0.1:65010/callback
 ```
 
+The session is kept encrypted with the operating system's keychain. On Linux
+without a keyring (such as GNOME Keyring or KWallet) it can't be stored, so
+Tidder asks you to log in again every time it starts.
+
 ### Building for development
 
 To run the development version of the application locally, run:

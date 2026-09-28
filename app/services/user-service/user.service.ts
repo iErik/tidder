@@ -34,7 +34,8 @@ export class UserService {
   constructor(private http: HttpClient) { }
 
   setup(): void {
-    if (this.isAuthenticated()) {
+    if (this.hasValidToken()) {
+      this.userLoggedIn.next(true);
       this.scheduleRefresh();
       this.getIdentity();
       return;
@@ -45,18 +46,22 @@ export class UserService {
     this.updatingState.next(true);
 
     window.tidder.auth.refresh().then((result) => {
-      if (result && !('error' in result)) {
+      if (!result) {
+        this.updatingState.next(false);
+      } else if ('error' in result) {
+        // There's a session, but Reddit couldn't be reached. Stay logged in
+        // and keep retrying rather than asking the user to log in again.
+        this.userLoggedIn.next(true);
+        this.updatingState.next(false);
+        this.scheduleRefresh(REFRESH_RETRY_DELAY);
+      } else {
         this.storeTokens(result);
         this.getIdentity();
-      } else {
-        this.updatingState.next(false);
       }
     });
   }
 
   getIdentity(): void {
-    console.log("Getting User Identity...");
-
     this.updatingState.next(true);
     let options = { headers: this.getAuthenticatedHeaders() };
 
@@ -65,7 +70,7 @@ export class UserService {
         next: (res) => {
           this._userData = res;
           this.updatingState.next(false);
-          this.userLoggedIn.next(false);
+          this.userLoggedIn.next(true);
         },
         error: (err) => {
           // Reddit rejected the token (revoked or expired), so the user is
@@ -107,8 +112,6 @@ export class UserService {
   }
 
   logout(): void {
-    console.log("loggin out")
-
     this.updatingState.next(true);
     clearTimeout(this.refreshTimer);
 
@@ -123,9 +126,11 @@ export class UserService {
     this.updatingState.next(false);
   }
 
+  // Whether there's a session, not whether the access token is still valid:
+  // after the computer sleeps, or while Reddit can't be reached, the token
+  // may have expired while a refresh is still pending.
   isAuthenticated(): boolean {
-    const expiresAt = JSON.parse(localStorage.getItem('expires_at'));
-    return new Date().getTime() < expiresAt;
+    return this.userLoggedIn.getValue();
   }
 
   getToken(): string {
@@ -133,7 +138,7 @@ export class UserService {
   }
 
   getAuthenticatedHeaders(): HttpHeaders {
-    return this.isAuthenticated()
+    return this.hasValidToken()
       ? new HttpHeaders({ 'Authorization': `Bearer ${this.getToken()}` })
       : new HttpHeaders({ });
   }
@@ -146,7 +151,13 @@ export class UserService {
     localStorage.setItem('access_token', tokens.accessToken);
     localStorage.setItem('expires_at', String(Date.now() + tokens.expiresIn * 1000));
 
+    this.userLoggedIn.next(true);
     this.scheduleRefresh();
+  }
+
+  private hasValidToken(): boolean {
+    const expiresAt = JSON.parse(localStorage.getItem('expires_at'));
+    return Date.now() < expiresAt;
   }
 
   // Access tokens last an hour; they're renewed shortly before expiring.

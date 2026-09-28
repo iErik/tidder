@@ -95,7 +95,8 @@ ipcMain.on('settings:get-all', (ev) => {
 });
 
 ipcMain.on('settings:set', (ev, key, value) => {
-  settings.set(key, value);
+  if (!settings.set(key, value))
+    return;
 
   BrowserWindow.getAllWindows().forEach(win =>
     win.webContents.send('settings:changed', key, value));

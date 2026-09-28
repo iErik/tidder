@@ -90,10 +90,17 @@ class LoginAttempt {
       this.reject = reject;
     });
 
+    // Resolves once the server has let go of the port.
+    this.closed = new Promise(resolve => { this.onClosed = resolve; });
+
     this.server = http.createServer((req, res) => this.handleRequest(req, res));
   }
 
   start() {
+    // Cancelled while waiting for the previous login's server to close.
+    if (this.settled)
+      return this.promise;
+
     this.server.on('error', (err) => {
       this.finish(err.code === 'EADDRINUSE'
         ? new Error(`Port ${REDIRECT.port} is in use by another program. Close it and try again.`)
@@ -157,7 +164,7 @@ class LoginAttempt {
     this.settled = true;
 
     clearTimeout(this.timer);
-    this.server.close(() => { });
+    this.server.close(() => this.onClosed());
 
     if (err) this.reject(err);
     else this.resolve(result);
@@ -165,9 +172,12 @@ class LoginAttempt {
 }
 
 let pendingLogin = null;
+let lastClosed = Promise.resolve();
 
 // Starts a login, or if one is already in progress, opens its page in the
-// browser again and returns the same promise.
+// browser again and returns the same promise. A new login waits for the
+// previous one's server to close, so logging in again right after a cancel
+// doesn't find the port still in use.
 
 function login() {
   if (pendingLogin) {
@@ -181,7 +191,10 @@ function login() {
   pendingLogin = attempt;
   attempt.promise.then(clear, clear);
 
-  return attempt.start();
+  const previousClosed = lastClosed;
+  lastClosed = attempt.closed;
+
+  return previousClosed.then(() => attempt.start());
 }
 
 function cancelLogin() {

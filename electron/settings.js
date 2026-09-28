@@ -35,9 +35,17 @@ function getAll() {
   return settings;
 }
 
+// Only keys that have a default can be set, since the renderer shows
+// untrusted content from Reddit. Returns whether the value was saved.
+
 function set(key, value) {
+  if (!Object.prototype.hasOwnProperty.call(defaultSettings, key))
+    return false;
+
   settings[key] = value;
   save();
+
+  return true;
 }
 
 module.exports = { load, getAll, set };
