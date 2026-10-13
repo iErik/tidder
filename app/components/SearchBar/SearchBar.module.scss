@@ -1,4 +1,4 @@
-@import 'styles/helpers/module';
+@import 'styles/helpers/component';
 
 //  Variables
 //  ---------
@@ -9,7 +9,7 @@ $search-input-font-size: 1em;
 //  Object Structure
 //  ----------------
 
-:host {
+.host {
   display: flex;
   align-items: center;
 

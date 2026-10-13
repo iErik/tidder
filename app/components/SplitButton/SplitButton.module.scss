@@ -1,4 +1,4 @@
-@import 'styles/helpers/module';
+@import 'styles/helpers/component';
 
 //  Variables
 //  ---------
@@ -12,7 +12,7 @@ $btn-red-color:   #E3472F;
 //  Object Definition
 //  -----------------
 
-:host {
+.host {
   display: flex;
   border-radius: $btn-border-radius;
 
@@ -57,7 +57,7 @@ $btn-red-color:   #E3472F;
 }
 
 // Select the actual content that goes into the component.
-:host ::ng-deep {
+.host :global {
   .label {
     font-size: 12px;
     font-weight: 400;

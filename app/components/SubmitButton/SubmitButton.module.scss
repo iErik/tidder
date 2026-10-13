@@ -1,4 +1,4 @@
-@import 'styles/helpers/module';
+@import 'styles/helpers/component';
 
 //  Variables
 //  ---------
@@ -6,7 +6,10 @@
 //  Object Definition
 //  -----------------
 
-:host {
+.host {
+  // Angular host elements were inline by default.
+  display: inline;
+
   background-color: inherit;
 
   .button {
@@ -42,7 +45,7 @@
 //  Spinner Types
 //  -------------
 
-:host {
+.host {
   .spinner.round-spinner {
     font-size: 10px;
     text-indent: -9999em;

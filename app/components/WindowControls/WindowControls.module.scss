@@ -1,4 +1,4 @@
-@import 'styles/helpers/module';
+@import 'styles/helpers/component';
 
 //  Variables
 //  ---------
@@ -7,7 +7,7 @@
 //  Object Definition
 //  -----------------
 
-:host {
+.host {
   display: flex;
   align-items: center;
   height: 100%;

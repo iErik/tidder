@@ -1,4 +1,4 @@
-@import 'styles/helpers/module';
+@import 'styles/helpers/component';
 
 //  Variables
 //  ---------
@@ -7,7 +7,10 @@
 //  Object structure
 //  ----------------
 
-:host {
+.host {
+  // Angular host elements were inline by default.
+  display: inline;
+
   .theme-picker-layout { position: relative; }
 
   .theme-picker-toggle {
@@ -37,7 +40,9 @@
       @include icon {
         font-size: .5rem;
         margin: 0 6px 0 5px;
-        @include themify { color: rgba(foreground-color(), 1); }
+        @include themify {
+          color: rgba(foreground-color(), 1);
+        }
       }
 
       @include themify {
@@ -91,14 +96,20 @@
       @if (map-get($theme, 'isDark')) {
         @if (background-color('light')) {
           border-color: background-color('light');
-          &::before { border-bottom-color: background-color('light'); }
+          &::before {
+            border-bottom-color: background-color('light');
+          }
         } @else {
           border-color: lighten(background-color(), 9%);
-          &::before { border-bottom-color: lighten(background-color(), 9%); }
+          &::before {
+            border-bottom-color: lighten(background-color(), 9%);
+          }
         }
       } @else {
         border-color: darken(background-color(), 15%);
-        &::before { border-bottom-color: darken(background-color(), 15%); }
+        &::before {
+          border-bottom-color: darken(background-color(), 15%);
+        }
       }
     }
 

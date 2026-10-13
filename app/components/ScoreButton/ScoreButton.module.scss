@@ -1,4 +1,4 @@
-@import 'styles/helpers/module';
+@import 'styles/helpers/component';
 
 //  Variables
 //  ---------
@@ -9,7 +9,7 @@ $btn-downvote-color: #F53334;
 //  Object Structure
 //  ----------------
 
-:host {
+.host {
   position: relative;
 
   display: flex;
