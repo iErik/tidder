@@ -1,37 +1,45 @@
 //  I had to write this function because Boolean(-1) will return true,
 //  and while this is correct, this is not always what you want.
-export function numToBoolean(num) {
-  return num > 0 ? true : false;
+export function numToBoolean(num: number): boolean {
+  return num > 0;
 }
 
-export function popupWindow(url:string, w:number, h:number, title?: string): void {
+export function popupWindow(url: string, w: number, h: number, title?: string): void {
   window.tidder.openPopup(url, w, h, title);
 }
 
-export function capitalizeFirstLetter(string) {
+export function capitalizeFirstLetter(string: string): string {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-export function abbreviate(num, maxPlaces?, forcePlaces?, forceLetter?) {
-  var abbr = '';
-
-  num = Number(num);
-  forceLetter = forceLetter || false
+export function abbreviate(
+  num: number | string,
+  maxPlaces: number | false = false,
+  forcePlaces: number | false = false,
+  forceLetter: string | false = false
+): string {
+  let abbr = '';
+  let value = Number(num);
 
   if (forceLetter !== false) {
-    return annotate(num, maxPlaces, forcePlaces, forceLetter);
+    return annotate(value, maxPlaces, forcePlaces, forceLetter);
   }
 
-  if (num >= 1e12) abbr = 'T'
-  else if (num >= 1e9) abbr = 'B'
-  else if (num >= 1e6) abbr = 'M'
-  else if (num >= 1e3) abbr = 'K'
+  if (value >= 1e12) abbr = 'T'
+  else if (value >= 1e9) abbr = 'B'
+  else if (value >= 1e6) abbr = 'M'
+  else if (value >= 1e3) abbr = 'K'
 
-  return annotate(num, maxPlaces, forcePlaces, abbr);
+  return annotate(value, maxPlaces, forcePlaces, abbr);
 }
 
-function annotate(num, maxPlaces?, forcePlaces?, abbr?) {
-  var rounded: any = 0;
+function annotate(
+  num: number,
+  maxPlaces: number | false,
+  forcePlaces: number | false,
+  abbr: string
+): string {
+  let rounded: number | string;
 
   switch(abbr) {
     case 'T':
@@ -52,7 +60,7 @@ function annotate(num, maxPlaces?, forcePlaces?, abbr?) {
   }
 
   if (maxPlaces !== false) {
-    var test = new RegExp('\\.\\d{' + (maxPlaces + 1) + ',}$');
+    let test = new RegExp('\\.\\d{' + (maxPlaces + 1) + ',}$');
 
     if (test.test(('' + rounded))) rounded = rounded.toFixed(maxPlaces);
   }
@@ -62,13 +70,4 @@ function annotate(num, maxPlaces?, forcePlaces?, abbr?) {
   }
 
   return rounded + abbr
-}
-
-export function togglePageScroll(scrollState: boolean) {
-  if (!scrollState) {
-    if(document.body.className.indexOf('no-scroll') === -1)
-      document.body.className += ' ' + 'no-scroll'
-  } else {
-    document.body.className = document.body.className.replace('no-scroll', '');
-  }
 }
