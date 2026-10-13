@@ -1,0 +1,19 @@
+@import 'styles/helpers/component';
+
+//  Variables
+//  ---------
+
+//  Object Structure
+//  ----------------
+
+.host {
+  display: flex;
+  flex-direction: column;
+
+  height: calc(100vh - #{$topbar-height});
+  overflow-y: auto;
+}
+
+:global(.root-container:not(.darwin)) .host {
+  height: calc(100vh - #{$topbar-height + ($win32-border-width * 2)});
+}

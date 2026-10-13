@@ -1,9 +1,22 @@
 $theme: null;
 
+// Set by styles/helpers/_component.scss. Inside a CSS Module the theme
+// classes (set by RootLayout) have to be marked global, or they'd be hashed.
+$css-module: false !default;
+
+@function theme-class($name) {
+  @if $css-module {
+    @return ':global(.theme-#{$name})';
+  }
+  @return '.theme-#{$name}';
+}
+
 @mixin themify($scope: 'both', $themes: $appThemes) {
   @each $theme-name, $colors in $themes {
+    $theme-class: theme-class($theme-name);
+
     @if $scope == 'local' {
-      &.theme-#{$theme-name} {
+      &#{$theme-class} {
          $theme: $colors !global;
 
          @content;
@@ -11,7 +24,7 @@ $theme: null;
          $theme: null !global;
        }
     } @else if $scope == 'parent' {
-      .theme-#{$theme-name} & {
+      #{$theme-class} & {
          $theme: $colors !global;
 
          @content;
@@ -19,8 +32,8 @@ $theme: null;
          $theme: null !global;
        }
     } @else if $scope == 'both' {
-      .theme-#{$theme-name} &,
-      &.theme-#{$theme-name} {
+      #{$theme-class} &,
+      &#{$theme-class} {
          $theme: $colors !global;
 
          @content;

@@ -1,0 +1,5 @@
+// Entry point for component styles (*.module.scss): the shared helpers,
+// with themify emitting CSS Module-safe selectors.
+$css-module: true;
+
+@import 'module';

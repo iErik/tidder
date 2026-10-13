@@ -57,11 +57,11 @@
   }
 }
 
-.ng-outlet {
+.page-outlet {
   width: 100%;
   height: 100%;
 
-  > ng-component {
+  > .page {
     @extend .container;
     @extend .align-start;
 

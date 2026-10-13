@@ -25,16 +25,16 @@ this earlier concept of the project on my GitLab account.
 
 ### Requirements
 
-- Node.js 24 (LTS) and npm
+- Node.js 24 (LTS) and [pnpm](https://pnpm.io/) 12
 
 If you use [Nix](https://nixos.org/) with flakes, the repository includes a
-`flake.nix` that provides Node.js. Run `nix develop`, or run `direnv allow`
+`flake.nix` that provides Node.js and pnpm. Run `nix develop`, or run `direnv allow`
 once if you use [direnv](https://direnv.net/) with nix-direnv.
 
 Install the dependencies with:
 
 ```bash
-npm install
+pnpm install
 ```
 
 Electron downloads its own binary the first time it runs.
@@ -59,17 +59,17 @@ Tidder asks you to log in again every time it starts.
 To run the development version of the application locally, run:
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
-This starts the Angular development server on port `4200` and opens the app
+This starts the Vite development server on port `4200` and opens the app
 in Electron once the server is ready. Changes to the app's code are rebuilt
 and reloaded in the running window automatically.
 
 To run a production build without packaging it:
 
 ```bash
-npm start
+pnpm start
 ```
 
 ### Building for production
@@ -78,7 +78,7 @@ You can generate the application binaries for your current platform by
 running:
 
 ```bash
-npm run build:pack
+pnpm run build:pack
 ```
 
 Once finished, you can find the application binaries under the `release`
@@ -98,7 +98,7 @@ See electron-builder's
 for the details. With those installed, run:
 
 ```bash
-npm run build:pack:multi
+pnpm run build:pack:multi
 ```
 
 Once the process is finished, you can find the application's binaries under

@@ -1,32 +1,27 @@
 {
-  "compileOnSave": false,
   "compilerOptions": {
-    "outDir": "./dist/out-tsc",
     "target": "ES2022",
     "module": "preserve",
     "moduleResolution": "bundler",
-    "lib": ["ES2022", "dom"],
-    "experimentalDecorators": true,
-    "importHelpers": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "types": ["vite/client"],
+    "noEmit": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "isolatedModules": true,
-    "sourceMap": true,
-    "noImplicitAny": false,
-    "strict": false,
+    "strict": true,
     "paths": {
+      "api/*": ["./app/api/*"],
       "core/*": ["./app/core/*"],
+      "hooks/*": ["./app/hooks/*"],
       "utils/*": ["./app/utils/*"],
       "pages/*": ["./app/pages/*"],
       "config/*": ["./app/config/*"],
       "layouts/*": ["./app/layouts/*"],
-      "services/*": ["./app/services/*"],
       "components/*": ["./app/components/*"]
     }
   },
-  "angularCompilerOptions": {
-    "strictTemplates": false,
-    "strictInjectionParameters": true
-  }
+  "include": ["app", "vite.config.mts"]
 }
