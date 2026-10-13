@@ -1,4 +1,4 @@
-@import 'styles/helpers/module';
+@import 'styles/helpers/component';
 
 //  Variables
 //  ---------
@@ -11,7 +11,7 @@ $post-card-height: 80px;
 //  Object Structure
 //  ----------------
 
-:host {
+.host {
   display: flex;
 
   //height: $post-card-height;

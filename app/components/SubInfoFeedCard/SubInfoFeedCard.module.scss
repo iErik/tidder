@@ -1,4 +1,4 @@
-@import 'styles/helpers/module';
+@import 'styles/helpers/component';
 
 //  Variables
 //  ---------
@@ -12,7 +12,7 @@ $card-background: #FFF;
 //  Object Structure
 //  ----------------
 
-:host {
+.host {
   display: flex;
 
   height: $card-height;

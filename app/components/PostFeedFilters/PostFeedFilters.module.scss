@@ -1,4 +1,4 @@
-@import 'styles/helpers/module';
+@import 'styles/helpers/component';
 
 //  Variables
 //  ---------
@@ -8,7 +8,10 @@ $display-shadow: true;
 //  Object Structure
 //  ----------------
 
-:host {
+.host {
+  // Angular host elements were inline by default.
+  display: inline;
+
   flex-shrink: 0;
   position: relative;
   z-index: 50;
