@@ -9,21 +9,26 @@ possible
 
 ## Project status
 
-Tidder is an Electron + Angular Reddit desktop client, originally written in 2018 and archived after Reddit's 2023 API changes. It was modernized in 2026 to Angular 22, Electron 44, TypeScript 6 and rxjs 7. Reddit rejects unauthenticated `www.reddit.com/*.json` requests with 403, so the app requires login: while logged out, `RootLayout` shows `LoginScreenComponent` (`layouts/root-layout/components/login-screen`) instead of the sidebar and router outlet, and every service's `apiRootURL` is `oauth.reddit.com`.
+Tidder is an Electron + React Reddit desktop client, originally written in Angular in 2018 and archived after Reddit's 2023 API changes. It was modernized in 2026 (Electron 44, TypeScript 6), and its renderer was then rewritten from Angular to React 19. Reddit rejects unauthenticated `www.reddit.com/*.json` requests with 403, so the app requires login: while logged out, `RootLayout` shows `LoginScreen` (`layouts/root-layout/LoginScreen`) instead of the sidebar and routes, and every API request goes to `oauth.reddit.com`.
 
 ## Environment and commands
 
-Node 24 comes from `flake.nix`. Use `nix develop`, or direnv (`.envrc` contains `use flake`). Use npm with `package-lock.json`; yarn is no longer used. npm 11 blocks dependency install scripts: `allowScripts` in `package.json` approves only `esbuild`. Electron downloads its binary lazily on first run.
+Node 24 and pnpm 12 come from `flake.nix`. Use `nix develop`, or direnv (`.envrc` contains `use flake`). Use pnpm with `pnpm-lock.yaml`; npm and yarn are no longer used. pnpm's settings are in `pnpm-workspace.yaml`:
+
+- `nodeLinker: hoisted` gives a flat `node_modules`, which electron-builder needs to package the app.
+- pnpm fails the install when a dependency has an unapproved build script. `allowBuilds` lists each one explicitly, and none are allowed (Vite 8 bundles with Rolldown, so there's no esbuild postinstall). Add new ones with `pnpm approve-builds`.
+
+Electron downloads its binary lazily on first run.
 
 ```bash
-npm run dev               # generate theme SCSS, `ng serve` on :4200, then Electron with TIDDER_DEV_URL
-npm run build             # generate theme SCSS + `ng build` -> dist/renderer/browser
-npm start                 # build, then run Electron against the built files
-npm run build:pack        # build + electron-builder for this platform -> release/
-npm run build:pack:mac    # x64 + arm64 zips, ad-hoc signed (mac.identity "-")
+pnpm run dev               # generate theme SCSS, Vite dev server on :4200, then Electron with TIDDER_DEV_URL
+pnpm run build             # generate theme SCSS + `tsc --noEmit` + `vite build` -> dist/renderer/browser
+pnpm start                 # build, then run Electron against the built files
+pnpm run build:pack        # build + electron-builder for this platform -> release/
+pnpm run build:pack:mac    # x64 + arm64 zips, ad-hoc signed (mac.identity "-")
 ```
 
-There is no test suite and no linter. `ng build` type-checks the app and its templates.
+There is no test suite and no linter. `pnpm run build` type-checks the app (`strict`) before bundling; Vite itself doesn't type-check.
 
 ## Architecture
 
@@ -33,16 +38,16 @@ There is no test suite and no linter. `ng build` type-checks the app and its tem
   - `preload.js` exposes `window.tidder`, typed in `app/types/tidder.d.ts`. It provides platform, window controls, `openExternal`, `openPopup`, `login`, and `settings.get/set/watch`.
   - The renderer has no Node or `require`, so new native features have to go through this bridge.
   - The packaged app only contains the `build.files` listed in `package.json`. The main process also requires `app/config/authConfig.json` and `settings.json`, so keep those listed.
-- **Renderer (`app/`)**: built by the Angular CLI (`@angular/build:application`, esbuild).
-  - NgModule-based. Every component declares `standalone: false`, and uses `changeDetection: ChangeDetectionStrategy.Eager` because Angular 22 defaults to OnPush (a few components deliberately use OnPush).
-  - Zone-based change detection is kept via `provideZoneChangeDetection()` in `core/app.module.ts`.
-  - Hash routing uses a custom `RouteReuseStrategy`.
-- **Import aliases**: bare aliases rooted at `app/` (`core/`, `services/`, `components/`, `utils/`, `config/`, and so on) are defined in `tsconfig.json` `paths`. SCSS imports resolve from `app/` (`@import 'styles/helpers/module'`) via `stylePreprocessorOptions.includePaths`.
+- **Renderer (`app/`)**: React 19 + TypeScript, built by Vite (`vite.config.mts`, `root: app`, output `dist/renderer/browser`).
+  - `main.tsx` calls `setup()` from `core/auth.ts`, then renders `QueryClientProvider` > `HashRouter` > `RootLayout` in StrictMode.
+  - `index.html` has a strict CSP (`script-src 'self'`). The dev server needs an inline script for React Fast Refresh, so `vite.config.mts` adds `'unsafe-inline'` to `script-src` in serve mode only.
+- **Import aliases**: bare aliases rooted at `app/` (`api/`, `components/`, `config/`, `core/`, `hooks/`, `layouts/`, `pages/`, `utils/`) are defined in both `tsconfig.json` `paths` and `vite.config.mts` `resolve.alias`; keep them in sync. SCSS imports resolve from `app/` (`@import 'styles/helpers/module'`) via Sass `loadPaths`.
 - **App structure**:
-  - `FeedPage` serves every route.
-  - `FeedService` is provided per page and acts as a BehaviorSubject bus (feed source, sort mode, search query).
-  - The singleton Reddit API services in `services/` use `HttpClient`.
-  - `components/` is one `ComponentsModule`.
+  - `RootLayout` has a single `<Route path="*">` rendering `FeedPage` (`pages/FeedPage`), so the page stays mounted between feeds (the open post and sort mode survive navigation). `FeedPage` maps the path to a feed source (`home`, `saved`, `r/<name>`, `/user/<u>/m/<multi>/`).
+  - `FeedContext` (a reducer provided by `FeedPage`) holds the source, sort mode and search query. Starting a search switches the sort to `relevance`; clearing it goes back to `hot`.
+  - `api/` has the Reddit client: `client.ts` (`redditFetch`, which adds the bearer token, `raw_json=1` and `api_type=json`, and sends non-GET params as a form body), plain async functions per area (`posts.ts`, `subreddits.ts`, `multis.ts`), and TanStack Query hooks in `queries.ts`. `useFeed` is an infinite query keyed on the settled feed params (search and sort changes are debounced 300ms in `PostFeed`).
+  - `api/thingState.ts` holds the user's votes, saves, reports and subscriptions, keyed by fullname, applied optimistically and reverted on failure. Components read Reddit data through `useThing()` so every copy of a post (feed card, viewer) shows the same state. Don't mutate Reddit objects in place.
+  - `components/<Name>/<Name>.tsx` with a `<Name>.module.scss` next to it. `SafeHtml` renders Reddit HTML (post text, embeds, comments) sanitized with DOMPurify, and opens links with `window.tidder.openExternal`; don't use `dangerouslySetInnerHTML` elsewhere.
 - **Auth**: Reddit's authorization-code flow for installed apps, in the system browser. It's configured in `app/config/authConfig.json`.
   - The `redirectUri` there (`http://127.0.0.1:65010/callback`) must exactly match the one registered at reddit.com/prefs/apps.
   - `electron/auth/`, in the main process, does the login. `browser-login.js` has the flow; `parseCallback()` is the pure decision logic for a request, and a `LoginAttempt` holds one login in progress. `tokens.js` has the token requests and refresh-token storage. It:
@@ -50,15 +55,17 @@ There is no test suite and no linter. `ng build` type-checks the app and its tem
     - checks `state` on the callback, then exchanges the code (Basic auth `client_id:` with an empty secret, via `net.fetch`)
     - closes the server afterwards
   - The refresh token (`duration=permanent`) never reaches the renderer. It's stored encrypted with `safeStorage` in `userData/Auth`.
-  - The renderer uses `window.tidder.auth.login/cancel/refresh/logout`. `UserService` keeps only the access token and `expires_at` in `localStorage` (`isAuthenticated()` checks it).
+  - The renderer uses `window.tidder.auth.login/cancel/refresh/logout`. `core/auth.ts` is an external store (read with `useAuth()`); `core/session.ts` keeps only the access token and `expires_at` in `localStorage`. `loggedIn` means there's a session, not that the token is still valid.
     - It refreshes 5 minutes before expiry.
     - On startup with an expired token, it tries a silent refresh before showing the login screen.
-  - `getIdentity()` fetches `/api/v1/me`. A 401/403 there calls `logout()`, which revokes the token and brings back the login screen.
+  - A 401 from any API request triggers a refresh (concurrent ones share it). `getIdentity()` fetches `/api/v1/me`; a 401/403 there calls `logout()`, which revokes the token, clears the query cache and brings back the login screen.
   - `main.js` adds a `desktop:org.isidore.tidder:v<version> (by /u/<developer>)` User-Agent to `oauth.reddit.com` requests.
 - **Theming**:
   - `app/config/themes.json` is the single source of truth.
   - `scripts/generate-theme-scss.mjs` turns it into `app/styles/helpers/_themes.generated.scss` (gitignored, regenerated by `dev`/`build`) as `$appThemes`.
-  - Components use the `themify` mixin (`styles/helpers/_mixins.scss`) against a `.theme-<name>` class that the root layout sets from the `appTheme` setting.
+  - Components use the `themify` mixin (`styles/helpers/_mixins.scss`) against a `.theme-<name>` class that the root layout sets from the `appTheme` setting (read with `useSetting()`).
+  - Component styles are SCSS Modules that start with `@import 'styles/helpers/component';`, which makes `themify` emit `:global(.theme-<name>)`. The component's outer element has the `host` class (what `:host` was in Angular).
+  - Build class names with `bindStyles(styles)` (`utils/classNames.ts`): `cx('button', { 'is-active': x })` emits each class as written plus its hashed module name if the module defines it, so global classes (`button`, `icn-*`, grid) keep working.
 
 ## Agent skills
 
