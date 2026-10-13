@@ -2,6 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Code Style
+- Try to keep lines 60 characters long or shorter as much as
+possible
+- NO SEMICOLONS AT THE END OF THE LINE
+
 ## Project status
 
 Tidder is an Electron + Angular Reddit desktop client, originally written in 2018 and archived after Reddit's 2023 API changes. It was modernized in 2026 to Angular 22, Electron 44, TypeScript 6 and rxjs 7. Reddit rejects unauthenticated `www.reddit.com/*.json` requests with 403, so the app requires login: while logged out, `RootLayout` shows `LoginScreenComponent` (`layouts/root-layout/components/login-screen`) instead of the sidebar and router outlet, and every service's `apiRootURL` is `oauth.reddit.com`.
