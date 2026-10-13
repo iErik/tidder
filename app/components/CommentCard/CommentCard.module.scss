@@ -1,4 +1,4 @@
-@import 'styles/helpers/module';
+@import 'styles/helpers/component';
 
 //  Variables
 //  ---------
@@ -6,7 +6,10 @@
 //  Object Structure
 //  ----------------
 
-:host {
+.host {
+  // Angular host elements were inline by default.
+  display: inline;
+
 
   .comment-card-layout {
     display: flex;
