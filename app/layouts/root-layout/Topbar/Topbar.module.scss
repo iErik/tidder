@@ -1,4 +1,4 @@
-@import 'styles/helpers/module';
+@import 'styles/helpers/component';
 
 //  Variables
 //  ---------
@@ -6,7 +6,7 @@
 //  Object Structure
 //  ----------------
 
-:host {
+.host {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -147,7 +147,7 @@
   }
 }
 
-.root-container:not(.darwin) :host {
+:global(.root-container:not(.darwin)) .host {
   width: calc(100% - #{$win32-border-width * 2});
 
   top: $win32-border-width;

@@ -1,4 +1,4 @@
-@import 'styles/helpers/module';
+@import 'styles/helpers/component';
 
 //  Variables
 //  ---------
@@ -8,7 +8,7 @@ $heading-button-spacing: 25px;
 //  Object Structure
 //  ----------------
 
-:host {
+.host {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -118,7 +118,7 @@ $heading-button-spacing: 25px;
 //  Theming
 //  -------
 
-:host {
+.host {
   @include themify {
     .heading { color: primary-color(); }
 

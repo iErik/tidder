@@ -1,4 +1,4 @@
-@import 'styles/helpers/module';
+@import 'styles/helpers/component';
 
 //  Variables
 //  ---------
@@ -8,7 +8,7 @@ $display-thumbnails: false;
 //  Object Definition
 //  -----------------
 
-:host {
+.host {
   display: flex;
 
   position: fixed;
@@ -175,7 +175,7 @@ $display-thumbnails: false;
   }
 }
 
-.root-container:not(.darwin) :host {
+:global(.root-container:not(.darwin)) .host {
   height: calc(100% - #{$topbar-height + $win32-border-width});
   &.is-active { left: $win32-border-width; }
 }
