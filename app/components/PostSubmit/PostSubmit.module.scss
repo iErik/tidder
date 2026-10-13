@@ -1,4 +1,4 @@
-@import 'styles/helpers/module';
+@import 'styles/helpers/component';
 
 //  Variables
 //  ---------
@@ -9,7 +9,7 @@ $post-submit-border-radius: 4px;
 //  Object Strucure
 //  ---------------
 
-:host {
+.host {
   display: flex;
   flex-direction: column;
 

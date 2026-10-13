@@ -1,4 +1,4 @@
-@import 'styles/helpers/module';
+@import 'styles/helpers/component';
 
 //  Variables
 //  ---------
@@ -13,7 +13,7 @@ $social-icon-border-radius: 8px;
 //  Object Structure
 //  ----------------
 
-:host {
+.host {
   display: flex;
   flex-direction: column;
 

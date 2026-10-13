@@ -1,4 +1,4 @@
-@import 'styles/helpers/module';
+@import 'styles/helpers/component';
 
 //  Variables
 //  ---------
@@ -9,7 +9,7 @@ $card-border-radius: 4px;
 //  Object Structure
 //  ----------------
 
-:host {
+.host {
   display: flex;
   flex-direction: column;
 

@@ -1,4 +1,4 @@
-@import 'styles/helpers/module';
+@import 'styles/helpers/component';
 
 //  Variables
 //  ---------
@@ -6,7 +6,7 @@
 //  Object Structure
 //  ----------------
 
-:host {
+.host {
   display: flex;
   flex-direction: column;
 
@@ -14,6 +14,6 @@
   overflow-y: auto;
 }
 
-.root-container:not(.darwin) :host {
+:global(.root-container:not(.darwin)) .host {
   height: calc(100vh - #{$topbar-height + ($win32-border-width * 2)});
 }
