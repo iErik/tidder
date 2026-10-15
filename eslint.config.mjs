@@ -8,6 +8,8 @@ import { defineConfig } from 'eslint/config'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
+import importLength from './eslint-rules/import-length.mjs'
+
 // Raises every 'warn' rule in a config object to 'error'
 function errorsOnly(config) {
   const raise = ([name, value]) => {
@@ -71,7 +73,10 @@ export default defineConfig(
   // Formatting, for every linted file
   {
     files: ['**/*.{ts,tsx,mts,js,mjs,cjs}'],
-    plugins: { '@stylistic': stylistic },
+    plugins: {
+      '@stylistic': stylistic,
+      local: { rules: { 'import-length': importLength } }
+    },
     rules: {
       '@stylistic/semi': ['error', 'never'],
       // The same for interface and type literal members
@@ -97,6 +102,13 @@ export default defineConfig(
       '@stylistic/max-len': ['error', {
         code: 80,
         ignoreUrls: true
+      }],
+      // Imports have no reason to go past the 60 target
+      'local/import-length': ['error', { max: 60 }],
+      // Once a tag's attributes wrap, one attribute per line
+      '@stylistic/jsx-max-props-per-line': ['error', {
+        maximum: 1,
+        when: 'multiline'
       }]
     }
   },
@@ -140,10 +152,14 @@ export default defineConfig(
     languageOptions: { ...node, sourceType: 'commonjs' }
   },
 
-  // Build scripts and this file
+  // Build scripts, local rules and this file
   {
     ...js.configs.recommended,
-    files: ['scripts/**/*.mjs', 'eslint.config.mjs'],
+    files: [
+      'scripts/**/*.mjs',
+      'eslint-rules/**/*.mjs',
+      'eslint.config.mjs'
+    ],
     languageOptions: { ...node, sourceType: 'module' }
   }
 )
