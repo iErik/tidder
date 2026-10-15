@@ -23,6 +23,29 @@ function errorsOnly(config) {
   return { ...config, rules }
 }
 
+// exp-list-style checks these lists too; it's only wanted for
+// function parameters
+const notParams = [
+  'ArrayExpression',
+  'ArrayPattern',
+  'CallExpression',
+  'ExportNamedDeclaration',
+  'IfStatement',
+  'ImportAttributes',
+  'ImportDeclaration',
+  'JSONArrayExpression',
+  'JSONObjectExpression',
+  'NewExpression',
+  'ObjectExpression',
+  'ObjectPattern',
+  'TSEnumBody',
+  'TSInterfaceBody',
+  'TSTupleType',
+  'TSTypeLiteral',
+  'TSTypeParameterDeclaration',
+  'TSTypeParameterInstantiation'
+]
+
 const node = {
   globals: globals.node,
   ecmaVersion: 'latest'
@@ -58,6 +81,14 @@ export default defineConfig(
         avoidEscape: true
       }],
       '@stylistic/indent': ['error', 2],
+      // Parameters either share the function's line, or each
+      // one gets its own line
+      '@stylistic/exp-list-style': ['error', {
+        overrides: Object.fromEntries(
+          notParams.map(type => [type, 'off']))
+      }],
+      // Its fixes would otherwise leave a space after commas
+      '@stylistic/no-trailing-spaces': 'error',
       '@stylistic/max-len': ['error', {
         code: 80,
         ignoreStrings: true,
