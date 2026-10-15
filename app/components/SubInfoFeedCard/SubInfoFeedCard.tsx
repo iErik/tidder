@@ -26,7 +26,9 @@ export default function SubInfoFeedCard({ subInfo: rawSubInfo }: Props) {
         <span
           className={cx('thumbnail', { 'is-static': !subInfo.icon_img })}
           style={{ backgroundImage: `url(${subInfo.icon_img})` }}
-        />
+        >
+          {!subInfo.icon_img && <Icon name="default" />}
+        </span>
       </div>
 
       <div className={cx('card-contents')}>

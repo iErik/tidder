@@ -50,6 +50,11 @@ $card-background: #FFF;
 
       border-radius: 100%;
       background-color: #E2E3E5;
+
+      // The fallback when the subreddit has no icon
+      @include icon {
+        color: #F7F8FA;
+      }
     }
   }
 
