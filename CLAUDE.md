@@ -43,9 +43,30 @@ pnpm run build:pack        # build + electron-builder for this platform -> relea
 pnpm run build:pack:mac    # x64 + arm64 zips, ad-hoc signed (mac.identity "-")
 pnpm lint                  # ESLint over app/, electron/, scripts/, eslint-rules/ and root configs
 pnpm lint:fix              # the same, fixing what it can (formatting)
+pnpm test                  # generate theme SCSS, then run every Vitest test once
+pnpm test:watch            # the same, in watch mode
+pnpm test:coverage         # run once with a v8 coverage report in coverage/ (no threshold)
 ```
 
-There is no test suite. `pnpm run build` type-checks the app (`strict`) before bundling; Vite itself doesn't type-check, and the build doesn't lint.
+`pnpm run build` type-checks the app (`strict`), test files included, before bundling; Vite itself doesn't type-check, and the build doesn't lint or run the tests.
+
+Tests run on Vitest, configured in `vitest.config.mts` with two projects:
+
+- `renderer`: `app/**/*.test.{ts,tsx}` in happy-dom. It merges `vite.config.mts`, so import aliases, the React plugin and Sass work as in the app. SCSS modules are compiled (that's why the scripts generate the theme SCSS first), so a test sees the classes a module really defines.
+- `main`: `electron/**/*.test.js` in Node.
+
+Conventions:
+
+- A test file sits next to the code it tests (`timeAgo.test.ts` beside `timeAgo.ts`). Renderer tests are TypeScript and import `describe`, `it`, `expect` and `vi` from `vitest` (there are no globals). Main-process tests are plain JS, written as ES modules because Vitest can't be required.
+- Hooks are tested with `renderHook` from `@testing-library/react`. There are no component tests yet.
+- `app/test/setup.ts` installs a fake `window.tidder` (`app/test/fakeTidder.ts`) before each test: every method a `vi.fn()`, settings in memory, seeded from `app/config/settings.json`, and logged out. It's typed against `TidderBridge`, so it stops compiling when the bridge changes. Stub or check it through `tidder()`, e.g. `tidder().auth.refresh.mockResolvedValue(null)`. Each test's fake is copied into the objects already installed, since modules like `core/useSetting` keep a reference from import time. `localStorage` is cleared too. Limits of the fake:
+  - Stub methods on the installed fake. Assigning a new `window.tidder` or `window.tidder.settings` orphans the object a module already holds, for the rest of the file.
+  - Values copied out at import time don't follow the fake. `WindowControls` and `RootLayout` keep `window.tidder.platform` (always `'linux'` in the fake) as a string, so a `darwin` test sets the platform first, then imports the module with `vi.resetModules()` and `await import()`.
+  - The fake's `settings.set` accepts any key and notifies watchers right away. The real store rejects unknown keys and notifies asynchronously, so a rejected write doesn't show up in renderer tests.
+- Stub `fetch` with `stubFetch(...)` and `jsonResponse()` from `app/test/fetch.ts`: it uses `vi.stubGlobal`, answers with real `Response` objects in order, and rejects any extra request. The renderer project unstubs globals after each test. Don't add MSW or another request-mocking library.
+- Modules with state at module level (`api/thingState`, `core/auth`) are isolated with `vi.resetModules()` and a fresh `await import()` in each test. Don't add reset functions or other test-only exports to production code.
+- `electron/test/setup.js` gives each main-process test a fake `electron` (`electron/test/electron.js`, read with `electron()`): `app.getPath('userData')` points at a fresh temp directory that's removed afterwards (any other name throws), `safeStorage` is a reversible fake, and `net.fetch` rejects until a test stubs it. `vi.mock('electron')` doesn't work here: it can't reach the `require()` calls in `electron/`, so the fake goes into Node's `require.cache`, and the project's own files are dropped from that cache before each test. Load the module under test with `createRequire(import.meta.url)` inside the test: a `require` at the top of the file runs before the fake is installed, and gets the real `electron` package. The cache and the fake are shared by the whole file, so main-process tests stay sequential: no `it.concurrent` or `describe.concurrent`, and a `describe` whose tests share state passes `{ concurrent: false }`. One whose tests also depend on running in order passes `{ concurrent: false, shuffle: false }`: `concurrent: false` alone doesn't stop `--sequence.shuffle` from reordering them. Both options hold even when concurrency or shuffling is turned on for the whole run.
+- `electron/test/` and `*.test.js` are left out of the packaged app (`build.files`).
 
 Linting is configured in `eslint.config.mjs`, and every rule is an error:
 
@@ -71,6 +92,7 @@ Linting is configured in `eslint.config.mjs`, and every rule is an error:
   - The packaged app only contains the `build.files` listed in `package.json`. The main process also requires `app/config/authConfig.json` and `settings.json`, so keep those listed.
 - **Renderer (`app/`)**: React 19 + TypeScript, built by Vite (`vite.config.mts`, `root: app`, output `dist/renderer/browser`).
   - `main.tsx` calls `setup()` from `core/auth.ts`, then renders `QueryClientProvider` > `HashRouter` > `RootLayout` in StrictMode.
+  - In `pnpm run dev` only, the TanStack Query devtools are available from the button in the bottom-left corner. Feed and comment queries use `gcTime: 0`, so they vanish from the devtools as soon as nothing uses them.
   - `index.html` has a strict CSP (`script-src 'self'`). The dev server needs an inline script for React Fast Refresh, so `vite.config.mts` adds `'unsafe-inline'` to `script-src` in serve mode only.
 - **Import aliases**: bare aliases rooted at `app/` (`api/`, `components/`, `config/`, `core/`, `hooks/`, `layouts/`, `pages/`, `utils/`) are defined in both `tsconfig.json` `paths` and `vite.config.mts` `resolve.alias`; keep them in sync. SCSS imports resolve from `app/` (`@import 'styles/helpers/module'`) via Sass `loadPaths`.
 - **App structure**:
