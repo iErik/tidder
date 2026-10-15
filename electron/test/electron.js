@@ -10,27 +10,39 @@ import { vi } from 'vitest'
 
 let current = null
 
+// The directory createElectron() made. Cleanup removes this,
+// not whatever a test has stubbed getPath to return
+let userData = null
+
 // The fake the code under test gets from require('electron')
 export function electron() {
   return current
 }
 
+// The main process only asks for userData, so any other name
+// is a bug
+function getPath(name) {
+  if (name !== 'userData')
+    throw new Error(`app.getPath('${name}') isn't faked`)
+
+  return userData
+}
+
 export function createElectron() {
-  const userData = fs.mkdtempSync(
+  userData = fs.mkdtempSync(
     path.join(os.tmpdir(), 'tidder-test-'))
 
   current = {
     app: {
-      getPath: vi.fn(() => userData),
+      getPath: vi.fn(getPath),
       getVersion: vi.fn(() => '0.0.0-test')
     },
 
-    // Fails the test unless a test stubs it, so nothing
-    // reaches the network
+    // Rejects, like a failed request in Electron, unless a
+    // test stubs it, so nothing reaches the network
     net: {
-      fetch: vi.fn(() => {
-        throw new Error('net.fetch is not stubbed')
-      })
+      fetch: vi.fn(() => Promise.reject(
+        new Error('net.fetch is not stubbed')))
     },
 
     shell: {
@@ -51,11 +63,9 @@ export function createElectron() {
 }
 
 export function removeElectron() {
-  if (!current) return
+  if (userData)
+    fs.rmSync(userData, { recursive: true, force: true })
 
-  fs.rmSync(current.app.getPath('userData'), {
-    recursive: true,
-    force: true
-  })
+  userData = null
   current = null
 }
