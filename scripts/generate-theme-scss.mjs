@@ -5,7 +5,9 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 
 const source = new URL('../app/config/themes.json', import.meta.url)
-const target = new URL('../app/styles/helpers/_themes.generated.scss', import.meta.url)
+const target = new URL(
+  '../app/styles/helpers/_themes.generated.scss',
+  import.meta.url)
 
 function toSass(value, indent = '') {
   if (value !== null && typeof value === 'object') {
@@ -25,4 +27,7 @@ const scss = Object.entries(json)
   .map(([name, value]) => `$${name}: ${toSass(value)};`)
   .join('\n\n')
 
-writeFileSync(target, `// Generated from app/config/themes.json - do not edit.\n\n${scss}\n`)
+const header =
+  '// Generated from app/config/themes.json - do not edit.'
+
+writeFileSync(target, `${header}\n\n${scss}\n`)

@@ -1,6 +1,6 @@
-// The parts of Reddit's JSON the app reads. Reddit sends more fields than
-// these, and some of them vary by post type, so media and preview data
-// only type the fields the app reads.
+// The parts of Reddit's JSON the app reads. Reddit sends more
+// fields than these, and some of them vary by post type, so
+// media and preview data only type the fields the app reads.
 
 export interface Thing<Kind extends string, Data> {
   kind: Kind

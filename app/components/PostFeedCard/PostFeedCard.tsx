@@ -40,7 +40,7 @@ export default function PostFeedCard({
         <ScoreButton
           score={abbreviate(post.score, 1, 1)}
           likes={post.likes}
-          onVote={(dir) => void voteThing(post, dir)} />
+          onVote={(dir) => voteThing(post, dir)} />
       </div>
 
       <div className={cx('post-contents')}>
@@ -69,7 +69,9 @@ export default function PostFeedCard({
       <div className={cx('wrapper-thumbnail')}>
         <div
           className={cx('post-thumbnail', { 'static-bg': !hasThumbnail })}
-          style={hasThumbnail ? { backgroundImage: `url(${post.thumbnail})` } : undefined}>
+          style={hasThumbnail
+            ? { backgroundImage: `url(${post.thumbnail})` }
+            : undefined}>
 
           {!hasThumbnail && (
             <span className={cx('static-thumbnail')}>

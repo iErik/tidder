@@ -57,10 +57,7 @@ export default function CommentEditor({
 
         <div className={cx('comment-editor-actions')}>
           <div className={cx('comment-editor-action')}>
-            <SubmitButton
-              onClick={() => void submit()}
-              isLoading={isLoading}
-              outline>
+            <SubmitButton onClick={submit} isLoading={isLoading} outline>
               Submit
             </SubmitButton>
           </div>

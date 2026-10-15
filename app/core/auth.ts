@@ -1,6 +1,10 @@
 import { useSyncExternalStore } from 'react'
 
-import { onUnauthorized, redditFetch, RedditApiError } from 'api/client'
+import {
+  onUnauthorized,
+  redditFetch,
+  RedditApiError
+} from 'api/client'
 import { clearThingChanges } from 'api/thingState'
 import type { Identity } from 'api/types'
 

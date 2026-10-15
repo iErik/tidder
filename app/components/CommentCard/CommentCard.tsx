@@ -54,18 +54,27 @@ export default function CommentCard({ comment: rawComment, isParent }: Props) {
             <ScoreButton
               score={score}
               likes={comment.likes}
-              onVote={(dir) => void voteThing(comment, dir)} />
+              onVote={(dir) => voteThing(comment, dir)} />
           </div>
 
           <div className={cx('comment-contents')}>
             <div className={cx('comment-meta')}>
               <p className={cx('meta')}>
-                <a href="" className={cx('meta-collapse')} onClick={toggleCollapse}>
+                <a href="" className={cx('meta-collapse')}
+                  onClick={toggleCollapse}>
                   {isCollapsed ? '[+]' : '[–]'}
                 </a>{' '}
-                <span className={cx('meta-author bold-text')}>{comment.author}</span>{' '}
-                {isCollapsed && <><span className={cx('meta-score bold-text')}>{score} points</span>{' '}</>}
-                <span className={cx('meta-time')}>{timeAgo(comment.created_utc * 1000)}</span>
+                <span className={cx('meta-author bold-text')}>
+                  {comment.author}
+                </span>{' '}
+                {isCollapsed && <>
+                  <span className={cx('meta-score bold-text')}>
+                    {score} points
+                  </span>{' '}
+                </>}
+                <span className={cx('meta-time')}>
+                  {timeAgo(comment.created_utc * 1000)}
+                </span>
               </p>
             </div>
 
@@ -83,7 +92,8 @@ export default function CommentCard({ comment: rawComment, isParent }: Props) {
               ))}
 
             {replyLimit < replies.length && (
-              <div className={cx('reply-pagination')} onClick={() => setReplyLimit(replyLimit + 3)}>
+              <div className={cx('reply-pagination')}
+                onClick={() => setReplyLimit(replyLimit + 3)}>
                 <span className={cx('label')}>Load more replies</span>
               </div>
             )}

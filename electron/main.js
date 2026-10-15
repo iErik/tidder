@@ -1,5 +1,12 @@
 const path = require('path')
-const { app, BrowserWindow, ipcMain, Menu, session, shell } = require('electron')
+const {
+  app,
+  BrowserWindow,
+  ipcMain,
+  Menu,
+  session,
+  shell
+} = require('electron')
 
 const auth = require('./auth')
 const settings = require('./settings')
@@ -41,7 +48,8 @@ function openMainWindow() {
   if (isDev)
     mainWindow.loadURL(devServerUrl)
   else
-    mainWindow.loadFile(path.join(__dirname, '..', 'dist', 'renderer', 'browser', 'index.html'))
+    mainWindow.loadFile(path.join(__dirname, '..', 'dist',
+      'renderer', 'browser', 'index.html'))
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()

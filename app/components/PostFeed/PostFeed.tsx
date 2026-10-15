@@ -41,7 +41,9 @@ function useSettledFeedParams(): FeedParams {
 
   useEffect(() => {
     if (live.source !== settled.source) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- a new source skips the debounce; moving this into render would restructure the hook
+      // A new source skips the debounce. Settling it during
+      // render instead would mean restructuring this hook.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSettled(live)
       return
     }

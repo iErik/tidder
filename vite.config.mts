@@ -37,7 +37,13 @@ export default defineConfig({
       scss: {
         loadPaths: [appDir],
         silenceDeprecations:
-          ['import', 'global-builtin', 'color-functions', 'slash-div', 'if-function']
+          [
+            'import',
+            'global-builtin',
+            'color-functions',
+            'slash-div',
+            'if-function'
+          ]
       }
     }
   },

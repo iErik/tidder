@@ -19,7 +19,8 @@ export async function getPosts(
   signal?: AbortSignal
 ) {
   const path = sr ? `/r/${sr}/${sort}/.json` : `/${sort}/.json`
-  const res = await redditFetch<ListingResponse<PostThing>>(path,
+  const res = await redditFetch<ListingResponse<PostThing>>(
+    path,
     { params: { after, limit: PAGE_SIZE }, signal })
 
   return res.data
@@ -30,7 +31,8 @@ export async function getSavedPosts(
   after: string,
   signal?: AbortSignal
 ) {
-  const res = await redditFetch<ListingResponse<PostThing>>(`/user/${userName}/saved`,
+  const res = await redditFetch<ListingResponse<PostThing>>(
+    `/user/${userName}/saved`,
     { params: { after, limit: PAGE_SIZE, type: 'link' }, signal })
 
   return res.data
@@ -44,8 +46,15 @@ export async function searchPosts(
   signal?: AbortSignal
 ) {
   const path = sr ? `/r/${sr}/search.json` : '/search.json'
-  const params = { q, sort, after, limit: PAGE_SIZE, restrict_sr: sr ? 'on' : null }
-  const res = await redditFetch<ListingResponse<PostThing>>(path,
+  const params = {
+    q,
+    sort,
+    after,
+    limit: PAGE_SIZE,
+    restrict_sr: sr ? 'on' : null
+  }
+  const res = await redditFetch<ListingResponse<PostThing>>(
+    path,
     { params, signal })
 
   return res.data
@@ -64,7 +73,11 @@ export async function getPostComments(
   signal?: AbortSignal
 ): Promise<CommentsPage> {
   const params = {
-    sr_detail: false, showmore: true, depth: 20, context: 8, sort
+    sr_detail: false,
+    showmore: true,
+    depth: 20,
+    context: 8,
+    sort
   }
   const [postListing, commentListing] = await redditFetch<
     [ListingResponse<PostThing>, ListingResponse<CommentThing | MoreThing>]
@@ -93,7 +106,14 @@ export async function getMoreComments(
     JsonResponse<{ things: (CommentThing | MoreThing)[] }>
   >(
     '/api/morechildren.json',
-    { params: { link_id: linkName, children: requested.join(','), sort, limit_children: false } })
+    {
+      params: {
+        link_id: linkName,
+        children: requested.join(','),
+        sort,
+        limit_children: false
+      }
+    })
 
   const things = throwOnJsonErrors(res)?.things ?? []
   const { roots, more: nextMore } = unflattenComments(things)
@@ -102,7 +122,14 @@ export async function getMoreComments(
   return {
     comments: roots,
     more: leftover.length > 0
-      ? { kind: 'more', data: { ...more.data, children: leftover, count: leftover.length } }
+      ? {
+        kind: 'more',
+        data: {
+          ...more.data,
+          children: leftover,
+          count: leftover.length
+        }
+      }
       : null
   }
 }
@@ -116,7 +143,8 @@ function unflattenComments(things: (CommentThing | MoreThing)[]) {
 
   for (const thing of things)
     if (thing.kind === 't1')
-      byName.set(thing.data.name, { ...thing, data: { ...thing.data, replies: '' } })
+      byName.set(thing.data.name,
+        { ...thing, data: { ...thing.data, replies: '' } })
 
   for (const thing of things) {
     const parent = byName.get(thing.data.parent_id)
@@ -124,7 +152,10 @@ function unflattenComments(things: (CommentThing | MoreThing)[]) {
 
     if (parent) {
       if (!parent.data.replies)
-        parent.data.replies = { kind: 'Listing', data: { after: null, before: null, children: [] } }
+        parent.data.replies = {
+          kind: 'Listing',
+          data: { after: null, before: null, children: [] }
+        }
 
       parent.data.replies.data.children.push(node)
     } else if (node.kind === 't1') {
@@ -156,14 +187,17 @@ export async function submitComment(
   thingId: string,
   text: string
 ): Promise<CommentThing> {
-  const res = await redditFetch<JsonResponse<{ things: CommentThing[] }>>('/api/comment',
+  const res = await redditFetch<
+    JsonResponse<{ things: CommentThing[] }>
+  >('/api/comment',
     { method: 'POST', params: { thing_id: thingId, text } })
 
   return throwOnJsonErrors(res)!.things[0]
 }
 
 export function setSaved(id: string, saved: boolean): Promise<unknown> {
-  return redditFetch(saved ? '/api/save' : '/api/unsave', { method: 'POST', params: { id } })
+  return redditFetch(saved ? '/api/save' : '/api/unsave',
+    { method: 'POST', params: { id } })
 }
 
 // dir: 1 upvotes, -1 downvotes, 0 removes the vote.

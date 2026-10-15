@@ -33,7 +33,8 @@ function shareOnTwitter(postLink: string, title: string): void {
 
 function shareOnTumblr(postLink: string, title: string): void {
   const apiUrl = 'https://www.tumblr.com/widgets/share/tool/preview'
-    + `?canonicalUrl=${encodeURIComponent(`${postLink}?ref=share&ref_source=tumblr`)}`
+    + '?canonicalUrl='
+    + encodeURIComponent(`${postLink}?ref=share&ref_source=tumblr`)
     + `&title=${encodeURIComponent(title)}&_format=html&posttype=link`
 
   popupWindow(apiUrl, 550, 450, 'Share')
@@ -50,17 +51,20 @@ export default function SharePostCard({ post }: Props) {
     <div className={cx('host')}>
       <div className={cx('social-icons')}>
         <div className={cx('social-icon')}>
-          <button className={cx('btn-social facebook')} onClick={() => shareOnFacebook(postLink)}>
+          <button className={cx('btn-social facebook')}
+            onClick={() => shareOnFacebook(postLink)}>
             <i className="icn-facebook"></i>
           </button>
         </div>
         <div className={cx('social-icon')}>
-          <button className={cx('btn-social twitter')} onClick={() => shareOnTwitter(postLink, post.title)}>
+          <button className={cx('btn-social twitter')}
+            onClick={() => shareOnTwitter(postLink, post.title)}>
             <i className="icn-twitter"></i>
           </button>
         </div>
         <div className={cx('social-icon')}>
-          <button className={cx('btn-social tumblr')} onClick={() => shareOnTumblr(postLink, post.title)}>
+          <button className={cx('btn-social tumblr')}
+            onClick={() => shareOnTumblr(postLink, post.title)}>
             <i className="icn-tumblr"></i>
           </button>
         </div>

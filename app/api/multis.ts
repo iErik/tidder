@@ -15,7 +15,8 @@ export async function getMultiFeed(
   after: string,
   signal?: AbortSignal
 ) {
-  const res = await redditFetch<ListingResponse<PostThing>>(`${multiFeedPath(multiPath)}/${sort}/.json`,
+  const res = await redditFetch<ListingResponse<PostThing>>(
+    `${multiFeedPath(multiPath)}/${sort}/.json`,
     { params: { after, limit: 15 }, signal })
 
   return res.data
@@ -28,8 +29,16 @@ export async function searchMultiFeed(
   after: string,
   signal?: AbortSignal
 ) {
-  const params = { q, sort, after, limit: 15, include_over_18: 'on', restrict_sr: 'on' }
-  const res = await redditFetch<ListingResponse<PostThing>>(`${multiFeedPath(multiPath)}/search.json`,
+  const params = {
+    q,
+    sort,
+    after,
+    limit: 15,
+    include_over_18: 'on',
+    restrict_sr: 'on'
+  }
+  const res = await redditFetch<ListingResponse<PostThing>>(
+    `${multiFeedPath(multiPath)}/search.json`,
     { params, signal })
 
   return res.data
@@ -38,7 +47,9 @@ export async function searchMultiFeed(
 export async function getUserMultis(
   signal?: AbortSignal
 ): Promise<Multireddit[]> {
-  const res = await redditFetch<Thing<'LabeledMulti', Multireddit>[]>('/api/multi/mine',
+  const res = await redditFetch<
+    Thing<'LabeledMulti', Multireddit>[]
+  >('/api/multi/mine',
     { params: { expand_srs: false }, signal })
 
   return res.map((multi) => multi.data)

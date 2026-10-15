@@ -42,7 +42,8 @@ export default function SubInfoFeedCard({ subInfo: rawSubInfo }: Props) {
               </Link>
             </span>{' '}
             <span className={cx('meta-info')}>
-              {subInfo.subscribers.toLocaleString()} subscribers, a community for{' '}
+              {subInfo.subscribers.toLocaleString()} subscribers,
+              a community for{' '}
               {timeAgo(subInfo.created_utc * 1000, true)}
             </span>
           </p>
@@ -58,11 +59,14 @@ export default function SubInfoFeedCard({ subInfo: rawSubInfo }: Props) {
       <div className={cx('card-actions')}>
         <div className={cx('card-action')}>
           <button
-            onClick={() => void setSubscribed(subInfo,
+            onClick={() => setSubscribed(subInfo,
               !subInfo.user_is_subscriber)}
-            className={cx('btn-action', { 'is-checked': subInfo.user_is_subscriber })}>
+            className={cx('btn-action',
+              { 'is-checked': subInfo.user_is_subscriber })}>
 
-            <i className={subInfo.user_is_subscriber ? 'icn-check' : 'icn-plus'}></i>
+            <i className={subInfo.user_is_subscriber
+              ? 'icn-check'
+              : 'icn-plus'}></i>
           </button>
         </div>
       </div>

@@ -29,13 +29,16 @@ export default function LoginScreen() {
 
         {status.state === 'waiting' && (
           <>
-            <p className={cx('login-waiting')}>Finish logging in in your browser</p>
+            <p className={cx('login-waiting')}>
+              Finish logging in in your browser
+            </p>
 
             <div className={cx('login-actions')}>
               <button type="button" className={cx('btn-link')} onClick={login}>
                 Open again
               </button>
-              <button type="button" className={cx('btn-link')} onClick={cancelLogin}>
+              <button type="button" className={cx('btn-link')}
+                onClick={cancelLogin}>
                 Cancel
               </button>
             </div>

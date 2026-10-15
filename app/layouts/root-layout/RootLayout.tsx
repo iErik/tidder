@@ -20,7 +20,8 @@ export default function RootLayout() {
   const [showSidebar, setShowSidebar] = useState(false)
 
   return (
-    <div className={`root-container full-size container theme-${appTheme} ${platform}`}>
+    <div className={'root-container full-size container'
+      + ` theme-${appTheme} ${platform}`}>
       <div className="full-size inner container">
         <Topbar
           onSidebarToggle={() => setShowSidebar(!showSidebar)}

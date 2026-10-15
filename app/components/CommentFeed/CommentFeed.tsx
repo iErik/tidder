@@ -57,7 +57,8 @@ export default function CommentFeed({ post }: Props) {
   const more = additions.more !== undefined
     ? additions.more
     : thread.data?.more ?? null
-  const hiddenCount = Math.max(comments.length - displayLimit, 0)
+  const hiddenCount =
+    Math.max(comments.length - displayLimit, 0)
     + (more?.data.count ?? 0)
 
   const changeSortMode = (sort: string) => {
@@ -108,13 +109,18 @@ export default function CommentFeed({ post }: Props) {
       <div className={cx('comments-controls')}>
         <div className={cx('comments-meta')}>
           <i className="icn-comment"></i>
-          <span className={cx('meta')}>{post.num_comments + additions.submitted.length} comments</span>
+          <span className={cx('meta')}>
+            {post.num_comments + additions.submitted.length} comments
+          </span>
         </div>
 
         <div className={cx('comments-modes')}>
           {SORT_MODES.map(([sort, label]) => (
-            <div key={sort} className={cx('comments-mode', { active: sortMode === sort })}>
-              <button className={cx('link-btn')} onClick={() => changeSortMode(sort)}>
+            <div key={sort}
+              className={cx('comments-mode',
+                { active: sortMode === sort })}>
+              <button className={cx('link-btn')}
+                onClick={() => changeSortMode(sort)}>
                 {label}
               </button>
             </div>
@@ -148,7 +154,7 @@ export default function CommentFeed({ post }: Props) {
             <div className={cx('comments-morechildren')}>
               <button type="button" className={cx('btn-load button outline')}
                 disabled={loadingMore}
-                onClick={() => void loadMore()}>
+                onClick={loadMore}>
                 Load {hiddenCount} more comments
               </button>
             </div>

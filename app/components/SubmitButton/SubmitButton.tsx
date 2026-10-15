@@ -15,9 +15,14 @@ interface Props {
   onClick?: () => void
 }
 
-export default function SubmitButton(
-  { children, spinnerType = 'round-spinner', isDisabled, isLoading, outline, onClick }: Props
-) {
+export default function SubmitButton({
+  children,
+  spinnerType = 'round-spinner',
+  isDisabled,
+  isLoading,
+  outline,
+  onClick
+}: Props) {
   return (
     <div className={cx('host')}>
       <button type="submit"

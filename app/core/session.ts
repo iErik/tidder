@@ -16,7 +16,8 @@ export function hasValidToken(): boolean {
 
 export function storeTokens(tokens: TidderAuthTokens): void {
   localStorage.setItem('access_token', tokens.accessToken)
-  localStorage.setItem('expires_at', String(Date.now() + tokens.expiresIn * 1000))
+  const expiresAt = Date.now() + tokens.expiresIn * 1000
+  localStorage.setItem('expires_at', String(expiresAt))
 }
 
 export function clearTokens(): void {

@@ -20,8 +20,10 @@ const LOGIN_TIMEOUT = 5 * 60 * 1000
 const PAGES = {
   loggedIn: 'You\'re logged in to Tidder. You can close this tab.',
   denied: 'Login cancelled. You can close this tab.',
-  invalid: 'This login link is invalid or has expired. Please log in again from Tidder.',
-  redditError: 'Reddit couldn\'t complete the login. Please try again from Tidder.',
+  invalid: 'This login link is invalid or has expired.'
+    + ' Please log in again from Tidder.',
+  redditError: 'Reddit couldn\'t complete the login.'
+    + ' Please try again from Tidder.',
   exchangeFailed: 'Tidder couldn\'t finish logging in. Please try again.'
 }
 
@@ -67,7 +69,8 @@ function respond(res, status, message) {
   res.end(`<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><title>Tidder</title></head>
-<body style="display:flex;align-items:center;justify-content:center;height:90vh;margin:0;
+<body style="display:flex;align-items:center;justify-content:center;
+  height:90vh;margin:0;
   font-family:Lato,-apple-system,sans-serif;background:#F6F6F6;color:#515151">
   <p style="font-size:14px;letter-spacing:1px">${message}</p>
 </body>
@@ -103,13 +106,16 @@ class LoginAttempt {
 
     this.server.on('error', (err) => {
       this.finish(err.code === 'EADDRINUSE'
-        ? new Error(`Port ${REDIRECT.port} is in use by another program. Close it and try again.`)
+        ? new Error(`Port ${REDIRECT.port} is in use by another`
+          + ' program. Close it and try again.')
         : err)
     })
 
     this.server.listen(Number(REDIRECT.port), REDIRECT.hostname,
       () => this.reopen())
-    this.timer = setTimeout(() => this.finish(new Error('Login timed out. Please try again.')), LOGIN_TIMEOUT)
+    this.timer = setTimeout(
+      () => this.finish(new Error('Login timed out. Please try again.')),
+      LOGIN_TIMEOUT)
 
     return this.promise
   }
@@ -143,7 +149,8 @@ class LoginAttempt {
       this.finish(null, null)
     } else if (callback.type === 'error') {
       respond(res, 400, PAGES.redditError)
-      this.finish(new Error(`Reddit couldn't complete the login (${callback.reason})`))
+      this.finish(new Error('Reddit couldn\'t complete the login'
+        + ` (${callback.reason})`))
     } else {
       await this.exchange(res, callback.code)
     }

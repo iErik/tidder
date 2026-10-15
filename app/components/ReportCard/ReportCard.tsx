@@ -87,15 +87,18 @@ export default function ReportCard({ thing, onCancel }: Props) {
   return (
     <div className={cx('host')}>
       <div className={cx('card-title')}>
-        <p className={cx('title')}>We're sorry something's wrong. How can we help?</p>
+        <p className={cx('title')}>
+          We're sorry something's wrong. How can we help?
+        </p>
       </div>
 
       {!rules.isPending && !isSubmitted && (
-        <form className={cx('form-group')} onSubmit={(ev) => void submit(ev)}>
+        <form className={cx('form-group')} onSubmit={submit}>
 
           <div className={cx('form-inputs')} hidden={isRuleReason}>
             {subRules.length > 0 &&
-              radio('subRules', `It breaks ${thing.subreddit_name_prefixed}'s rules`)}
+              radio('subRules',
+                `It breaks ${thing.subreddit_name_prefixed}'s rules`)}
 
             {SITE_REASONS.map(([reason, label]) =>
               radio({ site_reason: reason }, label, reason))}
@@ -120,7 +123,8 @@ export default function ReportCard({ thing, onCancel }: Props) {
               </SubmitButton>
             </div>
             <div className={cx('form-control')}>
-              <button type="button" className={cx('button secondary')} onClick={rollback}>
+              <button type="button" className={cx('button secondary')}
+                onClick={rollback}>
                 {isRuleReason ? 'Back' : 'Cancel'}
               </button>
             </div>
@@ -131,7 +135,8 @@ export default function ReportCard({ thing, onCancel }: Props) {
       {isSubmitted && (
         <div className={cx('form-success')}>
           <p>We've submitted your report. Thanks for letting us know!</p>
-          <button type="button" className={cx('button secondary')} onClick={onCancel}>
+          <button type="button" className={cx('button secondary')}
+            onClick={onCancel}>
             Close
           </button>
         </div>

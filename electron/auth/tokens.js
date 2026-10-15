@@ -11,7 +11,8 @@ const config = require('../../app/config/authConfig.json')
 let refreshToken = null
 
 function userAgent() {
-  return `desktop:org.isidore.tidder:v${app.getVersion()} (by /u/${config.developer})`
+  return `desktop:org.isidore.tidder:v${app.getVersion()}`
+    + ` (by /u/${config.developer})`
 }
 
 // Refresh token storage
@@ -54,7 +55,8 @@ async function tokenRequest(url, params) {
   const res = await net.fetch(url, {
     method: 'POST',
     headers: {
-      'Authorization': 'Basic ' + Buffer.from(`${config.clientId}:`).toString('base64'),
+      'Authorization': 'Basic '
+        + Buffer.from(`${config.clientId}:`).toString('base64'),
       'Content-Type': 'application/x-www-form-urlencoded',
       'User-Agent': userAgent()
     },
@@ -71,8 +73,10 @@ async function tokenRequest(url, params) {
   }
 
   if (!res.ok || data.error) {
-    const err = new Error(`Reddit returned an error (${data.error || res.status})`)
-    err.rejected = res.status === 400 || res.status === 401 || data.error === 'invalid_grant'
+    const err = new Error('Reddit returned an error'
+      + ` (${data.error || res.status})`)
+    err.rejected = res.status === 400 || res.status === 401
+      || data.error === 'invalid_grant'
     throw err
   }
 
@@ -138,7 +142,8 @@ async function logout() {
     return
 
   try {
-    await tokenRequest(config.revokeUrl, { token, token_type_hint: 'refresh_token' })
+    await tokenRequest(config.revokeUrl,
+      { token, token_type_hint: 'refresh_token' })
   } catch {
     // The token is already forgotten locally, so a failed
     // revoke has nothing left to undo

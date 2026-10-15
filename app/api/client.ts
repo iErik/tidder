@@ -68,7 +68,9 @@ export async function redditFetch<T = unknown>(
     if (res.status === 401)
       unauthorizedHandler()
 
-    throw new RedditApiError(res.status, `${res.status} ${res.statusText} (${method} ${url.pathname})`)
+    throw new RedditApiError(res.status,
+      `${res.status} ${res.statusText}`
+      + ` (${method} ${url.pathname})`)
   }
 
   const text = await res.text()

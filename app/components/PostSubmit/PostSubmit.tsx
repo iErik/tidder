@@ -18,7 +18,13 @@ interface Props {
 }
 
 export default function PostSubmit({ onCancel }: Props) {
-  const [post, setPost] = useState<NewPost>({ kind: 'link', title: '', sr: '', url: '', text: '' })
+  const [post, setPost] = useState<NewPost>({
+    kind: 'link',
+    title: '',
+    sr: '',
+    url: '',
+    text: ''
+  })
   const [isDirty, setDirty] = useState(false)
   const [isLoading, setLoading] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
@@ -71,11 +77,12 @@ export default function PostSubmit({ onCancel }: Props) {
         </div>
       </div>
 
-      <form className={cx('form-group')} onSubmit={(ev) => void submit(ev)} hidden={!!postUrl}>
+      <form className={cx('form-group')} onSubmit={submit} hidden={!!postUrl}>
 
         <div className={cx('form-input')}>
           <label htmlFor="post-title" className={cx('label')}>Title</label>
-          <input id="post-title" name="postTitle" type="text" className={cx('input')}
+          <input id="post-title" name="postTitle" type="text"
+            className={cx('input')}
             required
             placeholder="Title..."
             value={post.title}
@@ -84,7 +91,8 @@ export default function PostSubmit({ onCancel }: Props) {
 
         <div className={cx('form-input')}>
           <label htmlFor="post-sub" className={cx('label')}>Subreddit</label>
-          <input id="post-sub" name="postSub" type="text" className={cx('input')}
+          <input id="post-sub" name="postSub" type="text"
+            className={cx('input')}
             required
             autoComplete="off"
             list="post-sub-suggestions"
@@ -101,7 +109,8 @@ export default function PostSubmit({ onCancel }: Props) {
         {post.kind === 'link' && (
           <div className={cx('form-input')}>
             <label htmlFor="post-url" className={cx('label')}>URL</label>
-            <input id="post-url" name="postUrl" type="text" className={cx('input')}
+            <input id="post-url" name="postUrl" type="text"
+              className={cx('input')}
               placeholder="URL..."
               value={post.url}
               onChange={(ev) => update({ url: ev.target.value })} />
@@ -120,7 +129,8 @@ export default function PostSubmit({ onCancel }: Props) {
 
         {errors.length > 0 && (
           <div className={cx('form-errors')}>
-            {errors.map((error, i) => <span key={i} className={cx('error')}>{error}</span>)}
+            {errors.map((error, i) =>
+              <span key={i} className={cx('error')}>{error}</span>)}
           </div>
         )}
 
@@ -133,7 +143,8 @@ export default function PostSubmit({ onCancel }: Props) {
             </SubmitButton>
           </div>
           <div className={cx('form-control')}>
-            <button type="button" className={cx('button secondary')} onClick={onCancel}>
+            <button type="button" className={cx('button secondary')}
+              onClick={onCancel}>
               Cancel
             </button>
           </div>
@@ -151,7 +162,8 @@ export default function PostSubmit({ onCancel }: Props) {
               }}>
               Go to post
             </a>
-            <button type="button" className={cx('button secondary')} onClick={onCancel}>
+            <button type="button" className={cx('button secondary')}
+              onClick={onCancel}>
               Close
             </button>
           </div>
