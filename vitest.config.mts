@@ -28,6 +28,7 @@ export default defineConfig({
           root: rootDir,
           environment: 'happy-dom',
           include: ['app/**/*.test.{ts,tsx}'],
+          setupFiles: ['app/test/setup.ts'],
           unstubGlobals: true,
           // Compiles SCSS modules, so a test sees the classes a
           // module really defines. Other styles stay skipped
