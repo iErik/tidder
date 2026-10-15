@@ -1,28 +1,28 @@
 import {
   useInfiniteQuery,
   useQuery
-} from '@tanstack/react-query';
+} from '@tanstack/react-query'
 
 import {
   getMultiFeed,
   getUserMultis,
   MULTI_PATH,
   searchMultiFeed
-} from 'api/multis';
+} from 'api/multis'
 
 import {
   getPostComments,
   getPosts,
   getSavedPosts,
   searchPosts
-} from 'api/posts';
+} from 'api/posts'
 
 import {
   getSubRules,
   getUserSubs,
   searchSubNames,
   searchSubs
-} from 'api/subreddits';
+} from 'api/subreddits'
 
 import type {
   Listing,
@@ -30,24 +30,24 @@ import type {
   PostThing,
   Subreddit,
   SubredditThing
-} from 'api/types';
+} from 'api/types'
 
-import { useAuth } from 'core/auth';
+import { useAuth } from 'core/auth'
 
 
 // What the feed shows. `source` is one of:
 //   'home', 'saved', 'r/<name>', '/user/<user>/m/<multi>/',
 //    or 'sr:', a search for subreddits instead of posts.
 export interface FeedParams {
-  source: string;
-  sort: string;
-  query: string;
+  source: string
+  sort: string
+  query: string
 }
 
 export interface FeedPage {
-  after: string | null;
-  posts: Post[];
-  subs: Subreddit[];
+  after: string | null
+  posts: Post[]
+  subs: Subreddit[]
 }
 
 function fetchListing(
@@ -56,31 +56,31 @@ function fetchListing(
   after: string,
   signal: AbortSignal
 ): Promise<Listing<PostThing | SubredditThing>> {
-  const sr = source.startsWith('r/') ? source.slice(2) : '';
-  const isMulti = MULTI_PATH.test(source);
+  const sr = source.startsWith('r/') ? source.slice(2) : ''
+  const isMulti = MULTI_PATH.test(source)
 
   if (query.trim()) {
     if (source.startsWith('sr:'))
-      return searchSubs(query, sort, after, signal);
+      return searchSubs(query, sort, after, signal)
     if (isMulti)
-      return searchMultiFeed(source, query, sort, after, signal);
+      return searchMultiFeed(source, query, sort, after, signal)
 
-    return searchPosts(query, sort, sr, after, signal);
+    return searchPosts(query, sort, sr, after, signal)
   }
 
   if (source === 'saved')
-    return getSavedPosts(userName, after, signal);
+    return getSavedPosts(userName, after, signal)
   if (isMulti)
-    return getMultiFeed(source, sort, after, signal);
+    return getMultiFeed(source, sort, after, signal)
 
   // 'home' and 'r/<name>'.
-  return getPosts(sort, sr, after, signal);
+  return getPosts(sort, sr, after, signal)
 }
 
 export function useFeed(params: FeedParams) {
   // The saved feed needs the user's name, which comes with
   // the identity.
-  const userName = useAuth().user?.name ?? '';
+  const userName = useAuth().user?.name ?? ''
 
   return useInfiniteQuery({
     queryKey: [
@@ -97,7 +97,7 @@ export function useFeed(params: FeedParams) {
         userName,
         pageParam,
         signal
-      );
+      )
 
       return {
         after: listing.after,
@@ -108,7 +108,7 @@ export function useFeed(params: FeedParams) {
           .filter((c): c is SubredditThing =>
             c.kind === 't5')
           .map((c) => c.data)
-      };
+      }
     },
     initialPageParam: '',
     getNextPageParam: (lastPage) =>
@@ -121,7 +121,7 @@ export function useFeed(params: FeedParams) {
     // mounting.
     enabled: !!params.source &&
       (params.source !== 'saved' || !!userName)
-  });
+  })
 }
 
 export function useComments(post: Post, sort: string) {
@@ -134,7 +134,7 @@ export function useComments(post: Post, sort: string) {
       signal
     ),
     gcTime: 0
-  });
+  })
 }
 
 export function useSubscriptions() {
@@ -145,21 +145,21 @@ export function useSubscriptions() {
     initialPageParam: '',
     getNextPageParam: (lastPage) =>
       lastPage.after ?? undefined
-  });
+  })
 }
 
 export function useMultis() {
   return useQuery({
     queryKey: ['multis'],
     queryFn: ({ signal }) => getUserMultis(signal)
-  });
+  })
 }
 
 export function useSubRules(srName: string) {
   return useQuery({
     queryKey: ['subRules', srName],
     queryFn: ({ signal }) => getSubRules(srName, signal)
-  });
+  })
 }
 
 export function useSubNameSuggestions(query: string) {
@@ -168,5 +168,5 @@ export function useSubNameSuggestions(query: string) {
     queryFn: ({ signal }) => searchSubNames(query, signal),
     enabled: !!query,
     retry: false
-  });
+  })
 }

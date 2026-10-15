@@ -1,27 +1,27 @@
-import { Link } from 'react-router';
+import { Link } from 'react-router'
 
-import { useMultis, useSubscriptions } from 'api/queries';
+import { useMultis, useSubscriptions } from 'api/queries'
 
-import { bindStyles } from 'utils/classNames';
+import { bindStyles } from 'utils/classNames'
 
-import styles from './Sidebar.module.scss';
+import styles from './Sidebar.module.scss'
 
-const cx = bindStyles(styles);
+const cx = bindStyles(styles)
 
 interface Props {
-  isActive: boolean;
+  isActive: boolean
 }
 
 // Only shown while logged in.
 export default function Sidebar({ isActive }: Props) {
-  const multis = useMultis().data ?? [];
-  const subscriptions = useSubscriptions();
-  const subs = subscriptions.data?.pages.flatMap((page) => page.children) ?? [];
+  const multis = useMultis().data ?? []
+  const subscriptions = useSubscriptions()
+  const subs = subscriptions.data?.pages.flatMap((page) => page.children) ?? []
 
   const loadMoreSubs = () => {
     if (subscriptions.hasNextPage && !subscriptions.isFetchingNextPage)
-      void subscriptions.fetchNextPage();
-  };
+      void subscriptions.fetchNextPage()
+  }
 
   return (
     <div className={cx('host', { 'is-active': isActive })}>
@@ -58,13 +58,18 @@ export default function Sidebar({ isActive }: Props) {
 
         <li className={cx('sidebar-section')}>
           <div className={cx('sidebar-section-header-container')}>
-            <span className={cx('sidebar-section-header')}>My Multireddits</span>
+            <span className={cx('sidebar-section-header')}>
+              My Multireddits
+            </span>
           </div>
 
           <div className={cx('sidebar-section-entries-container')}>
             <ul className={cx('sidebar-section-sub-entries')}>
               {multis.map((multi) => (
-                <li key={multi.path} className={cx('sidebar-section-sub-entry')}>
+                <li
+                  key={multi.path}
+                  className={cx('sidebar-section-sub-entry')}
+                >
                   <Link to={multi.path} className={cx('sub-link')}>
                     <span className={cx('sub-prefix')}>m/</span>
                     <span className={cx('sub-name')}>{multi.display_name}</span>
@@ -96,7 +101,10 @@ export default function Sidebar({ isActive }: Props) {
               ))}
 
               {subscriptions.hasNextPage && (
-                <li onClick={loadMoreSubs} className={cx('sub-entry pagination')}>
+                <li
+                  onClick={loadMoreSubs}
+                  className={cx('sub-entry pagination')}
+                >
                   <span className={cx('label')}>Load more&hellip;</span>
                 </li>
               )}
@@ -105,5 +113,5 @@ export default function Sidebar({ isActive }: Props) {
         </li>
       </ul>
     </div>
-  );
+  )
 }

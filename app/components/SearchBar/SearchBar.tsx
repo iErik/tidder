@@ -1,13 +1,13 @@
-import { bindStyles } from 'utils/classNames';
+import { bindStyles } from 'utils/classNames'
 
-import styles from './SearchBar.module.scss';
+import styles from './SearchBar.module.scss'
 
-const cx = bindStyles(styles);
+const cx = bindStyles(styles)
 
 interface Props {
-  searchQuery: string;
-  onSearchQueryChange(query: string): void;
-  placeholder?: string;
+  searchQuery: string
+  onSearchQueryChange: (query: string) => void
+  placeholder?: string
 }
 
 export default function SearchBar({
@@ -31,5 +31,5 @@ export default function SearchBar({
         <i className="icn-search"></i>
       </button>
     </div>
-  );
+  )
 }

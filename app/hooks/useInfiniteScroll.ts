@@ -1,4 +1,4 @@
-import { useEffect, useRef, type RefObject } from 'react';
+import { useEffect, useRef, type RefObject } from 'react'
 
 // Calls `onEnd` when `sentinel` (an element placed after the list) comes
 // within `margin` pixels of the bottom of the scrolling `container`.
@@ -8,17 +8,20 @@ export function useInfiniteScroll(
   onEnd: () => void,
   { disabled = false, margin = 600 } = { }
 ): void {
-  const onEndRef = useRef(onEnd);
-  onEndRef.current = onEnd;
+  const onEndRef = useRef(onEnd)
+  // Keeps the observer calling the latest onEnd without
+  // re-creating it. useEffectEvent would be a refactor.
+  // eslint-disable-next-line react-hooks/refs
+  onEndRef.current = onEnd
 
   useEffect(() => {
-    if (disabled || !container.current || !sentinel.current) return;
+    if (disabled || !container.current || !sentinel.current) return
 
     const observer = new IntersectionObserver(
-      (entries) => { if (entries[0]?.isIntersecting) onEndRef.current(); },
-      { root: container.current, rootMargin: `0px 0px ${margin}px 0px` });
+      (entries) => { if (entries[0]?.isIntersecting) onEndRef.current() },
+      { root: container.current, rootMargin: `0px 0px ${margin}px 0px` })
 
-    observer.observe(sentinel.current);
-    return () => observer.disconnect();
-  }, [container, sentinel, disabled, margin]);
+    observer.observe(sentinel.current)
+    return () => observer.disconnect()
+  }, [container, sentinel, disabled, margin])
 }

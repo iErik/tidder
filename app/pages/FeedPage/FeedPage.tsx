@@ -1,51 +1,51 @@
-import { useEffect, useState } from 'react';
-import { matchPath, useLocation } from 'react-router';
+import { useEffect, useState } from 'react'
+import { matchPath, useLocation } from 'react-router'
 
-import type { Post, Votable } from 'api/types';
+import type { Post, Votable } from 'api/types'
 
-import PostFeed from 'components/PostFeed/PostFeed';
-import PostSubmit from 'components/PostSubmit/PostSubmit';
-import PostViewer from 'components/PostViewer/PostViewer';
-import ReportCard from 'components/ReportCard/ReportCard';
-import SharePostCard from 'components/SharePostCard/SharePostCard';
+import PostFeed from 'components/PostFeed/PostFeed'
+import PostSubmit from 'components/PostSubmit/PostSubmit'
+import PostViewer from 'components/PostViewer/PostViewer'
+import ReportCard from 'components/ReportCard/ReportCard'
+import SharePostCard from 'components/SharePostCard/SharePostCard'
 
-import { FeedProvider, useFeedState } from './FeedContext';
+import { FeedProvider, useFeedState } from './FeedContext'
 
 // What the feed and the post viewer ask the page to do.
 export type FeedAction =
   | { type: 'open'; thing: Post }
   | { type: 'submit' }
   | { type: 'report'; thing: Votable }
-  | { type: 'share'; thing: Post };
+  | { type: 'share'; thing: Post }
 
-type Overlay = Exclude<FeedAction, { type: 'open' }>;
+type Overlay = Exclude<FeedAction, { type: 'open' }>
 
 // Maps the route to the feed source, and whether the search
 // query is cleared on the way there.
 function sourceForPath(pathname: string): {
-  source: string;
+  source: string
   resetQuery: boolean
 } {
-  const subreddit = matchPath('/r/:subredditName', pathname);
+  const subreddit = matchPath('/r/:subredditName', pathname)
   const multi = matchPath(
     '/user/:userName/m/:multiName',
     pathname
-  );
+  )
 
   if (subreddit)
     return {
       source: `r/${subreddit.params.subredditName}`,
       resetQuery: false
-    };
+    }
   if (multi)
     return {
       source: `/user/${multi.params.userName}/m/${multi.params.multiName}/`,
       resetQuery: true
-    };
+    }
   if (matchPath('/saved', pathname))
-    return { source: 'saved', resetQuery: true };
+    return { source: 'saved', resetQuery: true }
 
-  return { source: 'home', resetQuery: true };
+  return { source: 'home', resetQuery: true }
 }
 
 // Every route shows this page, and it stays mounted between
@@ -56,37 +56,37 @@ export default function FeedPage() {
     <FeedProvider>
       <FeedPageContents />
     </FeedProvider>
-  );
+  )
 }
 
 function FeedPageContents() {
-  const { pathname } = useLocation();
-  const { setSource } = useFeedState();
+  const { pathname } = useLocation()
+  const { setSource } = useFeedState()
 
-  const [currentPost, setCurrentPost] = useState<Post | null>(null);
-  const [overlay, setOverlay] = useState<Overlay | null>(null);
+  const [currentPost, setCurrentPost] = useState<Post | null>(null)
+  const [overlay, setOverlay] = useState<Overlay | null>(null)
 
   useEffect(() => {
-    const { source, resetQuery } = sourceForPath(pathname);
-    setSource(source, resetQuery);
-  }, [pathname, setSource]);
+    const { source, resetQuery } = sourceForPath(pathname)
+    setSource(source, resetQuery)
+  }, [pathname, setSource])
 
   // The page behind an overlay shouldn't scroll.
   useEffect(() => {
-    if (!overlay) return;
+    if (!overlay) return
 
-    document.body.classList.add('no-scroll');
-    return () => document.body.classList.remove('no-scroll');
-  }, [overlay]);
+    document.body.classList.add('no-scroll')
+    return () => document.body.classList.remove('no-scroll')
+  }, [overlay])
 
   const handleFeedAction = (action: FeedAction) => {
     if (action.type === 'open')
-      setCurrentPost(action.thing);
+      setCurrentPost(action.thing)
     else
-      setOverlay(action);
-  };
+      setOverlay(action)
+  }
 
-  const closeOverlay = () => setOverlay(null);
+  const closeOverlay = () => setOverlay(null)
 
   return (
     <div className="page">
@@ -135,5 +135,5 @@ function FeedPageContents() {
         </div>
       </div>
     </div>
-  );
+  )
 }

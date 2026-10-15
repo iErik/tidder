@@ -1,14 +1,14 @@
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath } from 'node:url'
 
-import { defineConfig, type Plugin } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig, type Plugin } from 'vite'
+import react from '@vitejs/plugin-react'
 
-const appDir = fileURLToPath(new URL('./app', import.meta.url));
+const appDir = fileURLToPath(new URL('./app', import.meta.url))
 
 // Bare import aliases rooted at app/, mirrored in tsconfig.json `paths`.
 const aliasRoots = [
   'api', 'components', 'config', 'core', 'hooks', 'layouts', 'pages', 'utils'
-];
+]
 
 // The CSP in index.html only allows the app's own scripts. The dev server
 // injects an inline script for React Fast Refresh, so it's allowed in dev
@@ -18,7 +18,7 @@ const devInlineScripts: Plugin = {
   apply: 'serve',
   transformIndexHtml: (html) =>
     html.replace("script-src 'self'", "script-src 'self' 'unsafe-inline'")
-};
+}
 
 export default defineConfig({
   root: appDir,
@@ -37,7 +37,13 @@ export default defineConfig({
       scss: {
         loadPaths: [appDir],
         silenceDeprecations:
-          ['import', 'global-builtin', 'color-functions', 'slash-div', 'if-function']
+          [
+            'import',
+            'global-builtin',
+            'color-functions',
+            'slash-div',
+            'if-function'
+          ]
       }
     }
   },
@@ -49,4 +55,4 @@ export default defineConfig({
     outDir: fileURLToPath(new URL('./dist/renderer/browser', import.meta.url)),
     emptyOutDir: true
   }
-});
+})

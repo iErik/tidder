@@ -1,12 +1,12 @@
-import SearchBar from 'components/SearchBar/SearchBar';
-import type { FeedAction } from 'pages/FeedPage/FeedPage';
-import { useFeedState } from 'pages/FeedPage/FeedContext';
+import SearchBar from 'components/SearchBar/SearchBar'
+import type { FeedAction } from 'pages/FeedPage/FeedPage'
+import { useFeedState } from 'pages/FeedPage/FeedContext'
 
-import { bindStyles } from 'utils/classNames';
+import { bindStyles } from 'utils/classNames'
 
-import styles from './PostFeedFilters.module.scss';
+import styles from './PostFeedFilters.module.scss'
 
-const cx = bindStyles(styles);
+const cx = bindStyles(styles)
 
 const FEED_SORTS = [
   ['hot', 'Hot'],
@@ -14,17 +14,17 @@ const FEED_SORTS = [
   ['new', 'New'],
   ['rising', 'Rising'],
   ['controversial', 'Controversial'],
-];
+]
 
 const SEARCH_SORTS = [
   ['relevance', 'Relevance'],
   ['top', 'Top'],
   ['new', 'New'],
   ['comments', 'Comments'],
-];
+]
 
 interface Props {
-  onFeedAction(action: FeedAction): void;
+  onFeedAction: (action: FeedAction) => void
 }
 
 export default function PostFeedFilters({
@@ -35,11 +35,11 @@ export default function PostFeedFilters({
     sortMode,
     setSearchQuery,
     setSortMode
-  } = useFeedState();
+  } = useFeedState()
 
   const sorts = searchQuery.trim()
     ? SEARCH_SORTS
-    : FEED_SORTS;
+    : FEED_SORTS
 
   return (
     <div className={cx('host')}>
@@ -58,7 +58,8 @@ export default function PostFeedFilters({
             <SearchBar
               placeholder="Search"
               searchQuery={searchQuery}
-              onSearchQueryChange={setSearchQuery} />
+              onSearchQueryChange={setSearchQuery}
+            />
           </div>
         </div>
 
@@ -87,5 +88,5 @@ export default function PostFeedFilters({
 
       <div className={cx('box-shadow')}></div>
     </div>
-  );
+  )
 }

@@ -3,23 +3,24 @@
 // electron/auth/tokens.js).
 
 export function getAccessToken(): string | null {
-  return localStorage.getItem('access_token');
+  return localStorage.getItem('access_token')
 }
 
 export function getExpiresAt(): number {
-  return Number(localStorage.getItem('expires_at')) || 0;
+  return Number(localStorage.getItem('expires_at')) || 0
 }
 
 export function hasValidToken(): boolean {
-  return Date.now() < getExpiresAt();
+  return Date.now() < getExpiresAt()
 }
 
 export function storeTokens(tokens: TidderAuthTokens): void {
-  localStorage.setItem('access_token', tokens.accessToken);
-  localStorage.setItem('expires_at', String(Date.now() + tokens.expiresIn * 1000));
+  localStorage.setItem('access_token', tokens.accessToken)
+  const expiresAt = Date.now() + tokens.expiresIn * 1000
+  localStorage.setItem('expires_at', String(expiresAt))
 }
 
 export function clearTokens(): void {
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('expires_at');
+  localStorage.removeItem('access_token')
+  localStorage.removeItem('expires_at')
 }

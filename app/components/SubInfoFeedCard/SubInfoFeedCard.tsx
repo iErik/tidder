@@ -1,28 +1,29 @@
-import { Link } from 'react-router';
+import { Link } from 'react-router'
 
-import { setSubscribed, useThing } from 'api/thingState';
-import type { Subreddit } from 'api/types';
+import { setSubscribed, useThing } from 'api/thingState'
+import type { Subreddit } from 'api/types'
 
-import { bindStyles } from 'utils/classNames';
-import { timeAgo } from 'utils/timeAgo';
+import { bindStyles } from 'utils/classNames'
+import { timeAgo } from 'utils/timeAgo'
 
-import styles from './SubInfoFeedCard.module.scss';
+import styles from './SubInfoFeedCard.module.scss'
 
-const cx = bindStyles(styles);
+const cx = bindStyles(styles)
 
 interface Props {
-  subInfo: Subreddit;
+  subInfo: Subreddit
 }
 
 export default function SubInfoFeedCard({ subInfo: rawSubInfo }: Props) {
-  const subInfo = useThing(rawSubInfo);
+  const subInfo = useThing(rawSubInfo)
 
   return (
     <div className={cx('host')}>
       <div className={cx('card-thumbnail')}>
         <span
           className={cx('thumbnail', { 'is-static': !subInfo.icon_img })}
-          style={{ backgroundImage: `url(${subInfo.icon_img})` }}>
+          style={{ backgroundImage: `url(${subInfo.icon_img})` }}
+        >
           {!subInfo.icon_img && <i className={cx('icn')}></i>}
         </span>
       </div>
@@ -42,7 +43,8 @@ export default function SubInfoFeedCard({ subInfo: rawSubInfo }: Props) {
               </Link>
             </span>{' '}
             <span className={cx('meta-info')}>
-              {subInfo.subscribers.toLocaleString()} subscribers, a community for{' '}
+              {subInfo.subscribers.toLocaleString()} subscribers,
+              a community for{' '}
               {timeAgo(subInfo.created_utc * 1000, true)}
             </span>
           </p>
@@ -58,13 +60,20 @@ export default function SubInfoFeedCard({ subInfo: rawSubInfo }: Props) {
       <div className={cx('card-actions')}>
         <div className={cx('card-action')}>
           <button
-            onClick={() => setSubscribed(subInfo, !subInfo.user_is_subscriber)}
-            className={cx('btn-action', { 'is-checked': subInfo.user_is_subscriber })}>
+            onClick={() => setSubscribed(subInfo,
+              !subInfo.user_is_subscriber)}
+            className={cx('btn-action',
+              { 'is-checked': subInfo.user_is_subscriber })}
+          >
 
-            <i className={subInfo.user_is_subscriber ? 'icn-check' : 'icn-plus'}></i>
+            <i
+              className={subInfo.user_is_subscriber
+                ? 'icn-check'
+                : 'icn-plus'}
+            ></i>
           </button>
         </div>
       </div>
     </div>
-  );
+  )
 }
