@@ -4,6 +4,7 @@ import { Link } from 'react-router'
 import { useThing, voteThing } from 'api/thingState'
 import type { Post } from 'api/types'
 
+import Icon, { type IconName } from 'components/Icon/Icon'
 import ScoreButton from 'components/ScoreButton/ScoreButton'
 import type { FeedAction } from 'pages/FeedPage/FeedPage'
 
@@ -14,6 +15,20 @@ import { abbreviate } from 'utils/utils'
 import styles from './PostFeedCard.module.scss'
 
 const cx = bindStyles(styles)
+
+// The icon shown for a post without a thumbnail image, whose
+// `thumbnail` is then a post type ('self', 'nsfw', 'spoiler',
+// 'default', 'image'…) or empty.
+function postTypeIcon(thumbnail: string): IconName {
+  switch (thumbnail) {
+    case 'self':
+    case 'nsfw':
+    case 'spoiler':
+      return thumbnail
+    default:
+      return 'default'
+  }
+}
 
 interface Props {
   post: Post
@@ -77,13 +92,13 @@ export default function PostFeedCard({
 
           {!hasThumbnail && (
             <span className={cx('static-thumbnail')}>
-              <i className={`icn-${post.thumbnail || 'default'}`}></i>
+              <Icon name={postTypeIcon(post.thumbnail)} />
             </span>
           )}
         </div>
 
         <span className={cx('post-comments')}>
-          <i className="icn-comment"></i>
+          <Icon name="comment" />
           {' '}{post.num_comments} comments
         </span>
       </div>

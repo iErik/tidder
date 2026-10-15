@@ -50,14 +50,6 @@ $card-background: #FFF;
 
       border-radius: 100%;
       background-color: #E2E3E5;
-
-      @include icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        color: #F7F8FA;
-      }
     }
   }
 
@@ -120,6 +112,10 @@ $card-background: #FFF;
     margin-right: 20px;
 
     .btn-action {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
       width:  30px;
       height: 30px;
 
@@ -129,10 +125,6 @@ $card-background: #FFF;
       &.is-checked { background-color: #24C64C; }
 
       @include icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
         font-size: 0.85em;
         color: #FFF;
       }
