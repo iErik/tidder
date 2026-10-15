@@ -107,9 +107,11 @@ export default function ReportCard({ thing, onCancel }: Props) {
           </div>
 
           <div className={cx('form-inputs')} hidden={!isRuleReason}>
-            {subRules.map((rule) =>
-              radio({ rule_reason: rule.violation_reason },
-                rule.short_name, rule.short_name))}
+            {subRules.map((rule) => radio(
+              { rule_reason: rule.violation_reason },
+              rule.short_name, rule.short_name
+            ))
+            }
           </div>
 
           {error && (
