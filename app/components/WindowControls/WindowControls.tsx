@@ -1,3 +1,5 @@
+import Icon, { type IconName } from 'components/Icon/Icon'
+
 import { bindStyles } from 'utils/classNames'
 
 import styles from './WindowControls.module.scss'
@@ -5,8 +7,11 @@ import styles from './WindowControls.module.scss'
 const cx = bindStyles(styles)
 const platform = window.tidder.platform
 
-function iconClass(icon: string): string {
-  return platform === 'darwin' ? `icn-${icon}-darwin` : `icn-${icon}`
+type Control = 'maximize' | 'minimize' | 'close'
+
+// macOS has its own icons, drawn inside the traffic lights.
+function controlIcon(control: Control): IconName {
+  return platform === 'darwin' ? `${control}-darwin` : control
 }
 
 export default function WindowControls() {
@@ -17,19 +22,19 @@ export default function WindowControls() {
           className={cx('btn btn-maximize')}
           onClick={() => window.tidder.window.maximize()}
         >
-          <i className={iconClass('maximize')}></i>
+          <Icon name={controlIcon('maximize')} />
         </button>
         <button
           className={cx('btn btn-minimize')}
           onClick={() => window.tidder.window.minimize()}
         >
-          <i className={iconClass('minimize')}></i>
+          <Icon name={controlIcon('minimize')} />
         </button>
         <button
           className={cx('btn btn-close')}
           onClick={() => window.tidder.window.close()}
         >
-          <i className={iconClass('close')}></i>
+          <Icon name={controlIcon('close')} />
         </button>
       </div>
     </div>
