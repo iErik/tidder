@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import Icon from 'components/Icon/Icon'
+
 import themesConfig from 'config/themes.json'
 
 import { setSetting } from 'core/useSetting'
@@ -41,7 +43,7 @@ export default function ThemePicker() {
             className={cx('btn-trigger')}
             onClick={toggleMenu}
           >
-            <i className="icn-arrow-down-o"></i>
+            <Icon name="arrow-down-o" />
           </button>
         </div>
 

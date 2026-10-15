@@ -1,14 +1,19 @@
 $theme: null;
 
-// Set by styles/helpers/_component.scss. Inside a CSS Module the theme
-// classes (set by RootLayout) have to be marked global, or they'd be hashed.
+// Set by styles/helpers/_component.scss. Inside a CSS Module global
+// classes (themes set by RootLayout, icons) have to be marked global,
+// or they'd be hashed.
 $css-module: false !default;
 
-@function theme-class($name) {
+@function global-class($name) {
   @if $css-module {
-    @return ':global(.theme-#{$name})';
+    @return ':global(.#{$name})';
   }
-  @return '.theme-#{$name}';
+  @return '.#{$name}';
+}
+
+@function theme-class($name) {
+  @return global-class('theme-#{$name}');
 }
 
 @mixin themify($scope: 'both', $themes: $appThemes) {
@@ -91,12 +96,11 @@ $css-module: false !default;
   @return map-get($type-scale, $scale);
 }
 
-@mixin icon {
-  .fa,
-  .icn,
-  [data-icon],
-  [class^="icn-"],
-  [class*=" icn-"] {
-    @content;
-  }
+// Styles the <Icon>s inside the current selector: all of them, or
+// only the one named, e.g. `@include icon('spoiler')`.
+@mixin icon($name: null) {
+  $class: 'icon';
+  @if $name { $class: 'icon-#{$name}'; }
+
+  #{global-class($class)} { @content; }
 }

@@ -10,6 +10,7 @@ import type {
 
 import CommentCard from 'components/CommentCard/CommentCard'
 import CommentEditor from 'components/CommentEditor/CommentEditor'
+import Icon from 'components/Icon/Icon'
 
 import { bindStyles } from 'utils/classNames'
 
@@ -112,7 +113,7 @@ export default function CommentFeed({ post }: Props) {
 
       <div className={cx('comments-controls')}>
         <div className={cx('comments-meta')}>
-          <i className="icn-comment"></i>
+          <Icon name="comment" />
           <span className={cx('meta')}>
             {post.num_comments + additions.submitted.length} comments
           </span>

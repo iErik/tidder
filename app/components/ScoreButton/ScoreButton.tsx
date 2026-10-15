@@ -1,3 +1,5 @@
+import Icon from 'components/Icon/Icon'
+
 import { bindStyles } from 'utils/classNames'
 
 import styles from './ScoreButton.module.scss'
@@ -19,7 +21,7 @@ export default function ScoreButton({ score, likes, onVote }: Props) {
         onClick={() => onVote(likes ? 0 : 1)}
         className={cx('btn-vote upvote', { 'is-active': likes === true })}
       >
-        <i className="icn-arrow-up"></i>
+        <Icon name="arrow-up" />
       </button>
 
       <div className={cx('wrapper-score')}>
@@ -30,7 +32,7 @@ export default function ScoreButton({ score, likes, onVote }: Props) {
         onClick={() => onVote(likes === false ? 0 : -1)}
         className={cx('btn-vote downvote', { 'is-active': likes === false })}
       >
-        <i className="icn-arrow-down"></i>
+        <Icon name="arrow-down" />
       </button>
     </div>
   )

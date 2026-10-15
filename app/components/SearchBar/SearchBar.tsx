@@ -1,3 +1,5 @@
+import Icon from 'components/Icon/Icon'
+
 import { bindStyles } from 'utils/classNames'
 
 import styles from './SearchBar.module.scss'
@@ -28,7 +30,7 @@ export default function SearchBar({
         )}
       />
       <button className={cx('btn-unstyle btn-trigger')}>
-        <i className="icn-search"></i>
+        <Icon name="search" />
       </button>
     </div>
   )

@@ -2,6 +2,8 @@ import { useState } from 'react'
 
 import type { Post } from 'api/types'
 
+import Icon from 'components/Icon/Icon'
+
 import { bindStyles } from 'utils/classNames'
 import { popupWindow } from 'utils/utils'
 
@@ -55,7 +57,7 @@ export default function SharePostCard({ post }: Props) {
             className={cx('btn-social facebook')}
             onClick={() => shareOnFacebook(postLink)}
           >
-            <i className="icn-facebook"></i>
+            <Icon name="facebook" />
           </button>
         </div>
         <div className={cx('social-icon')}>
@@ -63,7 +65,7 @@ export default function SharePostCard({ post }: Props) {
             className={cx('btn-social twitter')}
             onClick={() => shareOnTwitter(postLink, post.title)}
           >
-            <i className="icn-twitter"></i>
+            <Icon name="twitter" />
           </button>
         </div>
         <div className={cx('social-icon')}>
@@ -71,7 +73,7 @@ export default function SharePostCard({ post }: Props) {
             className={cx('btn-social tumblr')}
             onClick={() => shareOnTumblr(postLink, post.title)}
           >
-            <i className="icn-tumblr"></i>
+            <Icon name="tumblr" />
           </button>
         </div>
       </div>

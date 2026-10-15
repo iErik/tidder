@@ -3,6 +3,8 @@ import { Link } from 'react-router'
 import { setSubscribed, useThing } from 'api/thingState'
 import type { Subreddit } from 'api/types'
 
+import Icon from 'components/Icon/Icon'
+
 import { bindStyles } from 'utils/classNames'
 import { timeAgo } from 'utils/timeAgo'
 
@@ -16,6 +18,7 @@ interface Props {
 
 export default function SubInfoFeedCard({ subInfo: rawSubInfo }: Props) {
   const subInfo = useThing(rawSubInfo)
+  const subscribed = subInfo.user_is_subscriber
 
   return (
     <div className={cx('host')}>
@@ -24,7 +27,7 @@ export default function SubInfoFeedCard({ subInfo: rawSubInfo }: Props) {
           className={cx('thumbnail', { 'is-static': !subInfo.icon_img })}
           style={{ backgroundImage: `url(${subInfo.icon_img})` }}
         >
-          {!subInfo.icon_img && <i className={cx('icn')}></i>}
+          {!subInfo.icon_img && <Icon name="default" />}
         </span>
       </div>
 
@@ -65,12 +68,7 @@ export default function SubInfoFeedCard({ subInfo: rawSubInfo }: Props) {
             className={cx('btn-action',
               { 'is-checked': subInfo.user_is_subscriber })}
           >
-
-            <i
-              className={subInfo.user_is_subscriber
-                ? 'icn-check'
-                : 'icn-plus'}
-            ></i>
+            <Icon name={subscribed ? 'check' : 'plus'} />
           </button>
         </div>
       </div>

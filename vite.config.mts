@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url'
 
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
+import svgr from 'vite-plugin-svgr'
 
 const appDir = fileURLToPath(new URL('./app', import.meta.url))
 
@@ -23,7 +24,9 @@ const devInlineScripts: Plugin = {
 export default defineConfig({
   root: appDir,
   base: './',
-  plugins: [react(), devInlineScripts],
+  // SVGR turns `*.svg?react` imports into React components
+  // (the icons in components/Icon).
+  plugins: [react(), svgr(), devInlineScripts],
 
   resolve: {
     alias: aliasRoots.map((root) => ({
