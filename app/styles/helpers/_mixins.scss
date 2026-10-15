@@ -99,14 +99,8 @@ $css-module: false !default;
 // Styles the <Icon>s inside the current selector: all of them, or
 // only the one named, e.g. `@include icon('spoiler')`.
 @mixin icon($name: null) {
-  @if $name {
-    #{global-class('icon-#{$name}')} { @content; }
-  } @else {
-    #{global-class('icon')},
-    // Icon font, until every icon is an <Icon>
-    [class^="icn-"],
-    [class*=" icn-"] {
-      @content;
-    }
-  }
+  $class: 'icon';
+  @if $name { $class: 'icon-#{$name}'; }
+
+  #{global-class($class)} { @content; }
 }
