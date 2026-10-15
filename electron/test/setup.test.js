@@ -72,21 +72,25 @@ describe('fake electron', { concurrent: false }, () => {
 })
 
 // The second test checks what the first left in the cache,
-// so they run in order, and the second fails unless the
-// first ran just before it (an empty cache alone proves
-// nothing: run them together, not one at a time)
-describe('module cache', { concurrent: false }, () => {
+// so they run in order, unshuffled, and the second fails
+// unless the first ran just before it (an empty cache alone
+// proves nothing: run them together, not one at a time)
+describe('module cache', {
+  concurrent: false,
+  shuffle: false
+}, () => {
   let loaded = false
 
   it('loads the app modules through the fake', () => {
     const settings = require('../settings.js')
+    // In the cache from here on, even if the checks fail
+    loaded = true
     settings.load()
 
     expect(electron().app.getPath)
       .toHaveBeenCalledWith('userData')
     expect(Object.keys(require.cache).some(ownElectronFile))
       .toBe(true)
-    loaded = true
   })
 
   it('drops the app modules the last test loaded', () => {
