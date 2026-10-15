@@ -35,7 +35,7 @@ Work in this repo is organized as Linear tickets (team prefix: `TDR`). Use the L
 - [ ] Tests added or updated for the change
 - [ ] `pnpm lint` passes
 - [ ] `<typecheck command>` passes
-- [ ] `<test command>` passes
+- [ ] `pnpm test` passes
 - [ ] No unrelated changes in the diff
 
 ### Commits and PRs
@@ -54,7 +54,7 @@ Comment on the ticket with the PR link, a two or three line summary, and anythin
 - Dev server: `<dev command>`
 - Lint: `pnpm lint`
 - Typecheck: `<typecheck command>`
-- Test: `<test command>`
+- Test: `pnpm test`
 
 ## When a skill says "publish to the issue tracker"
 

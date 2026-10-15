@@ -60,6 +60,7 @@ export default defineConfig(
     ignores: [
       'dist/',
       'release/',
+      'coverage/',
       'node_modules/'
     ]
   },
@@ -160,6 +161,16 @@ export default defineConfig(
     ...js.configs.recommended,
     files: ['electron/**/*.js'],
     languageOptions: { ...node, sourceType: 'commonjs' }
+  },
+
+  // Main-process tests and their fakes are ES modules, since
+  // Vitest can't be required
+  {
+    files: [
+      'electron/**/*.test.js',
+      'electron/test/**/*.js'
+    ],
+    languageOptions: { sourceType: 'module' }
   },
 
   // Build scripts, local rules and this file
