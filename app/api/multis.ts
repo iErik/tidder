@@ -10,7 +10,10 @@ function multiFeedPath(multiPath: string): string {
 }
 
 export async function getMultiFeed(
-  multiPath: string, sort: string, after: string, signal?: AbortSignal
+  multiPath: string,
+  sort: string,
+  after: string,
+  signal?: AbortSignal
 ) {
   const res = await redditFetch<ListingResponse<PostThing>>(`${multiFeedPath(multiPath)}/${sort}/.json`,
     { params: { after, limit: 15 }, signal })

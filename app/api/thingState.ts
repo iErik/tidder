@@ -36,7 +36,9 @@ function update(name: string, patch: ThingChanges): void {
 // Applies `patch` right away, then reverts to the previous values if the
 // request fails.
 async function optimistic<T extends { name: string }>(
-  thing: T, patch: ThingChanges, request: () => Promise<unknown>
+  thing: T,
+  patch: ThingChanges,
+  request: () => Promise<unknown>
 ): Promise<void> {
   const previous = { ...changes[thing.name] }
   const reverted = Object.fromEntries(Object.keys(patch).map((key) =>
@@ -63,14 +65,16 @@ export function useThing<T extends { name: string }>(thing: T): T {
 
 // dir: 1 upvotes, -1 downvotes, 0 removes the vote.
 export function voteThing(
-  thing: { name: string }, dir: -1 | 0 | 1
+  thing: { name: string },
+  dir: -1 | 0 | 1
 ): Promise<void> {
   const likes = dir === 0 ? null : dir > 0
   return optimistic(thing, { likes }, () => posts.vote(thing.name, dir))
 }
 
 export function saveThing(
-  thing: { name: string }, saved: boolean
+  thing: { name: string },
+  saved: boolean
 ): Promise<void> {
   return optimistic(thing, { saved }, () => posts.setSaved(thing.name, saved))
 }
@@ -78,14 +82,16 @@ export function saveThing(
 // Unlike the others, a report is only marked once Reddit accepts it, and
 // errors are passed on to the report form.
 export async function reportThing(
-  thing: { name: string }, reason: ReportReason
+  thing: { name: string },
+  reason: ReportReason
 ): Promise<void> {
   await posts.reportThing(thing.name, reason)
   update(thing.name, { reported: true })
 }
 
 export async function setSubscribed(
-  sub: { name: string }, subscribed: boolean
+  sub: { name: string },
+  subscribed: boolean
 ): Promise<void> {
   await optimistic(sub, { user_is_subscriber: subscribed },
     () => subreddits.subscribe(sub.name, subscribed ? 'sub' : 'unsub'))

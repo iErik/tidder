@@ -5,7 +5,10 @@ export function numToBoolean(num: number): boolean {
 }
 
 export function popupWindow(
-  url: string, w: number, h: number, title?: string
+  url: string,
+  w: number,
+  h: number,
+  title?: string
 ): void {
   window.tidder.openPopup(url, w, h, title)
 }
