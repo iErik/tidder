@@ -54,8 +54,11 @@ export default function CommentFeed({ post }: Props) {
     ...(thread.data?.comments ?? []),
     ...additions.loaded
   ]
-  const more = additions.more !== undefined ? additions.more : thread.data?.more ?? null
-  const hiddenCount = Math.max(comments.length - displayLimit, 0) + (more?.data.count ?? 0)
+  const more = additions.more !== undefined
+    ? additions.more
+    : thread.data?.more ?? null
+  const hiddenCount = Math.max(comments.length - displayLimit, 0)
+    + (more?.data.count ?? 0)
 
   const changeSortMode = (sort: string) => {
     setSortMode(sort)
@@ -75,7 +78,11 @@ export default function CommentFeed({ post }: Props) {
     try {
       const page = await getMoreComments(post.name, more, sortMode)
 
-      setAdditions((prev) => ({ ...prev, loaded: [...prev.loaded, ...page.comments], more: page.more }))
+      setAdditions((prev) => ({
+        ...prev,
+        loaded: [...prev.loaded, ...page.comments],
+        more: page.more
+      }))
       setDisplayLimit((limit) => limit + page.comments.length)
     } catch (err) {
       console.error('Loading more comments failed:', err)
@@ -85,7 +92,10 @@ export default function CommentFeed({ post }: Props) {
   }
 
   const addComment = (comment: CommentThing) => {
-    setAdditions((prev) => ({ ...prev, submitted: [comment, ...prev.submitted] }))
+    setAdditions((prev) => ({
+      ...prev,
+      submitted: [comment, ...prev.submitted]
+    }))
     setDisplayLimit((limit) => limit + 1)
   }
 
@@ -138,7 +148,7 @@ export default function CommentFeed({ post }: Props) {
             <div className={cx('comments-morechildren')}>
               <button type="button" className={cx('btn-load button outline')}
                 disabled={loadingMore}
-                onClick={loadMore}>
+                onClick={() => void loadMore()}>
                 Load {hiddenCount} more comments
               </button>
             </div>

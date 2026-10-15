@@ -15,10 +15,14 @@ interface Props {
   // The fullname of the post or comment being replied to.
   parentId: string
   isChild?: boolean
-  onCommentSubmitted(comment: CommentThing): void
+  onCommentSubmitted: (comment: CommentThing) => void
 }
 
-export default function CommentEditor({ parentId, isChild, onCommentSubmitted }: Props) {
+export default function CommentEditor({
+  parentId,
+  isChild,
+  onCommentSubmitted
+}: Props) {
   const [text, setText] = useState('')
   const [hasFocus, setFocus] = useState(false)
   const [isLoading, setLoading] = useState(false)
@@ -53,7 +57,10 @@ export default function CommentEditor({ parentId, isChild, onCommentSubmitted }:
 
         <div className={cx('comment-editor-actions')}>
           <div className={cx('comment-editor-action')}>
-            <SubmitButton onClick={submit} isLoading={isLoading} outline>
+            <SubmitButton
+              onClick={() => void submit()}
+              isLoading={isLoading}
+              outline>
               Submit
             </SubmitButton>
           </div>

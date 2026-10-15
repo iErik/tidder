@@ -15,7 +15,8 @@ export const queryClient = new QueryClient({
       // gives the refreshed token a chance. Other client errors won't
       // succeed on retry.
       retry: (failureCount, error) => {
-        if (error instanceof RedditApiError && error.status >= 400 && error.status < 500)
+        if (error instanceof RedditApiError
+          && error.status >= 400 && error.status < 500)
           return error.status === 401 && failureCount < 1
 
         return failureCount < 2

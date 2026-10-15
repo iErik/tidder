@@ -33,9 +33,9 @@ interface TidderBridge {
   }
 
   settings: {
-    get(key: string): any
-    set(key: string, value: any): void
-    watch(key: string, callback: (value: any) => void): { dispose(): void }
+    get(key: string): unknown
+    set(key: string, value: unknown): void
+    watch(key: string, callback: (value: unknown) => void): { dispose(): void }
   }
 }
 

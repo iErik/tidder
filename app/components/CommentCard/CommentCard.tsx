@@ -30,7 +30,8 @@ interface Props {
 export default function CommentCard({ comment: rawComment, isParent }: Props) {
   const comment = useThing(rawComment)
   const [isCollapsed, setCollapsed] = useState(false)
-  const [replyLimit, setReplyLimit] = useState(() => initialReplyLimit(rawComment.depth))
+  const [replyLimit, setReplyLimit] = useState(
+    () => initialReplyLimit(rawComment.depth))
 
   const replies = comment.replies ? comment.replies.data.children : []
   const score = abbreviate(comment.score, 1, 1)
@@ -53,7 +54,7 @@ export default function CommentCard({ comment: rawComment, isParent }: Props) {
             <ScoreButton
               score={score}
               likes={comment.likes}
-              onVote={(dir) => voteThing(comment, dir)} />
+              onVote={(dir) => void voteThing(comment, dir)} />
           </div>
 
           <div className={cx('comment-contents')}>

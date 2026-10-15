@@ -9,6 +9,7 @@ export function useInfiniteScroll(
   { disabled = false, margin = 600 } = { }
 ): void {
   const onEndRef = useRef(onEnd)
+  // eslint-disable-next-line react-hooks/refs -- keeps the observer calling the latest onEnd without re-creating it; useEffectEvent would be a refactor
   onEndRef.current = onEnd
 
   useEffect(() => {

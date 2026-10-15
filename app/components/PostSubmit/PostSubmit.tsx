@@ -14,7 +14,7 @@ import styles from './PostSubmit.module.scss'
 const cx = bindStyles(styles)
 
 interface Props {
-  onCancel(): void
+  onCancel: () => void
 }
 
 export default function PostSubmit({ onCancel }: Props) {
@@ -71,7 +71,7 @@ export default function PostSubmit({ onCancel }: Props) {
         </div>
       </div>
 
-      <form className={cx('form-group')} onSubmit={submit} hidden={!!postUrl}>
+      <form className={cx('form-group')} onSubmit={(ev) => void submit(ev)} hidden={!!postUrl}>
 
         <div className={cx('form-input')}>
           <label htmlFor="post-title" className={cx('label')}>Title</label>
@@ -93,7 +93,8 @@ export default function PostSubmit({ onCancel }: Props) {
             onChange={(ev) => update({ sr: ev.target.value })} />
 
           <datalist id="post-sub-suggestions">
-            {suggestions.map((name) => <option key={name} value={name}></option>)}
+            {suggestions.map((name) =>
+              <option key={name} value={name}></option>)}
           </datalist>
         </div>
 
@@ -125,7 +126,9 @@ export default function PostSubmit({ onCancel }: Props) {
 
         <div className={cx('form-controls')}>
           <div className={cx('form-control')}>
-            <SubmitButton isDisabled={!isDirty || !isValid} isLoading={isLoading}>
+            <SubmitButton
+              isDisabled={!isDirty || !isValid}
+              isLoading={isLoading}>
               Submit
             </SubmitButton>
           </div>
@@ -142,7 +145,10 @@ export default function PostSubmit({ onCancel }: Props) {
           <p>Your post was successfully submitted!</p>
           <div className={cx('controls')}>
             <a href="#" className={cx('button')}
-              onClick={(ev) => { ev.preventDefault(); window.tidder.openExternal(postUrl) }}>
+              onClick={(ev) => {
+                ev.preventDefault()
+                window.tidder.openExternal(postUrl)
+              }}>
               Go to post
             </a>
             <button type="button" className={cx('button secondary')} onClick={onCancel}>

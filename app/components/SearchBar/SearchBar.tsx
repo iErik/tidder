@@ -6,7 +6,7 @@ const cx = bindStyles(styles)
 
 interface Props {
   searchQuery: string
-  onSearchQueryChange(query: string): void
+  onSearchQueryChange: (query: string) => void
   placeholder?: string
 }
 

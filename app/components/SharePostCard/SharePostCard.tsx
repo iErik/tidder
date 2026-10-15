@@ -14,9 +14,9 @@ const cx = bindStyles(styles)
 
 function shareOnFacebook(postLink: string): void {
   // Lets just use Reddit's API own variables for now
-  let appId = '322647334569188'
-  let redirect_uri = 'https://www.reddit.com/share/close'
-  let apiUrl = `https://www.facebook.com/dialog/feed?app_id=${appId}`
+  const appId = '322647334569188'
+  const redirect_uri = 'https://www.reddit.com/share/close'
+  const apiUrl = `https://www.facebook.com/dialog/feed?app_id=${appId}`
     + `&link=${encodeURIComponent(`${postLink}?ref=share&ref_source=facebook`)}`
     + `&redirect_uri=${encodeURIComponent(redirect_uri)}&display=popup`
 
@@ -24,7 +24,7 @@ function shareOnFacebook(postLink: string): void {
 }
 
 function shareOnTwitter(postLink: string, title: string): void {
-  let apiUrl = 'https://twitter.com/intent/tweet'
+  const apiUrl = 'https://twitter.com/intent/tweet'
     + `?url=${encodeURIComponent(`${postLink}?ref=share&ref_source=twitter`)}`
     + `&text=${encodeURIComponent(title + '\n')}&via=reddit`
 
@@ -32,7 +32,7 @@ function shareOnTwitter(postLink: string, title: string): void {
 }
 
 function shareOnTumblr(postLink: string, title: string): void {
-  let apiUrl = 'https://www.tumblr.com/widgets/share/tool/preview'
+  const apiUrl = 'https://www.tumblr.com/widgets/share/tool/preview'
     + `?canonicalUrl=${encodeURIComponent(`${postLink}?ref=share&ref_source=tumblr`)}`
     + `&title=${encodeURIComponent(title)}&_format=html&posttype=link`
 

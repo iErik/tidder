@@ -30,7 +30,7 @@ function sameChoice(a: Choice | null, b: Choice): boolean {
 
 interface Props {
   thing: Votable
-  onCancel(): void
+  onCancel: () => void
 }
 
 export default function ReportCard({ thing, onCancel }: Props) {
@@ -91,7 +91,7 @@ export default function ReportCard({ thing, onCancel }: Props) {
       </div>
 
       {!rules.isPending && !isSubmitted && (
-        <form className={cx('form-group')} onSubmit={submit}>
+        <form className={cx('form-group')} onSubmit={(ev) => void submit(ev)}>
 
           <div className={cx('form-inputs')} hidden={isRuleReason}>
             {subRules.length > 0 &&
@@ -103,7 +103,8 @@ export default function ReportCard({ thing, onCancel }: Props) {
 
           <div className={cx('form-inputs')} hidden={!isRuleReason}>
             {subRules.map((rule) =>
-              radio({ rule_reason: rule.violation_reason }, rule.short_name, rule.short_name))}
+              radio({ rule_reason: rule.violation_reason },
+                rule.short_name, rule.short_name))}
           </div>
 
           {error && (

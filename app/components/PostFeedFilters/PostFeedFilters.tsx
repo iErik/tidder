@@ -24,7 +24,7 @@ const SEARCH_SORTS = [
 ]
 
 interface Props {
-  onFeedAction(action: FeedAction): void
+  onFeedAction: (action: FeedAction) => void
 }
 
 export default function PostFeedFilters({

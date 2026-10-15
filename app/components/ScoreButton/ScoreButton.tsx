@@ -9,7 +9,7 @@ interface Props {
   likes: boolean | null
 
   // Called with the vote direction: 1, -1, or 0 to take the vote back.
-  onVote(dir: -1 | 0 | 1): void
+  onVote: (dir: -1 | 0 | 1) => void
 }
 
 export default function ScoreButton({ score, likes, onVote }: Props) {

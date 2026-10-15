@@ -85,7 +85,7 @@ export function setup(): void {
   setState({ updating: true })
   const session = sessionId
 
-  window.tidder.auth.refresh().then((result) => {
+  void window.tidder.auth.refresh().then((result) => {
     if (session !== sessionId) return
 
     if (!result) {
@@ -116,7 +116,8 @@ async function getIdentity(): Promise<void> {
 
     // Reddit rejected the token (revoked or expired), so the user is
     // effectively logged out and should see the login screen again.
-    if (err instanceof RedditApiError && (err.status === 401 || err.status === 403))
+    if (err instanceof RedditApiError
+      && (err.status === 401 || err.status === 403))
       logout()
     else
       setState({ updating: false })
@@ -134,7 +135,7 @@ export function login(): void {
 
   setState({ loginStatus: { state: 'waiting' } })
 
-  window.tidder.auth.login().then((result) => {
+  void window.tidder.auth.login().then((result) => {
     if (!result) {
       setState({ loginStatus: { state: 'idle' } })
     } else if ('error' in result) {

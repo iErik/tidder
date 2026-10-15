@@ -40,7 +40,9 @@ async function optimistic<T extends { name: string }>(
 ): Promise<void> {
   const previous = { ...changes[thing.name] }
   const reverted = Object.fromEntries(Object.keys(patch).map((key) =>
-    [key, key in previous ? previous[key as keyof ThingChanges] : thing[key as keyof T]]))
+    [key, key in previous
+      ? previous[key as keyof ThingChanges]
+      : thing[key as keyof T]]))
 
   update(thing.name, patch)
 
@@ -48,34 +50,43 @@ async function optimistic<T extends { name: string }>(
     await request()
   } catch (err) {
     console.error(err)
-    update(thing.name, reverted as ThingChanges)
+    update(thing.name, reverted)
   }
 }
 
 // `thing` with the user's changes applied.
 export function useThing<T extends { name: string }>(thing: T): T {
-  const thingChanges = useSyncExternalStore(subscribe, () => changes[thing.name])
+  const thingChanges = useSyncExternalStore(subscribe,
+    () => changes[thing.name])
   return thingChanges ? { ...thing, ...thingChanges } : thing
 }
 
 // dir: 1 upvotes, -1 downvotes, 0 removes the vote.
-export function voteThing(thing: { name: string }, dir: -1 | 0 | 1): Promise<void> {
+export function voteThing(
+  thing: { name: string }, dir: -1 | 0 | 1
+): Promise<void> {
   const likes = dir === 0 ? null : dir > 0
   return optimistic(thing, { likes }, () => posts.vote(thing.name, dir))
 }
 
-export function saveThing(thing: { name: string }, saved: boolean): Promise<void> {
+export function saveThing(
+  thing: { name: string }, saved: boolean
+): Promise<void> {
   return optimistic(thing, { saved }, () => posts.setSaved(thing.name, saved))
 }
 
 // Unlike the others, a report is only marked once Reddit accepts it, and
 // errors are passed on to the report form.
-export async function reportThing(thing: { name: string }, reason: ReportReason): Promise<void> {
+export async function reportThing(
+  thing: { name: string }, reason: ReportReason
+): Promise<void> {
   await posts.reportThing(thing.name, reason)
   update(thing.name, { reported: true })
 }
 
-export async function setSubscribed(sub: { name: string }, subscribed: boolean): Promise<void> {
+export async function setSubscribed(
+  sub: { name: string }, subscribed: boolean
+): Promise<void> {
   await optimistic(sub, { user_is_subscriber: subscribed },
     () => subreddits.subscribe(sub.name, subscribed ? 'sub' : 'unsub'))
 

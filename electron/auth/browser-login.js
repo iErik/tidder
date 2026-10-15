@@ -107,7 +107,8 @@ class LoginAttempt {
         : err)
     })
 
-    this.server.listen(Number(REDIRECT.port), REDIRECT.hostname, () => this.reopen())
+    this.server.listen(Number(REDIRECT.port), REDIRECT.hostname,
+      () => this.reopen())
     this.timer = setTimeout(() => this.finish(new Error('Login timed out. Please try again.')), LOGIN_TIMEOUT)
 
     return this.promise

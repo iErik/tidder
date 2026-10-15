@@ -41,6 +41,7 @@ function useSettledFeedParams(): FeedParams {
 
   useEffect(() => {
     if (live.source !== settled.source) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- a new source skips the debounce; moving this into render would restructure the hook
       setSettled(live)
       return
     }
@@ -65,7 +66,7 @@ function uniqueByName<T extends { name: string }>(
 }
 
 interface Props {
-  onFeedAction(action: FeedAction): void
+  onFeedAction: (action: FeedAction) => void
 }
 
 export default function PostFeed({ onFeedAction }: Props) {

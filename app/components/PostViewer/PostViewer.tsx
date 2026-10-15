@@ -12,7 +12,7 @@ const cx = bindStyles(styles)
 
 interface Props {
   currentPost: Post
-  onFeedAction(action: FeedAction): void
+  onFeedAction: (action: FeedAction) => void
 }
 
 export default function PostViewer({ currentPost, onFeedAction }: Props) {

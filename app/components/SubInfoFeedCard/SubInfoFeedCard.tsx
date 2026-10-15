@@ -58,7 +58,8 @@ export default function SubInfoFeedCard({ subInfo: rawSubInfo }: Props) {
       <div className={cx('card-actions')}>
         <div className={cx('card-action')}>
           <button
-            onClick={() => setSubscribed(subInfo, !subInfo.user_is_subscriber)}
+            onClick={() => void setSubscribed(subInfo,
+              !subInfo.user_is_subscriber)}
             className={cx('btn-action', { 'is-checked': subInfo.user_is_subscriber })}>
 
             <i className={subInfo.user_is_subscriber ? 'icn-check' : 'icn-plus'}></i>

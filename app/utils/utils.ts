@@ -4,7 +4,9 @@ export function numToBoolean(num: number): boolean {
   return num > 0
 }
 
-export function popupWindow(url: string, w: number, h: number, title?: string): void {
+export function popupWindow(
+  url: string, w: number, h: number, title?: string
+): void {
   window.tidder.openPopup(url, w, h, title)
 }
 
@@ -19,7 +21,7 @@ export function abbreviate(
   forceLetter: string | false = false
 ): string {
   let abbr = ''
-  let value = Number(num)
+  const value = Number(num)
 
   if (forceLetter !== false) {
     return annotate(value, maxPlaces, forcePlaces, forceLetter)
@@ -60,7 +62,7 @@ function annotate(
   }
 
   if (maxPlaces !== false) {
-    let test = new RegExp('\\.\\d{' + (maxPlaces + 1) + ',}$')
+    const test = new RegExp('\\.\\d{' + (maxPlaces + 1) + ',}$')
 
     if (test.test(('' + rounded))) rounded = rounded.toFixed(maxPlaces)
   }

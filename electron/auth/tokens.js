@@ -35,7 +35,7 @@ function loadRefreshToken() {
 
   try {
     refreshToken = safeStorage.decryptString(fs.readFileSync(tokenFilePath()))
-  } catch (err) {
+  } catch {
     refreshToken = null
   }
 
@@ -66,7 +66,9 @@ async function tokenRequest(url, params) {
 
   try {
     data = text ? JSON.parse(text) : {}
-  } catch (err) { }
+  } catch {
+    // Not JSON: keep the empty object
+  }
 
   if (!res.ok || data.error) {
     const err = new Error(`Reddit returned an error (${data.error || res.status})`)
@@ -137,7 +139,10 @@ async function logout() {
 
   try {
     await tokenRequest(config.revokeUrl, { token, token_type_hint: 'refresh_token' })
-  } catch (err) { }
+  } catch {
+    // The token is already forgotten locally, so a failed
+    // revoke has nothing left to undo
+  }
 }
 
 module.exports = { exchangeCode, refresh, logout, userAgent }

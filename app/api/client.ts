@@ -6,7 +6,10 @@ import { getAccessToken } from 'core/session'
 // endpoints), so every request goes through the OAuth API.
 const API_ROOT = authConfig.authBaseURI
 
-export type Params = Record<string, string | number | boolean | null | undefined>
+export type Params = Record<
+  string,
+  string | number | boolean | null | undefined
+>
 
 export interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
@@ -41,7 +44,7 @@ function toSearchParams(params: Params): URLSearchParams {
 
 // GET parameters go in the query string; for other methods they're sent as
 // a form body, which is what Reddit's API documents.
-export async function redditFetch<T = any>(
+export async function redditFetch<T = unknown>(
   path: string,
   { method = 'GET', params = { }, signal }: RequestOptions = { }
 ): Promise<T> {

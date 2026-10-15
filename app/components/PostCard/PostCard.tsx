@@ -54,7 +54,7 @@ function imageSource(post: Post): string {
 
 function videoSource(post: Post): string | undefined {
   if (post.is_video)
-    return post.media.reddit_video.fallback_url
+    return post.media!.reddit_video!.fallback_url
 
   return previewImage(post)?.variants['mp4']?.source.url
 }
@@ -67,7 +67,7 @@ function openExternal(ev: MouseEvent, url: string): void {
 
 interface Props {
   post: Post
-  onFeedAction(action: FeedAction): void
+  onFeedAction: (action: FeedAction) => void
 }
 
 export default function PostCard({ post: rawPost, onFeedAction }: Props) {
@@ -85,7 +85,7 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
               <ScoreButton
                 score={abbreviate(post.score, 1, 1)}
                 likes={post.likes}
-                onVote={(dir) => voteThing(post, dir)} />
+                onVote={(dir) => void voteThing(post, dir)} />
             </div>
 
             <div className={cx('post-header')}>
@@ -119,7 +119,7 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
                 </div>
                 <div className={cx('post-action')}>
                   <button type="button" className={cx('btn-action')}
-                    onClick={() => saveThing(post, !post.saved)}>
+                    onClick={() => void saveThing(post, !post.saved)}>
                     {post.saved ? 'Unsave' : 'Save'}
                   </button>
                 </div>

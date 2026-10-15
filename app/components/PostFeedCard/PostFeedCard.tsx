@@ -18,10 +18,14 @@ const cx = bindStyles(styles)
 interface Props {
   post: Post
   displaySubreddit?: boolean
-  onFeedAction(action: FeedAction): void
+  onFeedAction: (action: FeedAction) => void
 }
 
-export default function PostFeedCard({ post: rawPost, displaySubreddit = true, onFeedAction }: Props) {
+export default function PostFeedCard({
+  post: rawPost,
+  displaySubreddit = true,
+  onFeedAction
+}: Props) {
   const post = useThing(rawPost)
   const hasThumbnail = post.thumbnail.startsWith('http')
 
@@ -36,7 +40,7 @@ export default function PostFeedCard({ post: rawPost, displaySubreddit = true, o
         <ScoreButton
           score={abbreviate(post.score, 1, 1)}
           likes={post.likes}
-          onVote={(dir) => voteThing(post, dir)} />
+          onVote={(dir) => void voteThing(post, dir)} />
       </div>
 
       <div className={cx('post-contents')}>

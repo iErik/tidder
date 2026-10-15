@@ -15,7 +15,7 @@ function isWebUrl(url) {
   try {
     const { protocol } = new URL(url)
     return protocol === 'https:' || protocol === 'http:'
-  } catch (err) {
+  } catch {
     return false
   }
 }

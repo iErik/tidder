@@ -1,6 +1,6 @@
 // The parts of Reddit's JSON the app reads. Reddit sends more fields than
-// these, and some of them vary by post type, hence the loose typing of
-// media and preview data.
+// these, and some of them vary by post type, so media and preview data
+// only type the fields the app reads.
 
 export interface Thing<Kind extends string, Data> {
   kind: Kind
@@ -16,6 +16,12 @@ export interface Listing<T> {
 export interface ListingResponse<T> {
   kind: 'Listing'
   data: Listing<T>
+}
+
+// A post preview, with its variants by format (gif, mp4, …)
+export interface PreviewImage {
+  source: { url: string }
+  variants: Record<string, { source: { url: string } }>
 }
 
 export interface Post {
@@ -39,9 +45,9 @@ export interface Post {
   selftext_html: string | null
   thumbnail: string
   post_hint?: string
-  media: any
+  media: { reddit_video?: { fallback_url: string } } | null
   secure_media_embed: { content?: string }
-  preview?: { images: { source: { url: string }; variants: Record<string, any> }[] }
+  preview?: { images: PreviewImage[] }
 }
 
 export interface Comment {

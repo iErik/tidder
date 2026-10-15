@@ -12,7 +12,9 @@ const PAGE_SIZE = 15
 // Reddit accepts at most 100 comment ids per /api/morechildren request.
 const MORE_CHILDREN_LIMIT = 100
 
-export async function getPosts(sort: string, sr: string, after: string, signal?: AbortSignal) {
+export async function getPosts(
+  sort: string, sr: string, after: string, signal?: AbortSignal
+) {
   const path = sr ? `/r/${sr}/${sort}/.json` : `/${sort}/.json`
   const res = await redditFetch<ListingResponse<PostThing>>(path,
     { params: { after, limit: PAGE_SIZE }, signal })
@@ -20,7 +22,9 @@ export async function getPosts(sort: string, sr: string, after: string, signal?:
   return res.data
 }
 
-export async function getSavedPosts(userName: string, after: string, signal?: AbortSignal) {
+export async function getSavedPosts(
+  userName: string, after: string, signal?: AbortSignal
+) {
   const res = await redditFetch<ListingResponse<PostThing>>(`/user/${userName}/saved`,
     { params: { after, limit: PAGE_SIZE, type: 'link' }, signal })
 
@@ -32,7 +36,8 @@ export async function searchPosts(
 ) {
   const path = sr ? `/r/${sr}/search.json` : '/search.json'
   const params = { q, sort, after, limit: PAGE_SIZE, restrict_sr: sr ? 'on' : null }
-  const res = await redditFetch<ListingResponse<PostThing>>(path, { params, signal })
+  const res = await redditFetch<ListingResponse<PostThing>>(path,
+    { params, signal })
 
   return res.data
 }
@@ -46,7 +51,9 @@ export interface CommentsPage {
 export async function getPostComments(
   sr: string, postId: string, sort: string, signal?: AbortSignal
 ): Promise<CommentsPage> {
-  const params = { sr_detail: false, showmore: true, depth: 20, context: 8, sort }
+  const params = {
+    sr_detail: false, showmore: true, depth: 20, context: 8, sort
+  }
   const [postListing, commentListing] = await redditFetch<
     [ListingResponse<PostThing>, ListingResponse<CommentThing | MoreThing>]
   >(`/r/${sr}/comments/${postId}/.json`, { params, signal })
@@ -68,7 +75,9 @@ export async function getMoreComments(
   const requested = more.data.children.slice(0, MORE_CHILDREN_LIMIT)
   const remaining = more.data.children.slice(MORE_CHILDREN_LIMIT)
 
-  const res = await redditFetch<JsonResponse<{ things: (CommentThing | MoreThing)[] }>>(
+  const res = await redditFetch<
+    JsonResponse<{ things: (CommentThing | MoreThing)[] }>
+  >(
     '/api/morechildren.json',
     { params: { link_id: linkName, children: requested.join(','), sort, limit_children: false } })
 
@@ -129,7 +138,9 @@ export async function submitPost(post: NewPost): Promise<{ url: string }> {
   return throwOnJsonErrors(res)!
 }
 
-export async function submitComment(thingId: string, text: string): Promise<CommentThing> {
+export async function submitComment(
+  thingId: string, text: string
+): Promise<CommentThing> {
   const res = await redditFetch<JsonResponse<{ things: CommentThing[] }>>('/api/comment',
     { method: 'POST', params: { thing_id: thingId, text } })
 
@@ -149,7 +160,9 @@ export type ReportReason =
   | { site_reason: string }
   | { rule_reason: string }
 
-export async function reportThing(thingId: string, reason: ReportReason): Promise<void> {
+export async function reportThing(
+  thingId: string, reason: ReportReason
+): Promise<void> {
   const res = await redditFetch<JsonResponse<unknown>>('/api/report',
     { method: 'POST', params: { ...reason, thing_id: thingId } })
 

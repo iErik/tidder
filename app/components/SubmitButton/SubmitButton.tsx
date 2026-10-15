@@ -12,7 +12,7 @@ interface Props {
   isDisabled?: boolean
   isLoading?: boolean
   outline?: boolean
-  onClick?(): void
+  onClick?: () => void
 }
 
 export default function SubmitButton(

@@ -56,9 +56,9 @@ function reducer(state: FeedState, action: FeedAction): FeedState {
 }
 
 interface FeedContextValue extends FeedState {
-  setSearchQuery(query: string): void
-  setSortMode(sort: string): void
-  setSource(source: string, resetQuery: boolean): void
+  setSearchQuery: (query: string) => void
+  setSortMode: (sort: string) => void
+  setSource: (source: string, resetQuery: boolean) => void
 }
 
 const FeedContext = createContext<FeedContextValue | null>(null)

@@ -16,7 +16,7 @@ function load() {
 
   try {
     settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'))
-  } catch (err) {
+  } catch {
     settings = {}
   }
 

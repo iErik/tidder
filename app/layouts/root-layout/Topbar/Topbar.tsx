@@ -26,7 +26,7 @@ function pageLabel(pathname: string): string {
 }
 
 interface Props {
-  onSidebarToggle(): void
+  onSidebarToggle: () => void
 }
 
 export default function Topbar({ onSidebarToggle }: Props) {
