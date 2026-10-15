@@ -27,13 +27,19 @@ export function stubFetch(...responses: Response[]): FetchMock {
   return mock
 }
 
+// A JSON response. Headers in `init` are added to the JSON
+// Content-Type, which they can still override
 export function jsonResponse(
   body: unknown,
   init: ResponseInit = { }
 ): Response {
+  const headers = new Headers(init.headers)
+  if (!headers.has('Content-Type'))
+    headers.set('Content-Type', 'application/json')
+
   return new Response(JSON.stringify(body), {
     status: 200,
-    headers: { 'Content-Type': 'application/json' },
-    ...init
+    ...init,
+    headers
   })
 }

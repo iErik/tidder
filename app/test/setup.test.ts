@@ -1,5 +1,5 @@
 // Checks the renderer test setup itself: the fake bridge,
-// the import aliases and Testing Library
+// the fetch helpers, the import aliases and Testing Library
 
 import {
   act,
@@ -22,6 +22,8 @@ import {
   installFakeTidder,
   tidder
 } from './fakeTidder'
+
+import { jsonResponse } from './fetch'
 
 // Taken at import time, like core/useSetting does
 const settings = window.tidder.settings
@@ -50,6 +52,19 @@ describe('fake window.tidder', () => {
 
     expect(settings.get('appTheme')).toBe('cupcake')
     expect(tidder().settings.set).not.toHaveBeenCalled()
+  })
+})
+
+describe('jsonResponse', () => {
+  it('adds headers to the JSON Content-Type', () => {
+    const res = jsonResponse({ }, {
+      headers: { 'X-Ratelimit-Remaining': '10' }
+    })
+
+    expect(res.headers.get('Content-Type'))
+      .toBe('application/json')
+    expect(res.headers.get('X-Ratelimit-Remaining'))
+      .toBe('10')
   })
 })
 
