@@ -10,29 +10,31 @@ import tseslint from 'typescript-eslint'
 
 // Raises every 'warn' rule in a config object to 'error'
 function errorsOnly(config) {
-  const rules = Object.fromEntries(
-    Object.entries(config.rules ?? { }).map(([name, value]) => {
-      const level = Array.isArray(value) ? value[0] : value
-      if (level !== 'warn' && level !== 1) return [name, value]
+  const raise = ([name, value]) => {
+    const level = Array.isArray(value) ? value[0] : value
+    if (level !== 'warn' && level !== 1) return [name, value]
 
-      return [name, Array.isArray(value)
-        ? ['error', ...value.slice(1)]
-        : 'error']
-    }))
+    return [name, Array.isArray(value)
+      ? ['error', ...value.slice(1)]
+      : 'error']
+  }
 
-  return { ...config, rules }
+  const rules = Object.entries(config.rules ?? { })
+  return {
+    ...config,
+    rules: Object.fromEntries(rules.map(raise))
+  }
 }
 
-// exp-list-style checks these lists too; it's only wanted for
-// function parameters
-const notParams = [
+// exp-list-style checks these lists too, but it's only
+// wanted for function parameters and imports
+const unlisted = [
   'ArrayExpression',
   'ArrayPattern',
   'CallExpression',
   'ExportNamedDeclaration',
   'IfStatement',
   'ImportAttributes',
-  'ImportDeclaration',
   'JSONArrayExpression',
   'JSONObjectExpression',
   'NewExpression',
@@ -75,27 +77,26 @@ export default defineConfig(
       // The same for interface and type literal members
       '@stylistic/member-delimiter-style': ['error', {
         multiline: { delimiter: 'none' },
-        singleline: { delimiter: 'semi', requireLast: false }
+        singleline: {
+          delimiter: 'semi',
+          requireLast: false
+        }
       }],
       '@stylistic/quotes': ['error', 'single', {
         avoidEscape: true
       }],
       '@stylistic/indent': ['error', 2],
-      // Parameters either share the function's line, or each
-      // one gets its own line
+      // Parameters and imported names either share their
+      // line, or each one gets a line of its own
       '@stylistic/exp-list-style': ['error', {
         overrides: Object.fromEntries(
-          notParams.map(type => [type, 'off']))
+          unlisted.map(type => [type, 'off']))
       }],
       // Its fixes would otherwise leave a space after commas
       '@stylistic/no-trailing-spaces': 'error',
       '@stylistic/max-len': ['error', {
         code: 80,
-        ignoreStrings: true,
-        ignoreTemplateLiterals: true,
-        ignoreUrls: true,
-        ignoreComments: true,
-        ignorePattern: '^\\s*import\\s'
+        ignoreUrls: true
       }]
     }
   },
@@ -112,6 +113,13 @@ export default defineConfig(
         projectService: true,
         tsconfigRootDir: import.meta.dirname
       }
+    },
+    rules: {
+      // React ignores what event handlers return, and a
+      // handler's promise is the handler's own business
+      '@typescript-eslint/no-misused-promises': ['error', {
+        checksVoidReturn: { attributes: false }
+      }]
     }
   },
   errorsOnly({
