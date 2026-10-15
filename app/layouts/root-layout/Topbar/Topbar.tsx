@@ -1,37 +1,37 @@
-import { matchPath, useLocation } from 'react-router';
+import { matchPath, useLocation } from 'react-router'
 
-import ThemePicker from 'components/ThemePicker/ThemePicker';
-import WindowControls from 'components/WindowControls/WindowControls';
+import ThemePicker from 'components/ThemePicker/ThemePicker'
+import WindowControls from 'components/WindowControls/WindowControls'
 
-import { login, logout, useAuth } from 'core/auth';
-import { bindStyles } from 'utils/classNames';
+import { login, logout, useAuth } from 'core/auth'
+import { bindStyles } from 'utils/classNames'
 
-import styles from './Topbar.module.scss';
+import styles from './Topbar.module.scss'
 
-const cx = bindStyles(styles);
+const cx = bindStyles(styles)
 
 function pageLabel(pathname: string): string {
-  const sr = matchPath('/r/:subredditName', pathname);
+  const sr = matchPath('/r/:subredditName', pathname)
   const multi = matchPath(
     '/user/:userName/m/:multiName',
     pathname
-  );
+  )
 
   if (sr)
-    return `r/${sr.params.subredditName!.toUpperCase()}`;
+    return `r/${sr.params.subredditName!.toUpperCase()}`
   if (multi)
-    return `m/${multi.params.multiName!.toUpperCase()}`;
+    return `m/${multi.params.multiName!.toUpperCase()}`
 
-  return 'FRONTPAGE';
+  return 'FRONTPAGE'
 }
 
 interface Props {
-  onSidebarToggle(): void;
+  onSidebarToggle(): void
 }
 
 export default function Topbar({ onSidebarToggle }: Props) {
-  const { loggedIn, user } = useAuth();
-  const { pathname } = useLocation();
+  const { loggedIn, user } = useAuth()
+  const { pathname } = useLocation()
 
   return (
     <div className={cx('host')}>
@@ -95,5 +95,5 @@ export default function Topbar({ onSidebarToggle }: Props) {
         </div>
       </div>
     </div>
-  );
+  )
 }

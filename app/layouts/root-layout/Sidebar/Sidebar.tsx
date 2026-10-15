@@ -1,27 +1,27 @@
-import { Link } from 'react-router';
+import { Link } from 'react-router'
 
-import { useMultis, useSubscriptions } from 'api/queries';
+import { useMultis, useSubscriptions } from 'api/queries'
 
-import { bindStyles } from 'utils/classNames';
+import { bindStyles } from 'utils/classNames'
 
-import styles from './Sidebar.module.scss';
+import styles from './Sidebar.module.scss'
 
-const cx = bindStyles(styles);
+const cx = bindStyles(styles)
 
 interface Props {
-  isActive: boolean;
+  isActive: boolean
 }
 
 // Only shown while logged in.
 export default function Sidebar({ isActive }: Props) {
-  const multis = useMultis().data ?? [];
-  const subscriptions = useSubscriptions();
-  const subs = subscriptions.data?.pages.flatMap((page) => page.children) ?? [];
+  const multis = useMultis().data ?? []
+  const subscriptions = useSubscriptions()
+  const subs = subscriptions.data?.pages.flatMap((page) => page.children) ?? []
 
   const loadMoreSubs = () => {
     if (subscriptions.hasNextPage && !subscriptions.isFetchingNextPage)
-      void subscriptions.fetchNextPage();
-  };
+      void subscriptions.fetchNextPage()
+  }
 
   return (
     <div className={cx('host', { 'is-active': isActive })}>
@@ -105,5 +105,5 @@ export default function Sidebar({ isActive }: Props) {
         </li>
       </ul>
     </div>
-  );
+  )
 }

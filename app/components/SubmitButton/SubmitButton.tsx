@@ -1,18 +1,18 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from 'react'
 
-import { bindStyles } from 'utils/classNames';
+import { bindStyles } from 'utils/classNames'
 
-import styles from './SubmitButton.module.scss';
+import styles from './SubmitButton.module.scss'
 
-const cx = bindStyles(styles);
+const cx = bindStyles(styles)
 
 interface Props {
-  children: ReactNode;
-  spinnerType?: string;
-  isDisabled?: boolean;
-  isLoading?: boolean;
-  outline?: boolean;
-  onClick?(): void;
+  children: ReactNode
+  spinnerType?: string
+  isDisabled?: boolean
+  isLoading?: boolean
+  outline?: boolean
+  onClick?(): void
 }
 
 export default function SubmitButton(
@@ -35,5 +35,5 @@ export default function SubmitButton(
         </div>
       </button>
     </div>
-  );
+  )
 }

@@ -1,6 +1,6 @@
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query'
 
-import { RedditApiError } from 'api/client';
+import { RedditApiError } from 'api/client'
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,9 +16,9 @@ export const queryClient = new QueryClient({
       // succeed on retry.
       retry: (failureCount, error) => {
         if (error instanceof RedditApiError && error.status >= 400 && error.status < 500)
-          return error.status === 401 && failureCount < 1;
+          return error.status === 401 && failureCount < 1
 
-        return failureCount < 2;
+        return failureCount < 2
       },
       retryDelay: 1000
     },
@@ -26,4 +26,4 @@ export const queryClient = new QueryClient({
       onError: (error) => console.error(error)
     }
   }
-});
+})

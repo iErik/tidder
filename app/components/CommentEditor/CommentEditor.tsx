@@ -1,42 +1,42 @@
-import { useState } from 'react';
+import { useState } from 'react'
 
-import { submitComment } from 'api/posts';
-import type { CommentThing } from 'api/types';
+import { submitComment } from 'api/posts'
+import type { CommentThing } from 'api/types'
 
-import SubmitButton from 'components/SubmitButton/SubmitButton';
+import SubmitButton from 'components/SubmitButton/SubmitButton'
 
-import { bindStyles } from 'utils/classNames';
+import { bindStyles } from 'utils/classNames'
 
-import styles from './CommentEditor.module.scss';
+import styles from './CommentEditor.module.scss'
 
-const cx = bindStyles(styles);
+const cx = bindStyles(styles)
 
 interface Props {
   // The fullname of the post or comment being replied to.
-  parentId: string;
-  isChild?: boolean;
-  onCommentSubmitted(comment: CommentThing): void;
+  parentId: string
+  isChild?: boolean
+  onCommentSubmitted(comment: CommentThing): void
 }
 
 export default function CommentEditor({ parentId, isChild, onCommentSubmitted }: Props) {
-  const [text, setText] = useState('');
-  const [hasFocus, setFocus] = useState(false);
-  const [isLoading, setLoading] = useState(false);
+  const [text, setText] = useState('')
+  const [hasFocus, setFocus] = useState(false)
+  const [isLoading, setLoading] = useState(false)
 
   const submit = async () => {
-    if (!text || isLoading) return;
+    if (!text || isLoading) return
 
-    setLoading(true);
+    setLoading(true)
 
     try {
-      onCommentSubmitted(await submitComment(parentId, text));
-      setText('');
+      onCommentSubmitted(await submitComment(parentId, text))
+      setText('')
     } catch (err) {
-      console.error('Submitting the comment failed:', err);
+      console.error('Submitting the comment failed:', err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className={cx('host')}>
@@ -60,5 +60,5 @@ export default function CommentEditor({ parentId, isChild, onCommentSubmitted }:
         </div>
       </div>
     </div>
-  );
+  )
 }

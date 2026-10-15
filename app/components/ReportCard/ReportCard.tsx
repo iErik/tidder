@@ -1,20 +1,20 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react'
 
-import type { ReportReason } from 'api/posts';
-import { useSubRules } from 'api/queries';
-import { reportThing } from 'api/thingState';
-import type { Votable } from 'api/types';
+import type { ReportReason } from 'api/posts'
+import { useSubRules } from 'api/queries'
+import { reportThing } from 'api/thingState'
+import type { Votable } from 'api/types'
 
-import SubmitButton from 'components/SubmitButton/SubmitButton';
+import SubmitButton from 'components/SubmitButton/SubmitButton'
 
-import { bindStyles } from 'utils/classNames';
+import { bindStyles } from 'utils/classNames'
 
-import styles from './ReportCard.module.scss';
+import styles from './ReportCard.module.scss'
 
-const cx = bindStyles(styles);
+const cx = bindStyles(styles)
 
 // 'subRules' leads to a second step listing the subreddit's rules.
-type Choice = ReportReason | 'subRules';
+type Choice = ReportReason | 'subRules'
 
 const SITE_REASONS = [
   ['Spam', 'This is spam'],
@@ -22,56 +22,56 @@ const SITE_REASONS = [
     'It threatens or incites violence or physical harm'],
   ['Personal and confidential information',
     'This reveals private and confidential information bout someone'],
-];
+]
 
 function sameChoice(a: Choice | null, b: Choice): boolean {
-  return JSON.stringify(a) === JSON.stringify(b);
+  return JSON.stringify(a) === JSON.stringify(b)
 }
 
 interface Props {
-  thing: Votable;
-  onCancel(): void;
+  thing: Votable
+  onCancel(): void
 }
 
 export default function ReportCard({ thing, onCancel }: Props) {
-  const rules = useSubRules(thing.subreddit);
-  const subRules = rules.data ?? [];
+  const rules = useSubRules(thing.subreddit)
+  const subRules = rules.data ?? []
 
-  const [choice, setChoice] = useState<Choice | null>(null);
-  const [isRuleReason, setRuleReason] = useState(false);
-  const [isLoading, setLoading] = useState(false);
-  const [isSubmitted, setSubmitted] = useState(false);
-  const [error, setError] = useState('');
+  const [choice, setChoice] = useState<Choice | null>(null)
+  const [isRuleReason, setRuleReason] = useState(false)
+  const [isLoading, setLoading] = useState(false)
+  const [isSubmitted, setSubmitted] = useState(false)
+  const [error, setError] = useState('')
 
   const submit = async (ev: FormEvent) => {
-    ev.preventDefault();
-    if (!choice || isLoading) return;
+    ev.preventDefault()
+    if (!choice || isLoading) return
 
     if (choice === 'subRules') {
-      setRuleReason(true);
-      return;
+      setRuleReason(true)
+      return
     }
 
-    setLoading(true);
-    setError('');
+    setLoading(true)
+    setError('')
 
     try {
-      await reportThing(thing, choice);
-      setSubmitted(true);
+      await reportThing(thing, choice)
+      setSubmitted(true)
     } catch (err) {
-      console.error('Reporting failed:', err);
-      setError('The report could not be sent. Please try again.');
+      console.error('Reporting failed:', err)
+      setError('The report could not be sent. Please try again.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const rollback = () => {
     if (isRuleReason)
-      setRuleReason(false);
+      setRuleReason(false)
     else
-      onCancel();
-  };
+      onCancel()
+  }
 
   const radio = (value: Choice, label: string, key?: string) => (
     <div className={cx('form-input')} key={key}>
@@ -82,7 +82,7 @@ export default function ReportCard({ thing, onCancel }: Props) {
         <p className={cx('label')}>{label}</p>
       </label>
     </div>
-  );
+  )
 
   return (
     <div className={cx('host')}>
@@ -142,5 +142,5 @@ export default function ReportCard({ thing, onCancel }: Props) {
         </div>
       )}
     </div>
-  );
+  )
 }

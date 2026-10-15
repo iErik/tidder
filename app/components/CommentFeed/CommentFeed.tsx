@@ -1,17 +1,17 @@
-import { useState } from 'react';
+import { useState } from 'react'
 
-import { getMoreComments } from 'api/posts';
-import { useComments } from 'api/queries';
-import type { CommentThing, MoreThing, Post } from 'api/types';
+import { getMoreComments } from 'api/posts'
+import { useComments } from 'api/queries'
+import type { CommentThing, MoreThing, Post } from 'api/types'
 
-import CommentCard from 'components/CommentCard/CommentCard';
-import CommentEditor from 'components/CommentEditor/CommentEditor';
+import CommentCard from 'components/CommentCard/CommentCard'
+import CommentEditor from 'components/CommentEditor/CommentEditor'
 
-import { bindStyles } from 'utils/classNames';
+import { bindStyles } from 'utils/classNames'
 
-import styles from './CommentFeed.module.scss';
+import styles from './CommentFeed.module.scss'
 
-const cx = bindStyles(styles);
+const cx = bindStyles(styles)
 
 const SORT_MODES = [
   ['confidence', 'best'],
@@ -20,74 +20,74 @@ const SORT_MODES = [
   ['old', 'old'],
   ['random', 'random'],
   ['qa', 'Q&A'],
-];
+]
 
 // Top-level comments are shown ten at a time.
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 10
 
 // What the user added to the thread Reddit sent: their own new comments,
 // and comments loaded from behind "load more". Reset when the sort changes.
 interface Additions {
-  submitted: CommentThing[];
-  loaded: CommentThing[];
+  submitted: CommentThing[]
+  loaded: CommentThing[]
 
   // Replaces the thread's own "more" entry once more has been loaded.
-  more?: MoreThing | null;
+  more?: MoreThing | null
 }
 
-const NO_ADDITIONS: Additions = { submitted: [], loaded: [] };
+const NO_ADDITIONS: Additions = { submitted: [], loaded: [] }
 
 interface Props {
-  post: Post;
+  post: Post
 }
 
 export default function CommentFeed({ post }: Props) {
-  const [sortMode, setSortMode] = useState('confidence');
-  const [additions, setAdditions] = useState(NO_ADDITIONS);
-  const [displayLimit, setDisplayLimit] = useState(PAGE_SIZE);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [sortMode, setSortMode] = useState('confidence')
+  const [additions, setAdditions] = useState(NO_ADDITIONS)
+  const [displayLimit, setDisplayLimit] = useState(PAGE_SIZE)
+  const [loadingMore, setLoadingMore] = useState(false)
 
-  const thread = useComments(post, sortMode);
+  const thread = useComments(post, sortMode)
 
   const comments = [
     ...additions.submitted,
     ...(thread.data?.comments ?? []),
     ...additions.loaded
-  ];
-  const more = additions.more !== undefined ? additions.more : thread.data?.more ?? null;
-  const hiddenCount = Math.max(comments.length - displayLimit, 0) + (more?.data.count ?? 0);
+  ]
+  const more = additions.more !== undefined ? additions.more : thread.data?.more ?? null
+  const hiddenCount = Math.max(comments.length - displayLimit, 0) + (more?.data.count ?? 0)
 
   const changeSortMode = (sort: string) => {
-    setSortMode(sort);
-    setAdditions(NO_ADDITIONS);
-    setDisplayLimit(PAGE_SIZE);
-  };
+    setSortMode(sort)
+    setAdditions(NO_ADDITIONS)
+    setDisplayLimit(PAGE_SIZE)
+  }
 
   const loadMore = async () => {
     if (displayLimit < comments.length) {
-      setDisplayLimit(displayLimit + PAGE_SIZE);
-      return;
+      setDisplayLimit(displayLimit + PAGE_SIZE)
+      return
     }
 
-    if (!more || loadingMore) return;
-    setLoadingMore(true);
+    if (!more || loadingMore) return
+    setLoadingMore(true)
 
     try {
-      const page = await getMoreComments(post.name, more, sortMode);
+      const page = await getMoreComments(post.name, more, sortMode)
 
-      setAdditions((prev) => ({ ...prev, loaded: [...prev.loaded, ...page.comments], more: page.more }));
-      setDisplayLimit((limit) => limit + page.comments.length);
+      setAdditions((prev) => ({ ...prev, loaded: [...prev.loaded, ...page.comments], more: page.more }))
+      setDisplayLimit((limit) => limit + page.comments.length)
     } catch (err) {
-      console.error('Loading more comments failed:', err);
+      console.error('Loading more comments failed:', err)
     } finally {
-      setLoadingMore(false);
+      setLoadingMore(false)
     }
-  };
+  }
 
   const addComment = (comment: CommentThing) => {
-    setAdditions((prev) => ({ ...prev, submitted: [comment, ...prev.submitted] }));
-    setDisplayLimit((limit) => limit + 1);
-  };
+    setAdditions((prev) => ({ ...prev, submitted: [comment, ...prev.submitted] }))
+    setDisplayLimit((limit) => limit + 1)
+  }
 
   return (
     <div className={cx('host')}>
@@ -146,5 +146,5 @@ export default function CommentFeed({ post }: Props) {
         </div>
       )}
     </div>
-  );
+  )
 }

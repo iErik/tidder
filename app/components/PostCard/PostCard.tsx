@@ -1,79 +1,79 @@
-import { useState, type MouseEvent } from 'react';
-import { Link } from 'react-router';
+import { useState, type MouseEvent } from 'react'
+import { Link } from 'react-router'
 
-import { saveThing, useThing, voteThing } from 'api/thingState';
-import type { Post } from 'api/types';
+import { saveThing, useThing, voteThing } from 'api/thingState'
+import type { Post } from 'api/types'
 
-import SafeHtml from 'components/SafeHtml/SafeHtml';
-import ScoreButton from 'components/ScoreButton/ScoreButton';
-import type { FeedAction } from 'pages/FeedPage/FeedPage';
+import SafeHtml from 'components/SafeHtml/SafeHtml'
+import ScoreButton from 'components/ScoreButton/ScoreButton'
+import type { FeedAction } from 'pages/FeedPage/FeedPage'
 
-import { bindStyles } from 'utils/classNames';
-import { timeAgo } from 'utils/timeAgo';
-import { abbreviate } from 'utils/utils';
+import { bindStyles } from 'utils/classNames'
+import { timeAgo } from 'utils/timeAgo'
+import { abbreviate } from 'utils/utils'
 
-import styles from './PostCard.module.scss';
+import styles from './PostCard.module.scss'
 
-const cx = bindStyles(styles);
+const cx = bindStyles(styles)
 
 function previewImage(post: Post) {
-  return post.preview?.images[0];
+  return post.preview?.images[0]
 }
 
 function hasContent(post: Post): boolean {
-  const variants = previewImage(post)?.variants;
+  const variants = previewImage(post)?.variants
 
   return (post.is_self && !!post.selftext_html)
     || post.media !== null
     || (!!variants && Object.keys(variants).length > 0)
-    || (!!post.post_hint && post.post_hint !== 'link');
+    || (!!post.post_hint && post.post_hint !== 'link')
 }
 
 function isImage(post: Post): boolean {
-  if (post.media || post.is_self) return false;
+  if (post.media || post.is_self) return false
 
-  const image = previewImage(post);
-  return !!image && !image.variants['mp4'];
+  const image = previewImage(post)
+  return !!image && !image.variants['mp4']
 }
 
 function isVideo(post: Post): boolean {
-  if ((post.media && !post.media['reddit_video']) || post.is_self) return false;
+  if ((post.media && !post.media['reddit_video']) || post.is_self) return false
 
-  return post.is_video || !!previewImage(post)?.variants['mp4'];
+  return post.is_video || !!previewImage(post)?.variants['mp4']
 }
 
 function isEmbedded(post: Post): boolean {
-  return post.media !== null && post.is_video === false;
+  return post.media !== null && post.is_video === false
 }
 
 // NOTE: This does not work with subreddits that disable previews
 function imageSource(post: Post): string {
-  const image = previewImage(post)!;
-  return image.variants.gif ? image.variants.gif.source.url : image.source.url;
+  const image = previewImage(post)!
+  return image.variants.gif ? image.variants.gif.source.url : image.source.url
 }
 
 function videoSource(post: Post): string | undefined {
   if (post.is_video)
-    return post.media.reddit_video.fallback_url;
+    return post.media.reddit_video.fallback_url
 
-  return previewImage(post)?.variants['mp4']?.source.url;
+  return previewImage(post)?.variants['mp4']?.source.url
 }
 
 function openExternal(ev: MouseEvent, url: string): void {
-  ev.preventDefault();
-  ev.stopPropagation();
-  window.tidder.openExternal(url);
+  ev.preventDefault()
+  ev.stopPropagation()
+  window.tidder.openExternal(url)
 }
 
 interface Props {
-  post: Post;
-  onFeedAction(action: FeedAction): void;
+  post: Post
+  onFeedAction(action: FeedAction): void
 }
 
 export default function PostCard({ post: rawPost, onFeedAction }: Props) {
-  const post = useThing(rawPost);
-  const [isCollapsed, setCollapsed] = useState(false);
-  const showContent = hasContent(post);
+  const post = useThing(rawPost)
+  const [isCollapsed, setCollapsed] = useState(false)
+  const showContent = hasContent(post)
 
   return (
     <div className={cx('host')}>
@@ -180,5 +180,5 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
         </div>
       </div>
     </div>
-  );
+  )
 }

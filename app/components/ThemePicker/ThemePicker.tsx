@@ -1,18 +1,18 @@
-import { useState } from 'react';
+import { useState } from 'react'
 
-import themesConfig from 'config/themes.json';
+import themesConfig from 'config/themes.json'
 
-import { setSetting } from 'core/useSetting';
-import { bindStyles } from 'utils/classNames';
+import { setSetting } from 'core/useSetting'
+import { bindStyles } from 'utils/classNames'
 
-import styles from './ThemePicker.module.scss';
+import styles from './ThemePicker.module.scss'
 
-const cx = bindStyles(styles);
-const themes = Object.keys(themesConfig.appThemes || { });
+const cx = bindStyles(styles)
+const themes = Object.keys(themesConfig.appThemes || { })
 
 function titleCase(text: string): string {
   return text.replace(/\w\S*/g, (word) =>
-    word[0].toUpperCase() + word.slice(1).toLowerCase());
+    word[0].toUpperCase() + word.slice(1).toLowerCase())
 }
 
 export default function ThemePicker() {
@@ -21,16 +21,16 @@ export default function ThemePicker() {
     'closed' |
     'open' |
     'closing'
-  >('closed');
+  >('closed')
 
   const toggleMenu = () => setMenu(menu === 'open'
     ? 'closing'
-    : 'open');
+    : 'open')
 
   const changeTheme = (theme: string) => {
-    setMenu('closing');
-    setSetting('appTheme', theme);
-  };
+    setMenu('closing')
+    setSetting('appTheme', theme)
+  }
 
   return (
     <div className={cx('host')}>
@@ -52,7 +52,7 @@ export default function ThemePicker() {
               menu === 'open' ? 'fade-enter' : 'fade-leave'
             )}
             onAnimationEnd={() => {
-              if (menu === 'closing') setMenu('closed');
+              if (menu === 'closing') setMenu('closed')
             }}
           >
             <div className={cx('menu-heading')}>
@@ -76,5 +76,5 @@ export default function ThemePicker() {
         )}
       </div>
     </div>
-  );
+  )
 }

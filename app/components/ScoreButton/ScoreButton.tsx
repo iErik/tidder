@@ -1,15 +1,15 @@
-import { bindStyles } from 'utils/classNames';
+import { bindStyles } from 'utils/classNames'
 
-import styles from './ScoreButton.module.scss';
+import styles from './ScoreButton.module.scss'
 
-const cx = bindStyles(styles);
+const cx = bindStyles(styles)
 
 interface Props {
-  score: string;
-  likes: boolean | null;
+  score: string
+  likes: boolean | null
 
   // Called with the vote direction: 1, -1, or 0 to take the vote back.
-  onVote(dir: -1 | 0 | 1): void;
+  onVote(dir: -1 | 0 | 1): void
 }
 
 export default function ScoreButton({ score, likes, onVote }: Props) {
@@ -31,5 +31,5 @@ export default function ScoreButton({ score, likes, onVote }: Props) {
         <i className="icn-arrow-down"></i>
       </button>
     </div>
-  );
+  )
 }

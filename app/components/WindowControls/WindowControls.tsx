@@ -1,12 +1,12 @@
-import { bindStyles } from 'utils/classNames';
+import { bindStyles } from 'utils/classNames'
 
-import styles from './WindowControls.module.scss';
+import styles from './WindowControls.module.scss'
 
-const cx = bindStyles(styles);
-const platform = window.tidder.platform;
+const cx = bindStyles(styles)
+const platform = window.tidder.platform
 
 function iconClass(icon: string): string {
-  return platform === 'darwin' ? `icn-${icon}-darwin` : `icn-${icon}`;
+  return platform === 'darwin' ? `icn-${icon}-darwin` : `icn-${icon}`
 }
 
 export default function WindowControls() {
@@ -24,5 +24,5 @@ export default function WindowControls() {
         </button>
       </div>
     </div>
-  );
+  )
 }

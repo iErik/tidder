@@ -1,12 +1,12 @@
-import { cancelLogin, login, useAuth } from 'core/auth';
-import { bindStyles } from 'utils/classNames';
+import { cancelLogin, login, useAuth } from 'core/auth'
+import { bindStyles } from 'utils/classNames'
 
-import styles from './LoginScreen.module.scss';
+import styles from './LoginScreen.module.scss'
 
-const cx = bindStyles(styles);
+const cx = bindStyles(styles)
 
 export default function LoginScreen() {
-  const status = useAuth().loginStatus;
+  const status = useAuth().loginStatus
 
   return (
     <div className={cx('host')}>
@@ -43,5 +43,5 @@ export default function LoginScreen() {
         )}
       </div>
     </div>
-  );
+  )
 }

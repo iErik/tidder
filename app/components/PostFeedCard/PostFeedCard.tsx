@@ -1,34 +1,34 @@
-import type { MouseEvent } from 'react';
-import { Link } from 'react-router';
+import type { MouseEvent } from 'react'
+import { Link } from 'react-router'
 
-import { useThing, voteThing } from 'api/thingState';
-import type { Post } from 'api/types';
+import { useThing, voteThing } from 'api/thingState'
+import type { Post } from 'api/types'
 
-import ScoreButton from 'components/ScoreButton/ScoreButton';
-import type { FeedAction } from 'pages/FeedPage/FeedPage';
+import ScoreButton from 'components/ScoreButton/ScoreButton'
+import type { FeedAction } from 'pages/FeedPage/FeedPage'
 
-import { bindStyles } from 'utils/classNames';
-import { timeAgo } from 'utils/timeAgo';
-import { abbreviate } from 'utils/utils';
+import { bindStyles } from 'utils/classNames'
+import { timeAgo } from 'utils/timeAgo'
+import { abbreviate } from 'utils/utils'
 
-import styles from './PostFeedCard.module.scss';
+import styles from './PostFeedCard.module.scss'
 
-const cx = bindStyles(styles);
+const cx = bindStyles(styles)
 
 interface Props {
-  post: Post;
-  displaySubreddit?: boolean;
-  onFeedAction(action: FeedAction): void;
+  post: Post
+  displaySubreddit?: boolean
+  onFeedAction(action: FeedAction): void
 }
 
 export default function PostFeedCard({ post: rawPost, displaySubreddit = true, onFeedAction }: Props) {
-  const post = useThing(rawPost);
-  const hasThumbnail = post.thumbnail.startsWith('http');
+  const post = useThing(rawPost)
+  const hasThumbnail = post.thumbnail.startsWith('http')
 
   const openPost = (ev: MouseEvent) => {
-    ev.preventDefault();
-    onFeedAction({ type: 'open', thing: rawPost });
-  };
+    ev.preventDefault()
+    onFeedAction({ type: 'open', thing: rawPost })
+  }
 
   return (
     <div className={cx('host')}>
@@ -80,5 +80,5 @@ export default function PostFeedCard({ post: rawPost, displaySubreddit = true, o
         </span>
       </div>
     </div>
-  );
+  )
 }

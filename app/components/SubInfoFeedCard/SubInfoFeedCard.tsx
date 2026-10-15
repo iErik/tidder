@@ -1,21 +1,21 @@
-import { Link } from 'react-router';
+import { Link } from 'react-router'
 
-import { setSubscribed, useThing } from 'api/thingState';
-import type { Subreddit } from 'api/types';
+import { setSubscribed, useThing } from 'api/thingState'
+import type { Subreddit } from 'api/types'
 
-import { bindStyles } from 'utils/classNames';
-import { timeAgo } from 'utils/timeAgo';
+import { bindStyles } from 'utils/classNames'
+import { timeAgo } from 'utils/timeAgo'
 
-import styles from './SubInfoFeedCard.module.scss';
+import styles from './SubInfoFeedCard.module.scss'
 
-const cx = bindStyles(styles);
+const cx = bindStyles(styles)
 
 interface Props {
-  subInfo: Subreddit;
+  subInfo: Subreddit
 }
 
 export default function SubInfoFeedCard({ subInfo: rawSubInfo }: Props) {
-  const subInfo = useThing(rawSubInfo);
+  const subInfo = useThing(rawSubInfo)
 
   return (
     <div className={cx('host')}>
@@ -66,5 +66,5 @@ export default function SubInfoFeedCard({ subInfo: rawSubInfo }: Props) {
         </div>
       </div>
     </div>
-  );
+  )
 }

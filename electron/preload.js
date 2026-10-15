@@ -2,18 +2,18 @@
 // The renderer runs with context isolation and without Node integration,
 // so everything it used to do through `remote` goes through here.
 
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron')
 
-const settingsCache = ipcRenderer.sendSync('settings:get-all');
-const settingsWatchers = [];
+const settingsCache = ipcRenderer.sendSync('settings:get-all')
+const settingsWatchers = []
 
 ipcRenderer.on('settings:changed', (ev, key, value) => {
-  settingsCache[key] = value;
+  settingsCache[key] = value
 
   settingsWatchers
     .filter(watcher => watcher.key === key)
-    .forEach(watcher => watcher.callback(value));
-});
+    .forEach(watcher => watcher.callback(value))
+})
 
 contextBridge.exposeInMainWorld('tidder', {
   platform: process.platform,
@@ -40,20 +40,20 @@ contextBridge.exposeInMainWorld('tidder', {
     get: (key) => settingsCache[key],
 
     set: (key, value) => {
-      settingsCache[key] = value;
-      ipcRenderer.send('settings:set', key, value);
+      settingsCache[key] = value
+      ipcRenderer.send('settings:set', key, value)
     },
 
     watch: (key, callback) => {
-      const watcher = { key, callback };
-      settingsWatchers.push(watcher);
+      const watcher = { key, callback }
+      settingsWatchers.push(watcher)
 
       return {
         dispose: () => {
-          const index = settingsWatchers.indexOf(watcher);
-          if (index !== -1) settingsWatchers.splice(index, 1);
+          const index = settingsWatchers.indexOf(watcher)
+          if (index !== -1) settingsWatchers.splice(index, 1)
         }
-      };
+      }
     }
   }
-});
+})

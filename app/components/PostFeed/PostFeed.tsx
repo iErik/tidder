@@ -1,23 +1,23 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { useFeed, type FeedParams } from 'api/queries';
+import { useFeed, type FeedParams } from 'api/queries'
 
-import PostFeedCard from 'components/PostFeedCard/PostFeedCard';
-import PostFeedFilters from 'components/PostFeedFilters/PostFeedFilters';
-import SubInfoFeedCard from 'components/SubInfoFeedCard/SubInfoFeedCard';
-import type { FeedAction } from 'pages/FeedPage/FeedPage';
-import { useFeedState } from 'pages/FeedPage/FeedContext';
+import PostFeedCard from 'components/PostFeedCard/PostFeedCard'
+import PostFeedFilters from 'components/PostFeedFilters/PostFeedFilters'
+import SubInfoFeedCard from 'components/SubInfoFeedCard/SubInfoFeedCard'
+import type { FeedAction } from 'pages/FeedPage/FeedPage'
+import { useFeedState } from 'pages/FeedPage/FeedContext'
 
-import { useInfiniteScroll } from 'hooks/useInfiniteScroll';
-import { bindStyles } from 'utils/classNames';
+import { useInfiniteScroll } from 'hooks/useInfiniteScroll'
+import { bindStyles } from 'utils/classNames'
 
-import styles from './PostFeed.module.scss';
+import styles from './PostFeed.module.scss'
 
-const cx = bindStyles(styles);
+const cx = bindStyles(styles)
 
 // How long typing in the search bar (or changing the sort)
 // has to pause before the feed reloads.
-const FILTER_DELAY = 300;
+const FILTER_DELAY = 300
 
 // The feed params, with changes to the search and sort
 // applied once they settle. A new source (navigating to
@@ -27,7 +27,7 @@ function useSettledFeedParams(): FeedParams {
     feedSource,
     sortMode,
     searchQuery
-  } = useFeedState();
+  } = useFeedState()
 
   const live = useMemo(
     () => ({
@@ -35,45 +35,45 @@ function useSettledFeedParams(): FeedParams {
       sort: sortMode,
       query: searchQuery
     }),
-    [feedSource, sortMode, searchQuery]);
+    [feedSource, sortMode, searchQuery])
 
-  const [settled, setSettled] = useState(live);
+  const [settled, setSettled] = useState(live)
 
   useEffect(() => {
     if (live.source !== settled.source) {
-      setSettled(live);
-      return;
+      setSettled(live)
+      return
     }
 
     const timer = setTimeout(
       () => setSettled(live),
-      FILTER_DELAY);
+      FILTER_DELAY)
 
-    return () => clearTimeout(timer);
-  }, [live, settled.source]);
+    return () => clearTimeout(timer)
+  }, [live, settled.source])
 
-  return settled;
+  return settled
 }
 
 function uniqueByName<T extends { name: string }>(
   things: T[]
 ): T[] {
-  const seen = new Set<string>();
+  const seen = new Set<string>()
 
   return things.filter((thing) =>
-    !seen.has(thing.name) && !!seen.add(thing.name));
+    !seen.has(thing.name) && !!seen.add(thing.name))
 }
 
 interface Props {
-  onFeedAction(action: FeedAction): void;
+  onFeedAction(action: FeedAction): void
 }
 
 export default function PostFeed({ onFeedAction }: Props) {
-  const { displaySub } = useFeedState();
-  const feed = useFeed(useSettledFeedParams());
+  const { displaySub } = useFeedState()
+  const feed = useFeed(useSettledFeedParams())
 
-  const listRef = useRef<HTMLDivElement>(null);
-  const endRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null)
+  const endRef = useRef<HTMLDivElement>(null)
 
   useInfiniteScroll(
     listRef,
@@ -81,19 +81,19 @@ export default function PostFeed({ onFeedAction }: Props) {
     () => void feed.fetchNextPage(),
     {
       disabled: !feed.hasNextPage || feed.isFetchingNextPage
-    });
+    })
 
   useEffect(() => {
     if (feed.error)
-      console.error('Loading the feed failed:', feed.error);
-  }, [feed.error]);
+      console.error('Loading the feed failed:', feed.error)
+  }, [feed.error])
 
   // A listing can shift while it's paged through, repeating
   // an entry on the next page.
   const posts = uniqueByName(feed.data?.pages
-    .flatMap((page) => page.posts) ?? []);
+    .flatMap((page) => page.posts) ?? [])
   const subs = uniqueByName(feed.data?.pages
-    .flatMap((page) => page.subs) ?? []);
+    .flatMap((page) => page.subs) ?? [])
 
   return (
     <div className={cx('host')}>
@@ -150,5 +150,5 @@ export default function PostFeed({ onFeedAction }: Props) {
         </div>
       )}
     </div>
-  );
+  )
 }

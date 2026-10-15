@@ -1,15 +1,15 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from 'react'
 
-import { bindStyles } from 'utils/classNames';
+import { bindStyles } from 'utils/classNames'
 
-import styles from './SplitButton.module.scss';
+import styles from './SplitButton.module.scss'
 
-const cx = bindStyles(styles);
+const cx = bindStyles(styles)
 
 interface Props {
-  buttonLabel: string;
-  className?: string;
-  icon?: ReactNode;
+  buttonLabel: string
+  className?: string
+  icon?: ReactNode
 }
 
 export default function SplitButton({ buttonLabel, className, icon }: Props) {
@@ -25,5 +25,5 @@ export default function SplitButton({ buttonLabel, className, icon }: Props) {
         {icon}
       </div>
     </div>
-  );
+  )
 }
