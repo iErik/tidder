@@ -3,3 +3,6 @@
 
 # TDR-6: Apply ESLint formatting fixes
 cd3e05864c1ba5f6a8b83fd0dd12214e5b7bce09
+
+# TDR-6: Apply the parameter-per-line formatting fixes
+7eda7340ed0a55e62fa8a0bac81815f5209253d3

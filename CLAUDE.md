@@ -37,10 +37,13 @@ There is no test suite. `pnpm run build` type-checks the app (`strict`) before b
 
 Linting is configured in `eslint.config.mjs`, and every rule is an error:
 
-- Stylistic formatting everywhere: no semicolons, single quotes, 2-space indent, 80 columns (strings, template literals, URLs, comments and imports are exempt).
-- `app/`: `typescript-eslint` `recommendedTypeChecked` and `react-hooks` `recommended`, with React Compiler rules.
+- Stylistic formatting everywhere:
+  - no semicolons, single quotes, 2-space indent, no trailing spaces;
+  - 80 columns, with only lines containing a URL exempt. Split long strings into concatenations;
+  - function parameters and imported names either all share one line, or each gets its own line (`exp-list-style`).
+- `app/`: `typescript-eslint` `recommendedTypeChecked` and `react-hooks` `recommended`, with React Compiler rules. `no-misused-promises` doesn't check JSX attributes, so async event handlers need no `void`.
 - `electron/` (CommonJS) and `scripts/` (ESM): `@eslint/js` recommended with Node globals.
-- A finding that can't be fixed without a refactor gets `// eslint-disable-next-line <rule> -- <reason>`.
+- A finding that can't be fixed without a refactor gets `// eslint-disable-next-line <rule>`, with the reason in a comment on the lines above it.
 
 `pnpm install` sets up a husky pre-commit hook (the `prepare` script) that runs `eslint --fix` on staged TS/JS files through lint-staged, and blocks the commit if errors remain. The hook runs `pnpm`, so commit from inside the nix/direnv shell. `.git-blame-ignore-revs` lists formatting-only commits; enable it with `git config blame.ignoreRevsFile .git-blame-ignore-revs`.
 
