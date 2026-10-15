@@ -24,7 +24,7 @@ const ownElectronFile = file =>
   file.includes(`${path.sep}electron${path.sep}`)
     && !file.includes(`${path.sep}node_modules${path.sep}`)
 
-describe('fake electron', () => {
+describe('fake electron', { concurrent: false }, () => {
   it('is what require() returns', () => {
     expect(require('electron')).toBe(electron())
   })
@@ -46,12 +46,15 @@ describe('fake electron', () => {
     const other = fs.mkdtempSync(
       path.join(os.tmpdir(), 'tidder-other-'))
 
-    electron().app.getPath.mockReturnValue(other)
-    removeElectron()
+    try {
+      electron().app.getPath.mockReturnValue(other)
+      removeElectron()
 
-    expect(fs.existsSync(created)).toBe(false)
-    expect(fs.existsSync(other)).toBe(true)
-    fs.rmSync(other, { recursive: true, force: true })
+      expect(fs.existsSync(created)).toBe(false)
+      expect(fs.existsSync(other)).toBe(true)
+    } finally {
+      fs.rmSync(other, { recursive: true, force: true })
+    }
   })
 
   it("doesn't reach the network unless stubbed", async () => {
@@ -68,9 +71,13 @@ describe('fake electron', () => {
   })
 })
 
-// These two run in order: the second checks what the first
-// left in the cache
-describe('module cache', () => {
+// The second test checks what the first left in the cache,
+// so they run in order, and the second fails unless the
+// first ran just before it (an empty cache alone proves
+// nothing: run them together, not one at a time)
+describe('module cache', { concurrent: false }, () => {
+  let loaded = false
+
   it('loads the app modules through the fake', () => {
     const settings = require('../settings.js')
     settings.load()
@@ -79,9 +86,12 @@ describe('module cache', () => {
       .toHaveBeenCalledWith('userData')
     expect(Object.keys(require.cache).some(ownElectronFile))
       .toBe(true)
+    loaded = true
   })
 
   it('drops the app modules the last test loaded', () => {
+    expect(loaded, 'the test before this one has to run first')
+      .toBe(true)
     expect(Object.keys(require.cache).filter(ownElectronFile))
       .toEqual([])
   })
