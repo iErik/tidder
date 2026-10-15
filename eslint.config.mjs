@@ -105,11 +105,21 @@ export default defineConfig(
       }],
       // Imports have no reason to go past the 60 target
       'local/import-length': ['error', { max: 60 }],
-      // Once a tag's attributes wrap, one attribute per line
+      // Once a tag's attributes wrap, each one gets its own
+      // line, the first included, and the tag closes on a
+      // line of its own, aligned with its opening
       '@stylistic/jsx-max-props-per-line': ['error', {
         maximum: 1,
         when: 'multiline'
-      }]
+      }],
+      '@stylistic/jsx-first-prop-new-line': [
+        'error',
+        'multiline'
+      ],
+      '@stylistic/jsx-closing-bracket-location': [
+        'error',
+        'tag-aligned'
+      ]
     }
   },
 
