@@ -40,7 +40,8 @@ export default defineConfig({
           name: 'main',
           root: rootDir,
           environment: 'node',
-          include: ['electron/**/*.test.js']
+          include: ['electron/**/*.test.js'],
+          setupFiles: ['electron/test/setup.js']
         }
       }
     ]
