@@ -1,0 +1,5 @@
+# Formatting-only commits, skipped by `git blame`. Enable with:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# TDR-6: Apply ESLint formatting fixes
+cd3e05864c1ba5f6a8b83fd0dd12214e5b7bce09

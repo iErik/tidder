@@ -33,7 +33,7 @@ Work in this repo is organized as Linear tickets (team prefix: `TDR`). Use the L
 
 - [ ] Every acceptance criterion is met, and you can say how you verified each one
 - [ ] Tests added or updated for the change
-- [ ] `<lint command>` passes
+- [ ] `pnpm lint` passes
 - [ ] `<typecheck command>` passes
 - [ ] `<test command>` passes
 - [ ] No unrelated changes in the diff
@@ -52,7 +52,7 @@ Comment on the ticket with the PR link, a two or three line summary, and anythin
 
 - Install: `<install command>`
 - Dev server: `<dev command>`
-- Lint: `<lint command>`
+- Lint: `pnpm lint`
 - Typecheck: `<typecheck command>`
 - Test: `<test command>`
 

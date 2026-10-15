@@ -3,9 +3,12 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Code Style
+- No semicolons at the end of lines in TS/JS. SCSS still
+needs them
+- Single quotes and 2-space indentation
 - Try to keep lines 60 characters long or shorter as much as
-possible
-- NO SEMICOLONS AT THE END OF THE LINE
+possible. 80 is the hard limit
+- `pnpm lint` enforces these (see below)
 
 ## Project status
 
@@ -26,9 +29,20 @@ pnpm run build             # generate theme SCSS + `tsc --noEmit` + `vite build`
 pnpm start                 # build, then run Electron against the built files
 pnpm run build:pack        # build + electron-builder for this platform -> release/
 pnpm run build:pack:mac    # x64 + arm64 zips, ad-hoc signed (mac.identity "-")
+pnpm lint                  # ESLint over app/, electron/, scripts/ and root configs
+pnpm lint:fix              # the same, fixing what it can (formatting)
 ```
 
-There is no test suite and no linter. `pnpm run build` type-checks the app (`strict`) before bundling; Vite itself doesn't type-check.
+There is no test suite. `pnpm run build` type-checks the app (`strict`) before bundling; Vite itself doesn't type-check, and the build doesn't lint.
+
+Linting is configured in `eslint.config.mjs`, and every rule is an error:
+
+- Stylistic formatting everywhere: no semicolons, single quotes, 2-space indent, 80 columns (strings, template literals, URLs, comments and imports are exempt).
+- `app/`: `typescript-eslint` `recommendedTypeChecked` and `react-hooks` `recommended`, with React Compiler rules.
+- `electron/` (CommonJS) and `scripts/` (ESM): `@eslint/js` recommended with Node globals.
+- A finding that can't be fixed without a refactor gets `// eslint-disable-next-line <rule> -- <reason>`.
+
+`pnpm install` sets up a husky pre-commit hook (the `prepare` script) that runs `eslint --fix` on staged TS/JS files through lint-staged, and blocks the commit if errors remain. The hook runs `pnpm`, so commit from inside the nix/direnv shell. `.git-blame-ignore-revs` lists formatting-only commits; enable it with `git config blame.ignoreRevsFile .git-blame-ignore-revs`.
 
 ## Architecture
 
