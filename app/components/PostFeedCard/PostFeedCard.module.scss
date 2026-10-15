@@ -188,9 +188,9 @@ $post-card-height: 80px;
           display: flex;
           align-items: center;
           justify-content: center;
-
-          &.icn-spoiler { font-size: 1.5em; }
         }
+
+        @include icon('spoiler') { font-size: 1.5em; }
       }
     }
 
