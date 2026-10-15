@@ -2,7 +2,11 @@ import { useState } from 'react'
 
 import { getMoreComments } from 'api/posts'
 import { useComments } from 'api/queries'
-import type { CommentThing, MoreThing, Post } from 'api/types'
+import type {
+  CommentThing,
+  MoreThing,
+  Post
+} from 'api/types'
 
 import CommentCard from 'components/CommentCard/CommentCard'
 import CommentEditor from 'components/CommentEditor/CommentEditor'
@@ -152,7 +156,8 @@ export default function CommentFeed({ post }: Props) {
 
           {hiddenCount > 0 && (
             <div className={cx('comments-morechildren')}>
-              <button type="button" className={cx('btn-load button outline')}
+              <button type="button"
+                className={cx('btn-load button outline')}
                 disabled={loadingMore}
                 onClick={loadMore}>
                 Load {hiddenCount} more comments

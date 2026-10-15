@@ -81,7 +81,9 @@ export default function PostSubmit({ onCancel }: Props) {
 
         <div className={cx('form-input')}>
           <label htmlFor="post-title" className={cx('label')}>Title</label>
-          <input id="post-title" name="postTitle" type="text"
+          <input id="post-title"
+            name="postTitle"
+            type="text"
             className={cx('input')}
             required
             placeholder="Title..."
@@ -91,7 +93,9 @@ export default function PostSubmit({ onCancel }: Props) {
 
         <div className={cx('form-input')}>
           <label htmlFor="post-sub" className={cx('label')}>Subreddit</label>
-          <input id="post-sub" name="postSub" type="text"
+          <input id="post-sub"
+            name="postSub"
+            type="text"
             className={cx('input')}
             required
             autoComplete="off"
@@ -109,7 +113,9 @@ export default function PostSubmit({ onCancel }: Props) {
         {post.kind === 'link' && (
           <div className={cx('form-input')}>
             <label htmlFor="post-url" className={cx('label')}>URL</label>
-            <input id="post-url" name="postUrl" type="text"
+            <input id="post-url"
+              name="postUrl"
+              type="text"
               className={cx('input')}
               placeholder="URL..."
               value={post.url}
@@ -120,7 +126,9 @@ export default function PostSubmit({ onCancel }: Props) {
         {post.kind === 'self' && (
           <div className={cx('form-input')}>
             <label htmlFor="post-text" className={cx('label')}>Text</label>
-            <textarea id="post-text" name="postText" className={cx('textarea')}
+            <textarea id="post-text"
+              name="postText"
+              className={cx('textarea')}
               value={post.text}
               onChange={(ev) => update({ text: ev.target.value })}>
             </textarea>
@@ -143,7 +151,8 @@ export default function PostSubmit({ onCancel }: Props) {
             </SubmitButton>
           </div>
           <div className={cx('form-control')}>
-            <button type="button" className={cx('button secondary')}
+            <button type="button"
+              className={cx('button secondary')}
               onClick={onCancel}>
               Cancel
             </button>
@@ -155,14 +164,16 @@ export default function PostSubmit({ onCancel }: Props) {
         <div className={cx('form-success')}>
           <p>Your post was successfully submitted!</p>
           <div className={cx('controls')}>
-            <a href="#" className={cx('button')}
+            <a href="#"
+              className={cx('button')}
               onClick={(ev) => {
                 ev.preventDefault()
                 window.tidder.openExternal(postUrl)
               }}>
               Go to post
             </a>
-            <button type="button" className={cx('button secondary')}
+            <button type="button"
+              className={cx('button secondary')}
               onClick={onCancel}>
               Close
             </button>

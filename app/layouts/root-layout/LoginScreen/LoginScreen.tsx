@@ -37,7 +37,8 @@ export default function LoginScreen() {
               <button type="button" className={cx('btn-link')} onClick={login}>
                 Open again
               </button>
-              <button type="button" className={cx('btn-link')}
+              <button type="button"
+                className={cx('btn-link')}
                 onClick={cancelLogin}>
                 Cancel
               </button>

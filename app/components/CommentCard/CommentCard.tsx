@@ -60,7 +60,8 @@ export default function CommentCard({ comment: rawComment, isParent }: Props) {
           <div className={cx('comment-contents')}>
             <div className={cx('comment-meta')}>
               <p className={cx('meta')}>
-                <a href="" className={cx('meta-collapse')}
+                <a href=""
+                  className={cx('meta-collapse')}
                   onClick={toggleCollapse}>
                   {isCollapsed ? '[+]' : '[–]'}
                 </a>{' '}

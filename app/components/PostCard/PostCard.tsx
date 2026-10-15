@@ -1,7 +1,11 @@
 import { useState, type MouseEvent } from 'react'
 import { Link } from 'react-router'
 
-import { saveThing, useThing, voteThing } from 'api/thingState'
+import {
+  saveThing,
+  useThing,
+  voteThing
+} from 'api/thingState'
 import type { Post } from 'api/types'
 
 import SafeHtml from 'components/SafeHtml/SafeHtml'
@@ -96,7 +100,8 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
               </div>
 
               <div className={cx('post-link')}>
-                <a href="#" className={cx('link')}
+                <a href="#"
+                  className={cx('link')}
                   onClick={(ev) => openExternal(ev, post.url)}>
                   {post.title}
                 </a>
@@ -119,13 +124,15 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
                   </span>
                 </div>
                 <div className={cx('post-action')}>
-                  <button type="button" className={cx('btn-action')}
+                  <button type="button"
+                    className={cx('btn-action')}
                     onClick={() => saveThing(post, !post.saved)}>
                     {post.saved ? 'Unsave' : 'Save'}
                   </button>
                 </div>
                 <div className={cx('post-action')}>
-                  <button type="button" className={cx('btn-action')}
+                  <button type="button"
+                    className={cx('btn-action')}
                     onClick={() =>
                       onFeedAction({ type: 'report', thing: post })}
                     disabled={post.reported}>
@@ -133,7 +140,8 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
                   </button>
                 </div>
                 <div className={cx('post-action')}>
-                  <button type="button" className={cx('btn-action')}
+                  <button type="button"
+                    className={cx('btn-action')}
                     onClick={() =>
                       onFeedAction({ type: 'share', thing: post })}>
                     Share
@@ -141,7 +149,8 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
                 </div>
                 <div className={cx('post-action')}>
                   {showContent && (
-                    <button type="button" className={cx('btn-action')}
+                    <button type="button"
+                      className={cx('btn-action')}
                       onClick={() => setCollapsed(!isCollapsed)}>
                       {isCollapsed ? 'Uncollapse' : 'Collapse'}
                     </button>
@@ -161,7 +170,8 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
 
               {isEmbedded(post) &&
                 <SafeHtml className={cx('post-media')}
-                  html={post.secure_media_embed.content} embed />}
+                  html={post.secure_media_embed.content}
+                  embed />}
 
               {isImage(post) && (
                 <div className={cx('post-image')}>

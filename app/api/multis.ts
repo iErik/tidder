@@ -1,5 +1,10 @@
 import { redditFetch } from 'api/client'
-import type { ListingResponse, Multireddit, PostThing, Thing } from 'api/types'
+import type {
+  ListingResponse,
+  Multireddit,
+  PostThing,
+  Thing
+} from 'api/types'
 
 // Multireddit feed sources look like `/user/<userName>/m/<multiName>/`.
 export const MULTI_PATH = /^\/user\/([\w-]+)\/m\/(\w+)\/$/

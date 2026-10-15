@@ -72,7 +72,9 @@ export default function SharePostCard({ post }: Props) {
 
       <div className={cx('wrapper-input')}>
         <p className={cx('label')}>Link: </p>
-        <input type="text" className={cx('input')} value={postLink}
+        <input type="text"
+          className={cx('input')}
+          value={postLink}
           onChange={(ev) => setPostLink(ev.target.value)} />
       </div>
     </div>

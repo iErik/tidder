@@ -1,4 +1,8 @@
-import { redditFetch, throwOnJsonErrors, type JsonResponse } from 'api/client'
+import {
+  redditFetch,
+  throwOnJsonErrors,
+  type JsonResponse
+} from 'api/client'
 import type {
   CommentThing,
   ListingResponse,
