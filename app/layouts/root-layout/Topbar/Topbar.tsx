@@ -1,5 +1,6 @@
 import { matchPath, useLocation } from 'react-router'
 
+import Icon from 'components/Icon/Icon'
 import ThemePicker from 'components/ThemePicker/ThemePicker'
 import WindowControls from 'components/WindowControls/WindowControls'
 
@@ -43,7 +44,7 @@ export default function Topbar({ onSidebarToggle }: Props) {
               className={cx('btn-trigger')}
               onClick={onSidebarToggle}
             >
-              <i className="icn-menu"></i>
+              <Icon name="menu" />
             </button>
           </div>
           <div className={cx('topbar-control')}>

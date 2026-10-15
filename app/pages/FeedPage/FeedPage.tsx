@@ -3,6 +3,7 @@ import { matchPath, useLocation } from 'react-router'
 
 import type { Post, Votable } from 'api/types'
 
+import Icon from 'components/Icon/Icon'
 import PostFeed from 'components/PostFeed/PostFeed'
 import PostSubmit from 'components/PostSubmit/PostSubmit'
 import PostViewer from 'components/PostViewer/PostViewer'
@@ -98,7 +99,7 @@ function FeedPageContents() {
               className="btn-close"
               onClick={closeOverlay}
             >
-              <i className="icn-close"></i>
+              <Icon name="close" />
             </button>
 
             <div className="overlay-contents">
