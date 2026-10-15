@@ -89,6 +89,7 @@ Linting is configured in `eslint.config.mjs`, and every rule is an error:
   - The packaged app only contains the `build.files` listed in `package.json`. The main process also requires `app/config/authConfig.json` and `settings.json`, so keep those listed.
 - **Renderer (`app/`)**: React 19 + TypeScript, built by Vite (`vite.config.mts`, `root: app`, output `dist/renderer/browser`).
   - `main.tsx` calls `setup()` from `core/auth.ts`, then renders `QueryClientProvider` > `HashRouter` > `RootLayout` in StrictMode.
+  - In `pnpm run dev` only, the TanStack Query devtools are available from the button in the bottom-left corner. Feed and comment queries use `gcTime: 0`, so they vanish from the devtools as soon as nothing uses them.
   - `index.html` has a strict CSP (`script-src 'self'`). The dev server needs an inline script for React Fast Refresh, so `vite.config.mts` adds `'unsafe-inline'` to `script-src` in serve mode only.
 - **Import aliases**: bare aliases rooted at `app/` (`api/`, `components/`, `config/`, `core/`, `hooks/`, `layouts/`, `pages/`, `utils/`) are defined in both `tsconfig.json` `paths` and `vite.config.mts` `resolve.alias`; keep them in sync. SCSS imports resolve from `app/` (`@import 'styles/helpers/module'`) via Sass `loadPaths`.
 - **App structure**:
