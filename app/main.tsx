@@ -2,6 +2,9 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HashRouter } from 'react-router'
 import { QueryClientProvider } from '@tanstack/react-query'
+import {
+  ReactQueryDevtools
+} from '@tanstack/react-query-devtools'
 
 import RootLayout from 'layouts/root-layout/RootLayout'
 
@@ -18,6 +21,15 @@ createRoot(document.getElementById('root')!).render(
       <HashRouter>
         <RootLayout />
       </HashRouter>
+
+      {/* Dev only: the production build drops it as dead code. */}
+      {import.meta.env.DEV && (
+        <ReactQueryDevtools
+          buttonPosition="bottom-left"
+          position="bottom"
+          initialIsOpen={false}
+        />
+      )}
     </QueryClientProvider>
   </StrictMode>
 )
