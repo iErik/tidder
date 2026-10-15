@@ -76,11 +76,13 @@ export default function ReportCard({ thing, onCancel }: Props) {
   const radio = (value: Choice, label: string, key?: string) => (
     <div className={cx('form-input')} key={key}>
       <label className={cx('wrapper-input')}>
-        <input type="radio"
+        <input
+          type="radio"
           className={cx('input-radio')}
           name="reason"
           checked={sameChoice(choice, value)}
-          onChange={() => setChoice(value)} />
+          onChange={() => setChoice(value)}
+        />
         <p className={cx('label')}>{label}</p>
       </label>
     </div>
@@ -127,9 +129,11 @@ export default function ReportCard({ thing, onCancel }: Props) {
               </SubmitButton>
             </div>
             <div className={cx('form-control')}>
-              <button type="button"
+              <button
+                type="button"
                 className={cx('button secondary')}
-                onClick={rollback}>
+                onClick={rollback}
+              >
                 {isRuleReason ? 'Back' : 'Cancel'}
               </button>
             </div>
@@ -140,9 +144,11 @@ export default function ReportCard({ thing, onCancel }: Props) {
       {isSubmitted && (
         <div className={cx('form-success')}>
           <p>We've submitted your report. Thanks for letting us know!</p>
-          <button type="button"
+          <button
+            type="button"
             className={cx('button secondary')}
-            onClick={onCancel}>
+            onClick={onCancel}
+          >
             Close
           </button>
         </div>

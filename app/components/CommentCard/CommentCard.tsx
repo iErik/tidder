@@ -43,26 +43,31 @@ export default function CommentCard({ comment: rawComment, isParent }: Props) {
 
   return (
     <div className={cx('host')}>
-      <div className={cx('comment-card-layout', {
-        'is-parent': isParent,
-        'has-child': comment.replies,
-        'is-collapsed': isCollapsed
-      })}>
+      <div
+        className={cx('comment-card-layout', {
+          'is-parent': isParent,
+          'has-child': comment.replies,
+          'is-collapsed': isCollapsed
+        })}
+      >
 
         <div className={cx('section-comment')}>
           <div className={cx('comment-score')}>
             <ScoreButton
               score={score}
               likes={comment.likes}
-              onVote={(dir) => voteThing(comment, dir)} />
+              onVote={(dir) => voteThing(comment, dir)}
+            />
           </div>
 
           <div className={cx('comment-contents')}>
             <div className={cx('comment-meta')}>
               <p className={cx('meta')}>
-                <a href=""
+                <a
+                  href=""
                   className={cx('meta-collapse')}
-                  onClick={toggleCollapse}>
+                  onClick={toggleCollapse}
+                >
                   {isCollapsed ? '[+]' : '[–]'}
                 </a>{' '}
                 <span className={cx('meta-author bold-text')}>
@@ -93,8 +98,10 @@ export default function CommentCard({ comment: rawComment, isParent }: Props) {
               ))}
 
             {replyLimit < replies.length && (
-              <div className={cx('reply-pagination')}
-                onClick={() => setReplyLimit(replyLimit + 3)}>
+              <div
+                className={cx('reply-pagination')}
+                onClick={() => setReplyLimit(replyLimit + 3)}
+              >
                 <span className={cx('label')}>Load more replies</span>
               </div>
             )}

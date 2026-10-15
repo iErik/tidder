@@ -51,6 +51,7 @@ export default function SafeHtml({ html, className, embed = false }: Props) {
     <div
       className={className}
       onClick={openLink}
-      dangerouslySetInnerHTML={{ __html: clean }} />
+      dangerouslySetInnerHTML={{ __html: clean }}
+    />
   )
 }

@@ -128,7 +128,8 @@ export default function PostFeed({ onFeedAction }: Props) {
                   <PostFeedCard
                     post={post}
                     displaySubreddit={displaySub}
-                    onFeedAction={onFeedAction} />
+                    onFeedAction={onFeedAction}
+                  />
                 </li>
               ))}
             </ul>

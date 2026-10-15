@@ -89,7 +89,8 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
               <ScoreButton
                 score={abbreviate(post.score, 1, 1)}
                 likes={post.likes}
-                onVote={(dir) => voteThing(post, dir)} />
+                onVote={(dir) => voteThing(post, dir)}
+              />
             </div>
 
             <div className={cx('post-header')}>
@@ -100,9 +101,11 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
               </div>
 
               <div className={cx('post-link')}>
-                <a href="#"
+                <a
+                  href="#"
                   className={cx('link')}
-                  onClick={(ev) => openExternal(ev, post.url)}>
+                  onClick={(ev) => openExternal(ev, post.url)}
+                >
                   {post.title}
                 </a>
               </div>
@@ -117,41 +120,51 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
               <div className={cx('post-actions')}>
                 <div className={cx('post-action')}>
                   <span className={cx('btn-action')}>
-                    <a href="#"
-                      onClick={(ev) => openExternal(ev, `https://www.reddit.com${post.permalink}`)}>
+                    <a
+                      href="#"
+                      onClick={(ev) => openExternal(ev, `https://www.reddit.com${post.permalink}`)}
+                    >
                       {post.num_comments} comments
                     </a>
                   </span>
                 </div>
                 <div className={cx('post-action')}>
-                  <button type="button"
+                  <button
+                    type="button"
                     className={cx('btn-action')}
-                    onClick={() => saveThing(post, !post.saved)}>
+                    onClick={() => saveThing(post, !post.saved)}
+                  >
                     {post.saved ? 'Unsave' : 'Save'}
                   </button>
                 </div>
                 <div className={cx('post-action')}>
-                  <button type="button"
+                  <button
+                    type="button"
                     className={cx('btn-action')}
                     onClick={() =>
                       onFeedAction({ type: 'report', thing: post })}
-                    disabled={post.reported}>
+                    disabled={post.reported}
+                  >
                     {post.reported ? 'Reported' : 'Report'}
                   </button>
                 </div>
                 <div className={cx('post-action')}>
-                  <button type="button"
+                  <button
+                    type="button"
                     className={cx('btn-action')}
                     onClick={() =>
-                      onFeedAction({ type: 'share', thing: post })}>
+                      onFeedAction({ type: 'share', thing: post })}
+                  >
                     Share
                   </button>
                 </div>
                 <div className={cx('post-action')}>
                   {showContent && (
-                    <button type="button"
+                    <button
+                      type="button"
                       className={cx('btn-action')}
-                      onClick={() => setCollapsed(!isCollapsed)}>
+                      onClick={() => setCollapsed(!isCollapsed)}
+                    >
                       {isCollapsed ? 'Uncollapse' : 'Collapse'}
                     </button>
                   )}
@@ -161,17 +174,23 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
           </div>
 
           {showContent && (
-            <div className={cx('post-content',
-              { 'is-collapsed': isCollapsed })}>
+            <div
+              className={cx('post-content',
+                { 'is-collapsed': isCollapsed })}
+            >
 
               {post.is_self &&
-                <SafeHtml className={cx('post-text typography')}
-                  html={post.selftext_html} />}
+                <SafeHtml
+                  className={cx('post-text typography')}
+                  html={post.selftext_html}
+                />}
 
               {isEmbedded(post) &&
-                <SafeHtml className={cx('post-media')}
+                <SafeHtml
+                  className={cx('post-media')}
                   html={post.secure_media_embed.content}
-                  embed />}
+                  embed
+                />}
 
               {isImage(post) && (
                 <div className={cx('post-image')}>
@@ -181,12 +200,14 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
 
               {isVideo(post) && (
                 <div className={cx('post-video')}>
-                  <video className={cx('video')}
+                  <video
+                    className={cx('video')}
                     autoPlay={!post.is_video}
                     controls={post.is_video}
                     loop={!post.is_video}
                     muted={!post.is_video}
-                    src={videoSource(post)}>
+                    src={videoSource(post)}
+                  >
                   </video>
                 </div>
               )}

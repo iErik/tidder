@@ -51,20 +51,26 @@ export default function SharePostCard({ post }: Props) {
     <div className={cx('host')}>
       <div className={cx('social-icons')}>
         <div className={cx('social-icon')}>
-          <button className={cx('btn-social facebook')}
-            onClick={() => shareOnFacebook(postLink)}>
+          <button
+            className={cx('btn-social facebook')}
+            onClick={() => shareOnFacebook(postLink)}
+          >
             <i className="icn-facebook"></i>
           </button>
         </div>
         <div className={cx('social-icon')}>
-          <button className={cx('btn-social twitter')}
-            onClick={() => shareOnTwitter(postLink, post.title)}>
+          <button
+            className={cx('btn-social twitter')}
+            onClick={() => shareOnTwitter(postLink, post.title)}
+          >
             <i className="icn-twitter"></i>
           </button>
         </div>
         <div className={cx('social-icon')}>
-          <button className={cx('btn-social tumblr')}
-            onClick={() => shareOnTumblr(postLink, post.title)}>
+          <button
+            className={cx('btn-social tumblr')}
+            onClick={() => shareOnTumblr(postLink, post.title)}
+          >
             <i className="icn-tumblr"></i>
           </button>
         </div>
@@ -72,10 +78,12 @@ export default function SharePostCard({ post }: Props) {
 
       <div className={cx('wrapper-input')}>
         <p className={cx('label')}>Link: </p>
-        <input type="text"
+        <input
+          type="text"
           className={cx('input')}
           value={postLink}
-          onChange={(ev) => setPostLink(ev.target.value)} />
+          onChange={(ev) => setPostLink(ev.target.value)}
+        />
       </div>
     </div>
   )

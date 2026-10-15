@@ -62,15 +62,19 @@ export default function PostSubmit({ onCancel }: Props) {
   return (
     <div className={cx('host')}>
       <div className={cx('tab-group')}>
-        <div className={cx('tab', { 'is-active': post.kind === 'link' })}
-          onClick={() => setPost({ ...post, kind: 'link' })}>
+        <div
+          className={cx('tab', { 'is-active': post.kind === 'link' })}
+          onClick={() => setPost({ ...post, kind: 'link' })}
+        >
           <div className={cx('wrapper-label')}>
             <span className={cx('tab-label')}>Link</span>
           </div>
         </div>
 
-        <div className={cx('tab', { 'is-active': post.kind === 'self' })}
-          onClick={() => setPost({ ...post, kind: 'self' })}>
+        <div
+          className={cx('tab', { 'is-active': post.kind === 'self' })}
+          onClick={() => setPost({ ...post, kind: 'self' })}
+        >
           <div className={cx('wrapper-label')}>
             <span className={cx('tab-label')}>Text</span>
           </div>
@@ -81,19 +85,22 @@ export default function PostSubmit({ onCancel }: Props) {
 
         <div className={cx('form-input')}>
           <label htmlFor="post-title" className={cx('label')}>Title</label>
-          <input id="post-title"
+          <input
+            id="post-title"
             name="postTitle"
             type="text"
             className={cx('input')}
             required
             placeholder="Title..."
             value={post.title}
-            onChange={(ev) => update({ title: ev.target.value })} />
+            onChange={(ev) => update({ title: ev.target.value })}
+          />
         </div>
 
         <div className={cx('form-input')}>
           <label htmlFor="post-sub" className={cx('label')}>Subreddit</label>
-          <input id="post-sub"
+          <input
+            id="post-sub"
             name="postSub"
             type="text"
             className={cx('input')}
@@ -102,7 +109,8 @@ export default function PostSubmit({ onCancel }: Props) {
             list="post-sub-suggestions"
             placeholder="Subreddit..."
             value={post.sr}
-            onChange={(ev) => update({ sr: ev.target.value })} />
+            onChange={(ev) => update({ sr: ev.target.value })}
+          />
 
           <datalist id="post-sub-suggestions">
             {suggestions.map((name) =>
@@ -113,24 +121,28 @@ export default function PostSubmit({ onCancel }: Props) {
         {post.kind === 'link' && (
           <div className={cx('form-input')}>
             <label htmlFor="post-url" className={cx('label')}>URL</label>
-            <input id="post-url"
+            <input
+              id="post-url"
               name="postUrl"
               type="text"
               className={cx('input')}
               placeholder="URL..."
               value={post.url}
-              onChange={(ev) => update({ url: ev.target.value })} />
+              onChange={(ev) => update({ url: ev.target.value })}
+            />
           </div>
         )}
 
         {post.kind === 'self' && (
           <div className={cx('form-input')}>
             <label htmlFor="post-text" className={cx('label')}>Text</label>
-            <textarea id="post-text"
+            <textarea
+              id="post-text"
               name="postText"
               className={cx('textarea')}
               value={post.text}
-              onChange={(ev) => update({ text: ev.target.value })}>
+              onChange={(ev) => update({ text: ev.target.value })}
+            >
             </textarea>
           </div>
         )}
@@ -146,14 +158,17 @@ export default function PostSubmit({ onCancel }: Props) {
           <div className={cx('form-control')}>
             <SubmitButton
               isDisabled={!isDirty || !isValid}
-              isLoading={isLoading}>
+              isLoading={isLoading}
+            >
               Submit
             </SubmitButton>
           </div>
           <div className={cx('form-control')}>
-            <button type="button"
+            <button
+              type="button"
               className={cx('button secondary')}
-              onClick={onCancel}>
+              onClick={onCancel}
+            >
               Cancel
             </button>
           </div>
@@ -164,17 +179,21 @@ export default function PostSubmit({ onCancel }: Props) {
         <div className={cx('form-success')}>
           <p>Your post was successfully submitted!</p>
           <div className={cx('controls')}>
-            <a href="#"
+            <a
+              href="#"
               className={cx('button')}
               onClick={(ev) => {
                 ev.preventDefault()
                 window.tidder.openExternal(postUrl)
-              }}>
+              }}
+            >
               Go to post
             </a>
-            <button type="button"
+            <button
+              type="button"
               className={cx('button secondary')}
-              onClick={onCancel}>
+              onClick={onCancel}
+            >
               Close
             </button>
           </div>

@@ -46,13 +46,15 @@ export default function CommentEditor({
     <div className={cx('host')}>
       <div className={cx('comment-editor-layout', { 'is-child': isChild })}>
         <div className={cx('comment-editor-textarea')}>
-          <textarea className={cx('textarea')}
+          <textarea
+            className={cx('textarea')}
             name="comment-editor-textarea"
             onFocus={() => setFocus(true)}
             onBlur={() => setFocus(false)}
             spellCheck={hasFocus}
             value={text}
-            onChange={(ev) => setText(ev.target.value)}>
+            onChange={(ev) => setText(ev.target.value)}
+          >
           </textarea>
         </div>
 

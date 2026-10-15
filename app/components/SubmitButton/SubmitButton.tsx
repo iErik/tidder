@@ -25,10 +25,12 @@ export default function SubmitButton({
 }: Props) {
   return (
     <div className={cx('host')}>
-      <button type="submit"
+      <button
+        type="submit"
         className={cx('button', { outline, 'is-loading': isLoading })}
         disabled={isDisabled}
-        onClick={onClick}>
+        onClick={onClick}
+      >
 
         {isLoading && (
           <div className={cx('wrapper-spinner')}>

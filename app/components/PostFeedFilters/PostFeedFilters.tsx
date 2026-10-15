@@ -58,7 +58,8 @@ export default function PostFeedFilters({
             <SearchBar
               placeholder="Search"
               searchQuery={searchQuery}
-              onSearchQueryChange={setSearchQuery} />
+              onSearchQueryChange={setSearchQuery}
+            />
           </div>
         </div>
 

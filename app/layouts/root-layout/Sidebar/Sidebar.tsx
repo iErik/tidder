@@ -66,8 +66,10 @@ export default function Sidebar({ isActive }: Props) {
           <div className={cx('sidebar-section-entries-container')}>
             <ul className={cx('sidebar-section-sub-entries')}>
               {multis.map((multi) => (
-                <li key={multi.path}
-                  className={cx('sidebar-section-sub-entry')}>
+                <li
+                  key={multi.path}
+                  className={cx('sidebar-section-sub-entry')}
+                >
                   <Link to={multi.path} className={cx('sub-link')}>
                     <span className={cx('sub-prefix')}>m/</span>
                     <span className={cx('sub-name')}>{multi.display_name}</span>
@@ -99,8 +101,10 @@ export default function Sidebar({ isActive }: Props) {
               ))}
 
               {subscriptions.hasNextPage && (
-                <li onClick={loadMoreSubs}
-                  className={cx('sub-entry pagination')}>
+                <li
+                  onClick={loadMoreSubs}
+                  className={cx('sub-entry pagination')}
+                >
                   <span className={cx('label')}>Load more&hellip;</span>
                 </li>
               )}

@@ -120,11 +120,15 @@ export default function CommentFeed({ post }: Props) {
 
         <div className={cx('comments-modes')}>
           {SORT_MODES.map(([sort, label]) => (
-            <div key={sort}
+            <div
+              key={sort}
               className={cx('comments-mode',
-                { active: sortMode === sort })}>
-              <button className={cx('link-btn')}
-                onClick={() => changeSortMode(sort)}>
+                { active: sortMode === sort })}
+            >
+              <button
+                className={cx('link-btn')}
+                onClick={() => changeSortMode(sort)}
+              >
                 {label}
               </button>
             </div>
@@ -156,10 +160,12 @@ export default function CommentFeed({ post }: Props) {
 
           {hiddenCount > 0 && (
             <div className={cx('comments-morechildren')}>
-              <button type="button"
+              <button
+                type="button"
                 className={cx('btn-load button outline')}
                 disabled={loadingMore}
-                onClick={loadMore}>
+                onClick={loadMore}
+              >
                 Load {hiddenCount} more comments
               </button>
             </div>

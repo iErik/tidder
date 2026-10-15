@@ -17,7 +17,8 @@ export default function ScoreButton({ score, likes, onVote }: Props) {
     <div className={cx('host')}>
       <button
         onClick={() => onVote(likes ? 0 : 1)}
-        className={cx('btn-vote upvote', { 'is-active': likes === true })}>
+        className={cx('btn-vote upvote', { 'is-active': likes === true })}
+      >
         <i className="icn-arrow-up"></i>
       </button>
 
@@ -27,7 +28,8 @@ export default function ScoreButton({ score, likes, onVote }: Props) {
 
       <button
         onClick={() => onVote(likes === false ? 0 : -1)}
-        className={cx('btn-vote downvote', { 'is-active': likes === false })}>
+        className={cx('btn-vote downvote', { 'is-active': likes === false })}
+      >
         <i className="icn-arrow-down"></i>
       </button>
     </div>
