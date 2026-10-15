@@ -8,7 +8,19 @@ needs them
 - Single quotes and 2-space indentation
 - Try to keep lines 60 characters long or shorter as much as
 possible. 80 is the hard limit
-- `pnpm lint` enforces these (see below)
+- When a call's arguments have to wrap, break right after
+the opening parenthesis, put the arguments on the lines
+below, and close the call on a line of its own (not
+enforced by lint):
+
+  ```tsx
+  {subRules.map((rule) => radio(
+    { rule_reason: rule.violation_reason },
+    rule.short_name, rule.short_name
+  ))
+  }
+  ```
+- `pnpm lint` enforces the rest (see below)
 
 ## Project status
 
@@ -29,7 +41,7 @@ pnpm run build             # generate theme SCSS + `tsc --noEmit` + `vite build`
 pnpm start                 # build, then run Electron against the built files
 pnpm run build:pack        # build + electron-builder for this platform -> release/
 pnpm run build:pack:mac    # x64 + arm64 zips, ad-hoc signed (mac.identity "-")
-pnpm lint                  # ESLint over app/, electron/, scripts/ and root configs
+pnpm lint                  # ESLint over app/, electron/, scripts/, eslint-rules/ and root configs
 pnpm lint:fix              # the same, fixing what it can (formatting)
 ```
 
@@ -40,9 +52,11 @@ Linting is configured in `eslint.config.mjs`, and every rule is an error:
 - Stylistic formatting everywhere:
   - no semicolons, single quotes, 2-space indent, no trailing spaces;
   - 80 columns, with only lines containing a URL exempt. Split long strings into concatenations;
-  - function parameters and imported names either all share one line, or each gets its own line (`exp-list-style`).
+  - function parameters and imported names either all share one line, or each gets its own line (`exp-list-style`);
+  - an import longer than 60 characters gets one imported name per line (`local/import-length`, a local rule in `eslint-rules/`);
+  - once a JSX tag's attributes wrap, each attribute gets its own line (`jsx-max-props-per-line`).
 - `app/`: `typescript-eslint` `recommendedTypeChecked` and `react-hooks` `recommended`, with React Compiler rules. `no-misused-promises` doesn't check JSX attributes, so async event handlers need no `void`.
-- `electron/` (CommonJS) and `scripts/` (ESM): `@eslint/js` recommended with Node globals.
+- `electron/` (CommonJS), and `scripts/` and `eslint-rules/` (ESM): `@eslint/js` recommended with Node globals.
 - A finding that can't be fixed without a refactor gets `// eslint-disable-next-line <rule>`, with the reason in a comment on the lines above it.
 
 `pnpm install` sets up a husky pre-commit hook (the `prepare` script) that runs `eslint --fix` on staged TS/JS files through lint-staged, and blocks the commit if errors remain. The hook runs `pnpm`, so commit from inside the nix/direnv shell. `.git-blame-ignore-revs` lists formatting-only commits; enable it with `git config blame.ignoreRevsFile .git-blame-ignore-revs`.
