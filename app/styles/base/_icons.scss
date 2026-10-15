@@ -1,3 +1,19 @@
+//  Icons
+//  -----
+//  The SVGs rendered by <Icon> (components/Icon). They're sized
+//  and coloured like text: font-size and color set them.
+
+.icon {
+  display: block;
+  width:  1em;
+  height: 1em;
+
+  fill: currentColor;
+}
+
+//  Icon font
+//  ---------
+
 %icn, .icn:before {
   font-family:    'Reddit Icons';
   font-style:     normal !important;
