@@ -9,3 +9,6 @@ cd3e05864c1ba5f6a8b83fd0dd12214e5b7bce09
 
 # TDR-6: Apply the import and JSX attribute formatting fixes
 ad52afd0891aca8f208f411ec4a7a5871b5cde79
+
+# TDR-6: Apply the JSX first-attribute and closing formatting
+b5162398c94efec6118e6f5a7fce4123b3b75a42

@@ -54,7 +54,7 @@ Linting is configured in `eslint.config.mjs`, and every rule is an error:
   - 80 columns, with only lines containing a URL exempt. Split long strings into concatenations;
   - function parameters and imported names either all share one line, or each gets its own line (`exp-list-style`);
   - an import longer than 60 characters gets one imported name per line (`local/import-length`, a local rule in `eslint-rules/`);
-  - once a JSX tag's attributes wrap, each attribute gets its own line (`jsx-max-props-per-line`).
+  - once a JSX tag's attributes wrap, each attribute gets its own line, the first one included, and the closing `>` or `/>` goes on a line of its own, aligned with the tag (`jsx-max-props-per-line`, `jsx-first-prop-new-line`, `jsx-closing-bracket-location`).
 - `app/`: `typescript-eslint` `recommendedTypeChecked` and `react-hooks` `recommended`, with React Compiler rules. `no-misused-promises` doesn't check JSX attributes, so async event handlers need no `void`.
 - `electron/` (CommonJS), and `scripts/` and `eslint-rules/` (ESM): `@eslint/js` recommended with Node globals.
 - A finding that can't be fixed without a refactor gets `// eslint-disable-next-line <rule>`, with the reason in a comment on the lines above it.
