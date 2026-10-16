@@ -10,10 +10,15 @@ import RootLayout from 'layouts/root-layout/RootLayout'
 
 import { setup } from 'core/auth'
 import { queryClient } from 'core/queryClient'
+import { toast } from 'core/toasts'
 
 import './styles/index.scss'
 
 setup()
+
+// Dev only, like the devtools below: fire Toasts from the
+// DevTools console.
+if (import.meta.env.DEV) window.toast = toast
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

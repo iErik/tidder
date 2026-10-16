@@ -9,6 +9,7 @@ import Comment from './icons/comment.svg?react'
 import Default from './icons/default.svg?react'
 import Facebook from './icons/facebook.svg?react'
 import Gear from './icons/gear.svg?react'
+import Information from './icons/information.svg?react'
 import MaximizeDarwin from './icons/maximize-darwin.svg?react'
 import Maximize from './icons/maximize.svg?react'
 import Menu from './icons/menu.svg?react'
@@ -23,6 +24,7 @@ import Spoiler from './icons/spoiler.svg?react'
 import Tumblr from './icons/tumblr.svg?react'
 import Twitter from './icons/twitter.svg?react'
 import UnmaximizeDarwin from './icons/unmaximize-darwin.svg?react'
+import Verify from './icons/verify.svg?react'
 
 // Every icon, by name. To add one, drop its SVG in icons/
 // (drawn on a square viewBox, without fill colours) and
@@ -39,6 +41,7 @@ const icons = {
   'default': Default,
   'facebook': Facebook,
   'gear': Gear,
+  'information': Information,
   'maximize-darwin': MaximizeDarwin,
   'maximize': Maximize,
   'menu': Menu,
@@ -52,7 +55,8 @@ const icons = {
   'spoiler': Spoiler,
   'tumblr': Tumblr,
   'twitter': Twitter,
-  'unmaximize-darwin': UnmaximizeDarwin
+  'unmaximize-darwin': UnmaximizeDarwin,
+  'verify': Verify
 }
 
 export type IconName = keyof typeof icons
