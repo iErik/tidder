@@ -38,11 +38,16 @@ function storeSession(expiresIn: number) {
     String(Date.now() + expiresIn))
 }
 
-// Lets pending promises and fetch responses finish. Only
-// setTimeout and Date are faked, so setImmediate is real
-async function settle() {
-  for (let i = 0; i < 10; i++)
-    await new Promise((resolve) => setImmediate(resolve))
+// Lets the code under test finish what it started: auth
+// doesn't return its promises (setup() fires off the
+// identity request), so a test can't await them. This isn't
+// a sleep, since no time passes. setImmediate runs on the
+// event loop's next turn, after every promise callback
+// already queued, so awaiting it lets the stubbed fetch, its
+// JSON and the state updates run. It stays real because
+// only setTimeout, clearTimeout and Date are faked.
+function settle() {
+  return new Promise((resolve) => setImmediate(resolve))
 }
 
 // A call to the fake bridge that only answers when the test
