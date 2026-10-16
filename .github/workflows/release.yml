@@ -1,0 +1,179 @@
+# Packages the app for every platform and publishes it as a
+# GitHub release. The version is the next free number on the
+# release line in package.json (scripts/next-version.mjs);
+# nothing is committed back to master
+name: Release
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'app/**'
+      - 'electron/**'
+      - 'resources/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'vite.config.mts'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Package only: no tag, no release'
+        type: boolean
+        default: false
+
+# One release at a time, so two runs can't take the same
+# number. Runs queue instead of being cancelled, but GitHub
+# keeps only one pending run per group: a newer one replaces
+# it
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    uses: ./.github/workflows/checks.yml
+
+  version:
+    name: Pick the version
+    needs: checks
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.next.outputs.version }}
+      prerelease: ${{ steps.next.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - id: next
+        run: node scripts/next-version.mjs
+
+  package:
+    name: Package (${{ matrix.os }})
+    needs: version
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - os: mac
+            runner: macos-latest
+            flags: --mac --x64 --arm64
+            files: release/Tidder-*.zip
+          - os: win
+            runner: windows-latest
+            flags: --win --x64
+            files: release/Tidder-*.exe
+          - os: linux
+            runner: ubuntu-latest
+            flags: --linux --x64
+            files: |
+              release/Tidder-*.AppImage
+              release/Tidder-*.deb
+              release/Tidder-*.rpm
+    defaults:
+      run:
+        shell: bash
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      # electron-builder needs rpmbuild for the .rpm
+      - if: matrix.os == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y rpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+
+      # extraMetadata puts the version into the packaged
+      # package.json, which app.getVersion() reads
+      - run: >-
+          pnpm exec electron-builder ${{ matrix.flags }}
+          --publish never
+          -c.extraMetadata.version="$VERSION"
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: packages-${{ matrix.os }}
+          path: ${{ matrix.files }}
+          if-no-files-found: error
+
+  # Runs only when every packaging job succeeded, so a failed
+  # run leaves no tag and no partial release
+  release:
+    name: Publish the release
+    needs: [version, package]
+    if: >-
+      !inputs.dry_run && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      PRERELEASE: ${{ needs.version.outputs.prerelease }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: packages-*
+          merge-multiple: true
+          path: packages
+
+      - name: Check the files
+        run: |
+          base="Tidder-$VERSION"
+          printf '%s\n' \
+            "$base-linux-x64.AppImage" \
+            "$base-linux-x64.deb" \
+            "$base-linux-x64.rpm" \
+            "$base-mac-arm64.zip" \
+            "$base-mac-x64.zip" \
+            "$base-win-x64-portable.exe" \
+            "$base-win-x64-setup.exe" \
+            | sort > expected.txt
+          ls packages | sort > actual.txt
+          diff expected.txt actual.txt
+
+      - name: Write the notes
+        run: |
+          cat > notes.md <<'EOF'
+          ## Installing
+
+          The builds aren't signed yet, so the OS warns about
+          them the first time:
+
+          - **macOS**: move Tidder to Applications, then run
+            `xattr -cr /Applications/Tidder.app`, or right-click
+            the app and choose Open.
+          - **Windows**: on the SmartScreen prompt, click More
+            info, then Run anyway.
+
+          EOF
+
+      # Creates the tag on the commit that was built
+      - name: Publish
+        run: |
+          if [ "$PRERELEASE" = true ]
+          then kind=(--prerelease --latest=false)
+          else kind=(--latest)
+          fi
+
+          gh release create "v$VERSION" packages/* \
+            --target "$GITHUB_SHA" \
+            --title "v$VERSION" \
+            --notes-file notes.md \
+            --generate-notes \
+            "${kind[@]}"

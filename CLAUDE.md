@@ -28,7 +28,7 @@ Tidder is an Electron + React Reddit desktop client, originally written in Angul
 
 ## Environment and commands
 
-Node 24 and pnpm 12 come from `flake.nix`. Use `nix develop`, or direnv (`.envrc` contains `use flake`). Use pnpm with `pnpm-lock.yaml`; npm and yarn are no longer used. pnpm's settings are in `pnpm-workspace.yaml`:
+Node 24 and pnpm 12 come from `flake.nix`, and `packageManager` in `package.json` pins the exact pnpm version (CI reads it). Use `nix develop`, or direnv (`.envrc` contains `use flake`). Use pnpm with `pnpm-lock.yaml`; npm and yarn are no longer used. pnpm's settings are in `pnpm-workspace.yaml`:
 
 - `nodeLinker: hoisted` gives a flat `node_modules`, which electron-builder needs to package the app.
 - pnpm fails the install when a dependency has an unapproved build script. `allowBuilds` lists each one explicitly, and none are allowed (Vite 8 bundles with Rolldown, so there's no esbuild postinstall). Add new ones with `pnpm approve-builds`.
@@ -53,11 +53,11 @@ pnpm test:coverage         # run once with a v8 coverage report in coverage/ (no
 Tests run on Vitest, configured in `vitest.config.mts` with two projects:
 
 - `renderer`: `app/**/*.test.{ts,tsx}` in happy-dom. It merges `vite.config.mts`, so import aliases, the React plugin and Sass work as in the app. SCSS modules are compiled (that's why the scripts generate the theme SCSS first), so a test sees the classes a module really defines.
-- `main`: `electron/**/*.test.js` in Node.
+- `main`: `electron/**/*.test.js` and `scripts/**/*.test.mjs` in Node. Script tests get the same fake `electron` setup, and simply don't use it.
 
 Conventions:
 
-- A test file sits next to the code it tests (`timeAgo.test.ts` beside `timeAgo.ts`). Renderer tests are TypeScript and import `describe`, `it`, `expect` and `vi` from `vitest` (there are no globals). Main-process tests are plain JS, written as ES modules because Vitest can't be required.
+- A test file sits next to the code it tests (`timeAgo.test.ts` beside `timeAgo.ts`). Renderer tests are TypeScript and import `describe`, `it`, `expect` and `vi` from `vitest` (there are no globals). Main-process tests are plain JS, written as ES modules because Vitest can't be required. Script tests are `.mjs`, like the scripts.
 - Hooks are tested with `renderHook` from `@testing-library/react`. There are no component tests yet.
 - `app/test/setup.ts` installs a fake `window.tidder` (`app/test/fakeTidder.ts`) before each test: every method a `vi.fn()`, settings in memory, seeded from `app/config/settings.json`, and logged out. It's typed against `TidderBridge`, so it stops compiling when the bridge changes. Stub or check it through `tidder()`, e.g. `tidder().auth.refresh.mockResolvedValue(null)`. Each test's fake is copied into the objects already installed, since modules like `core/useSetting` keep a reference from import time. `localStorage` is cleared too. Limits of the fake:
   - Stub methods on the installed fake. Assigning a new `window.tidder` or `window.tidder.settings` orphans the object a module already holds, for the rest of the file.
@@ -81,6 +81,26 @@ Linting is configured in `eslint.config.mjs`, and every rule is an error:
 - A finding that can't be fixed without a refactor gets `// eslint-disable-next-line <rule>`, with the reason in a comment on the lines above it.
 
 `pnpm install` sets up a husky pre-commit hook (the `prepare` script) that runs `eslint --fix` on staged TS/JS files through lint-staged, and blocks the commit if errors remain. The hook runs `pnpm`, so commit from inside the nix/direnv shell. `.git-blame-ignore-revs` lists formatting-only commits; enable it with `git config blame.ignoreRevsFile .git-blame-ignore-revs`.
+
+## CI and releases
+
+GitHub Actions, in `.github/workflows/`. Neither uses the Nix flake: they set up Node 24 with `actions/setup-node` and pnpm with `pnpm/action-setup` (from `packageManager`), and cache the pnpm store.
+
+- `checks.yml` runs on pull requests to `master`, and is called by `release.yml`. On Ubuntu: `pnpm install --frozen-lockfile`, `pnpm run build`, `pnpm lint`, `pnpm test`.
+- `release.yml` runs on pushes to `master` that change `app/`, `electron/`, `resources/`, `scripts/`, `package.json`, `pnpm-lock.yaml` or `vite.config.mts`, and manually from the Actions tab. It runs the checks, picks the version, packages on macOS, Windows and Linux (one job each, uploading the files as workflow artifacts), and then, only if every packaging job succeeded, publishes the release. That last job is the only one with `contents: write`, and `gh release create` makes the tag, so a failed run leaves no tag.
+  - A manual run with `dry_run` packages and uploads the files, and skips the release. The release job also only runs on `master`.
+  - Runs share one concurrency group and are never cancelled. GitHub keeps only one *pending* run per group, though: if a third run arrives while one runs and one waits, it replaces the waiting one, which then never releases.
+  - Workflows never commit to `master`.
+
+Versions: `package.json`'s `version` is the release line, not a version. `scripts/next-version.mjs` gives the next release the next free number on it, after the highest `v<line>.N` tag on `origin`: line `1.0.0-beta` gives `1.0.0-beta.1`, `.2`… and a stable line like `1.1` gives `1.1.0`, `1.1.1`… Moving to a new line is a manual `package.json` edit. The workflow passes the version to electron-builder with `-c.extraMetadata.version`, so the packaged app's `app.getVersion()` (and the User-Agent) report it. A local `build:pack` reports the line. A version with a pre-release part is published as a pre-release; otherwise as a full release, marked latest. Release notes are GitHub's generated changes, after a fixed "Installing" section (the unsigned-app workarounds).
+
+Artifacts are named `Tidder-<version>-<os>-<arch>[-portable|-setup].<ext>` (`artifactName` per target in `build`):
+
+- `Tidder-1.0.0-beta.4-mac-arm64.zip`, `Tidder-1.0.0-beta.4-mac-x64.zip`
+- `Tidder-1.0.0-beta.4-win-x64-portable.exe`, `Tidder-1.0.0-beta.4-win-x64-setup.exe` (NSIS)
+- `Tidder-1.0.0-beta.4-linux-x64.AppImage`, `.deb`, `.rpm`
+
+The Linux pattern spells `x64` out because electron-builder's `${arch}` is `x86_64` for AppImage and rpm, and `amd64` for deb.
 
 ## Architecture
 

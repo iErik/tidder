@@ -1,0 +1,32 @@
+# Type-checks, builds, lints and tests the app. Runs on pull
+# requests, and before every release (release.yml calls it)
+name: Checks
+
+on:
+  pull_request:
+    branches: [master]
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Build, lint and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # The pnpm version comes from package.json's
+      # packageManager field
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+      - run: pnpm lint
+      - run: pnpm test

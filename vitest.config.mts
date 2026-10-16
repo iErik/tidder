@@ -10,8 +10,9 @@ import viteConfig from './vite.config.mts'
 const rootDir = fileURLToPath(new URL('.', import.meta.url))
 
 // One run, two projects. The renderer merges the Vite config
-// (aliases, Sass, React); the main process runs in plain
-// Node. Both take their paths from the repo root, not app/
+// (aliases, Sass, React); the main process and scripts/ run
+// in plain Node. Both take their paths from the repo root,
+// not app/
 export default defineConfig({
   test: {
     // One report for both projects. There's no threshold
@@ -40,7 +41,10 @@ export default defineConfig({
           name: 'main',
           root: rootDir,
           environment: 'node',
-          include: ['electron/**/*.test.js'],
+          include: [
+            'electron/**/*.test.js',
+            'scripts/**/*.test.mjs'
+          ],
           setupFiles: ['electron/test/setup.js']
         }
       }
