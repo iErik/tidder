@@ -74,10 +74,11 @@ describe('redditFetch', () => {
     async () => {
       const fetch = stubFetch(jsonResponse({ }))
       const { redditFetch } = await loadClient()
+      const id = 't3_abc'
 
       await redditFetch('/api/vote', {
         method: 'POST',
-        params: { id: 't3_abc', dir: 1 }
+        params: { id, dir: 1 }
       })
 
       const { url, init } = request(fetch)
@@ -88,7 +89,7 @@ describe('redditFetch', () => {
         .toEqual({
           raw_json: '1',
           api_type: 'json',
-          id: 't3_abc',
+          id,
           dir: '1'
         })
     })

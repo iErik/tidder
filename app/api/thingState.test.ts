@@ -111,14 +111,15 @@ describe('optimistic changes', () => {
   it('send the matching request', async () => {
     const state = await loadThingState()
     const fetch = stubFetch(jsonResponse({ }))
+    const thing = post()
 
-    await state.voteThing(post(), -1)
+    await state.voteThing(thing, -1)
 
     const [url, init] = fetch.mock.calls[0]
     expect(url).toBeInstanceOf(URL)
     expect((url as URL).pathname).toBe('/api/vote')
     expect(Object.fromEntries(init?.body as URLSearchParams))
-      .toMatchObject({ id: 't3_abc', dir: '-1' })
+      .toMatchObject({ id: thing.name, dir: '-1' })
   })
 })
 
