@@ -36,6 +36,10 @@ The agent needs to know when it's done. Every agent brief must have concrete, te
 
 State what is out of scope. This prevents the agent from gold-plating or making assumptions about adjacent features.
 
+### Delivery within the PR size limit
+
+Each PR has a size limit, set in the repo's issue-tracker guide (`docs/agents/issue-tracker.md`, "PR size"). When the work is likely to go over it, the brief says how to split it into PRs that each stand on their own, and in what order. Split by behaviour (setup first, then each area), not by file. Never ask for fewer PRs than the limit allows: if the agent finds the work is bigger than planned, the limit wins, and it splits further.
+
 ## Template
 
 ```markdown
@@ -65,6 +69,10 @@ Be specific about edge cases and error conditions.
 **Out of scope:**
 - Thing that should NOT be changed or addressed in this issue
 - Adjacent feature that might seem related but is separate
+
+**Delivery:** (only when the work won't fit one PR)
+1. First PR: what it covers
+2. Second PR: what it covers, and what it waits on
 ```
 
 ## Examples

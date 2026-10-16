@@ -125,7 +125,7 @@ Linting is configured in `eslint.config.mjs`, and every rule is an error:
 
 ### Issue tracker
 
-Issues live in Tidder's Team board within Linear, managed with Linear's MCP. See `docs/agents/issue-tracker.md`.
+Issues live in Tidder's Team board within Linear, managed with Linear's MCP. See `docs/agents/issue-tracker.md`. Every PR has at most 700 changed lines, not counting generated files ("PR size" there says what counts and how to measure it). A ticket that needs more is split into several PRs, each announced on the ticket.
 
 ### Triage labels
 
