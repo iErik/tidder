@@ -140,7 +140,7 @@ export async function getMoreComments(
 
 // Nests each comment under its parent when the parent is in the same
 // batch. Comments whose parent isn't in the batch are the top of the tree.
-function unflattenComments(things: (CommentThing | MoreThing)[]) {
+export function unflattenComments(things: (CommentThing | MoreThing)[]) {
   const byName = new Map<string, CommentThing>()
   const roots: CommentThing[] = []
   let more: MoreThing | null = null
