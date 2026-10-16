@@ -118,7 +118,13 @@ describe('closing on its own', () => {
   })
 
   it('closes after a custom duration', async () => {
-    const { toast, run, advance, result } = await loadToasts()
+    const {
+      toast,
+      run,
+      advance,
+      result,
+      ids
+    } = await loadToasts()
 
     run(() => toast.success('Done', { duration: 2 * SECOND }))
 
@@ -127,6 +133,9 @@ describe('closing on its own', () => {
 
     advance(1)
     expect(result.current[0].closing).toBe(true)
+
+    advance(300)
+    expect(ids()).toEqual([])
   })
 
   it('uses the configured default duration', async () => {
@@ -135,14 +144,21 @@ describe('closing on its own', () => {
       toast,
       run,
       advance,
-      result
+      result,
+      ids
     } = await loadToasts()
 
     configureToasts({ duration: 3 * SECOND })
     run(() => toast.success('Done'))
 
-    advance(3 * SECOND)
+    advance(3 * SECOND - 1)
+    expect(result.current[0].closing).toBe(false)
+
+    advance(1)
     expect(result.current[0].closing).toBe(true)
+
+    advance(300)
+    expect(ids()).toEqual([])
   })
 
   it.each([0, null])('stays open with a duration of %s',
@@ -181,8 +197,13 @@ describe('dismissToast', () => {
   })
 
   it('leaves the other Toasts alone', async () => {
-    const { dismissToast, toast, run, advance, ids } =
-      await loadToasts()
+    const {
+      dismissToast,
+      toast,
+      run,
+      advance,
+      ids
+    } = await loadToasts()
 
     const first = run(() => toast.error('Failed'))
     const second = run(() => toast.success('Done'))
@@ -194,8 +215,13 @@ describe('dismissToast', () => {
   })
 
   it('ignores an unknown or already closing Toast', async () => {
-    const { dismissToast, toast, run, advance, ids } =
-      await loadToasts()
+    const {
+      dismissToast,
+      toast,
+      run,
+      advance,
+      ids
+    } = await loadToasts()
 
     const id = run(() => toast.error('Failed'))
 
@@ -218,7 +244,8 @@ describe('pausing', () => {
       toast,
       run,
       advance,
-      result
+      result,
+      ids
     } = await loadToasts()
 
     const id = run(() => toast.success('Done'))
@@ -236,11 +263,20 @@ describe('pausing', () => {
 
     advance(1)
     expect(result.current[0].closing).toBe(true)
+
+    advance(300)
+    expect(ids()).toEqual([])
   })
 
   it('pauses only that Toast', async () => {
-    const { pauseToast, toast, run, advance, result } =
-      await loadToasts()
+    const {
+      pauseToast,
+      toast,
+      run,
+      advance,
+      result,
+      ids
+    } = await loadToasts()
 
     const paused = run(() => toast.success('Paused'))
     run(() => toast.success('Running'))
@@ -250,6 +286,9 @@ describe('pausing', () => {
 
     expect(result.current.map((item) => item.closing))
       .toEqual([false, true])
+
+    advance(300)
+    expect(ids()).toEqual([paused])
   })
 
   it('ignores a second pause or resume', async () => {
@@ -259,7 +298,8 @@ describe('pausing', () => {
       toast,
       run,
       advance,
-      result
+      result,
+      ids
     } = await loadToasts()
 
     const id = run(() => toast.success('Done'))
@@ -278,6 +318,9 @@ describe('pausing', () => {
 
     advance(1)
     expect(result.current[0].closing).toBe(true)
+
+    advance(300)
+    expect(ids()).toEqual([])
   })
 
   it('does nothing to a Toast that stays open', async () => {

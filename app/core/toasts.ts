@@ -148,8 +148,8 @@ export function dismissToast(id: ToastId): void {
   }, FADE_DURATION)
 }
 
-// Stops the Toast's timer while the pointer is over it, and
-// restarts it with the time that was left.
+// Stops the Toast's timer, keeping the time that was left.
+// The Toaster calls it when the pointer enters a Toast.
 export function pauseToast(id: ToastId): void {
   const timer = timers.get(id)
   if (timer?.handle === undefined) return
@@ -159,6 +159,8 @@ export function pauseToast(id: ToastId): void {
   timer.remaining -= Date.now() - timer.startedAt
 }
 
+// Restarts a paused Toast's timer with the time that was
+// left. The Toaster calls it when the pointer leaves.
 export function resumeToast(id: ToastId): void {
   const timer = timers.get(id)
   if (!timer || timer.handle !== undefined) return
