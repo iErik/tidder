@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-query-devtools'
 
 import RootLayout from 'layouts/root-layout/RootLayout'
+import Toaster from 'components/Toaster/Toaster'
 
 import { setup } from 'core/auth'
 import { queryClient } from 'core/queryClient'
@@ -26,6 +27,10 @@ createRoot(document.getElementById('root')!).render(
       <HashRouter>
         <RootLayout />
       </HashRouter>
+
+      {/* Outside RootLayout's login check, so Toasts show
+          on the login screen too */}
+      <Toaster />
 
       {/* Dev only: the production build drops it as dead code. */}
       {import.meta.env.DEV && (
