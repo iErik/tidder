@@ -122,12 +122,22 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      commit: ${{ steps.commit.outputs.commit }}
     env:
       VERSION: ${{ needs.version.outputs.version }}
       PRERELEASE: ${{ needs.version.outputs.prerelease }}
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
     steps:
+      # The commit that was built. Checked out first, since
+      # checkout empties the workspace
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
       - uses: actions/download-artifact@v5
         with:
           pattern: packages-*
@@ -165,7 +175,34 @@ jobs:
 
           EOF
 
-      # Creates the tag on the commit that was built
+      # The tag points at the built commit plus the `version`
+      # bump, so the tagged package.json shows the release.
+      # Without a bump to make (a new line's first version), it's
+      # the built commit itself. Only the tag is pushed here, not
+      # master
+      - id: commit
+        name: Tag the release commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email \
+            '41898283+github-actions[bot]@users.noreply.github.com'
+
+          result=$(GITHUB_OUTPUT= \
+            node scripts/next-version.mjs bump "$VERSION")
+          if [ "$result" = bumped=true ]; then
+            if [ "$(git diff --numstat)" != \
+              "$(printf '1\t1\tpackage.json')" ]; then
+              echo "::error::The bump changed more than the version"
+              git diff
+              exit 1
+            fi
+
+            git commit -qm "Release v$VERSION [skip ci]" package.json
+          fi
+
+          git push origin "HEAD:refs/tags/v$VERSION"
+          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
       - name: Publish
         run: |
           if [ "$PRERELEASE" = true ]
@@ -173,12 +210,17 @@ jobs:
           else kind=(--latest)
           fi
 
-          gh release create "v$VERSION" packages/* \
-            --target "$GITHUB_SHA" \
+          # No tag without its release
+          if ! gh release create "v$VERSION" packages/* \
+            --verify-tag \
             --title "v$VERSION" \
             --notes-file notes.md \
             --generate-notes \
             "${kind[@]}"
+          then
+            git push origin ":refs/tags/v$VERSION"
+            exit 1
+          fi
 
   # Sets package.json's `version` to the release on master. The
   # App bypasses master's ruleset and the checks for this commit
@@ -193,6 +235,7 @@ jobs:
       contents: read
     env:
       VERSION: ${{ needs.version.outputs.version }}
+      RELEASE_COMMIT: ${{ needs.release.outputs.commit }}
       CLIENT_ID: ${{ vars.RELEASE_APP_CLIENT_ID }}
       HAS_KEY: ${{ secrets.RELEASE_APP_PRIVATE_KEY != '' }}
     steps:
@@ -232,6 +275,21 @@ jobs:
           git config user.email \
             "$id+$SLUG[bot]@users.noreply.github.com"
 
+          # Usually master is still at the built commit. It then
+          # fast-forwards to the tagged release commit, which only
+          # adds the bump, so the tag sits on master's history
+          if [ "$RELEASE_COMMIT" != "$GITHUB_SHA" ] &&
+            [ "$(git rev-parse HEAD)" = "$GITHUB_SHA" ]; then
+            git fetch -q origin "refs/tags/v$VERSION"
+            if git push origin "$RELEASE_COMMIT:refs/heads/master"
+            then exit 0
+            fi
+
+            git fetch origin master
+            git reset --hard origin/master
+          fi
+
+          # Otherwise, a bump commit of its own on master's head
           one_line=$(printf '1\t1\tpackage.json')
 
           # Retries from master's new head if a push lands first
