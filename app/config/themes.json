@@ -67,15 +67,15 @@
 
     , "success":
       { "base":   "#709260"
-      , "border": "#709260"
+      , "border": "#7FA36E"
       }
     , "warning":
       { "base":   "#928360"
-      , "border": "#928360"
+      , "border": "#AB986E"
       }
     , "error":
       { "base":   "#926061"
-      , "border": "#926061"
+      , "border": "#9E7676"
       }
     , "toast":
       { "foreground": "#FFFFFF"

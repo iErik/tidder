@@ -3,14 +3,15 @@
 //  Variables
 //  ---------
 
-// From the Figma frames, with the text and type icon scaled
-// from 9px and 15px up to 12px and 20px (x4/3)
+// From the Figma frames, with these scaled up by x4/3: text
+// 9px to 12px, type icon 15px to 20px, and the x box (with
+// its glyph) 14px to 19px
 $edge-spacing: 10px;
 $toast-max-width: 360px;
 $toast-radius: 6px;
 $font-size: 12px;
 $icon-size: 20px;
-$dismiss-size: 14px;
+$dismiss-size: 19px;
 
 $statuses: error, warning, success;
 
