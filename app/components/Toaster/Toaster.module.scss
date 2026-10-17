@@ -3,14 +3,14 @@
 //  Variables
 //  ---------
 
-// From the Figma frames, with these scaled up by x4/3: text
-// 9px to 12px, type icon 15px to 20px, and the x box (with
-// its glyph) 14px to 19px
+// From the Figma frames, with these scaled up: text 9px to
+// 12px, type icon 15px to 16px, and the x box (with its glyph)
+// 14px to 19px
 $edge-spacing: 10px;
 $toast-max-width: 360px;
 $toast-radius: 6px;
 $font-size: 12px;
-$icon-size: 20px;
+$icon-size: 16px;
 $dismiss-size: 19px;
 
 $statuses: error, warning, success;
@@ -51,8 +51,7 @@ $statuses: error, warning, success;
 
   font-family: $font-sans;
   font-size: $font-size;
-  // Lato SemiBold
-  font-weight: 500;
+  font-weight: 400;
   line-height: normal;
 
   pointer-events: auto;
