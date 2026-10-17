@@ -21,7 +21,7 @@ export default function SubInfoFeedCard({ subInfo: rawSubInfo }: Props) {
   const subscribed = subInfo.user_is_subscriber
 
   return (
-    <div className={cx('host')}>
+    <div className={cx('sub-info-feed-card')}>
       <div className={cx('card-thumbnail')}>
         <span
           className={cx('thumbnail', { 'is-static': !subInfo.icon_img })}

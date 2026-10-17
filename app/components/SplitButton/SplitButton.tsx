@@ -14,7 +14,7 @@ interface Props {
 
 export default function SplitButton({ buttonLabel, className, icon }: Props) {
   return (
-    <div className={cx('host', className)}>
+    <div className={cx('split-button', className)}>
       <div className={cx('split-btn-left')}>
         <span className={cx('label')}>
           {buttonLabel}

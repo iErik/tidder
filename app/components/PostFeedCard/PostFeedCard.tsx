@@ -50,7 +50,7 @@ export default function PostFeedCard({
   }
 
   return (
-    <div className={cx('host')}>
+    <div className={cx('post-feed-card')}>
       <div className={cx('post-score')}>
         <ScoreButton
           score={abbreviate(post.score, 1, 1)}

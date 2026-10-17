@@ -106,7 +106,7 @@ export default function CommentFeed({ post }: Props) {
   }
 
   return (
-    <div className={cx('host')}>
+    <div className={cx('comment-feed')}>
       <div className={cx('wrapper-comment-editor')}>
         <CommentEditor parentId={post.name} onCommentSubmitted={addComment} />
       </div>

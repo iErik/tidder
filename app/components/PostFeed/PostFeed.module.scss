@@ -7,7 +7,7 @@
 //  Object Structure
 //  ----------------
 
-.host {
+.post-feed {
   display: flex;
   flex-direction: column;
 
@@ -73,6 +73,6 @@
   }
 }
 
-:global(.root-container:not(.darwin)) .host {
+:global(.root-container:not(.darwin)) .post-feed {
   height: calc(100vh - #{$topbar-height + ($win32-border-width * 2)});
 }

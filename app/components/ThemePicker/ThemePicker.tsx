@@ -35,7 +35,7 @@ export default function ThemePicker() {
   }
 
   return (
-    <div className={cx('host')}>
+    <div className={cx('theme-picker')}>
       <div className={cx('theme-picker-layout')}>
         <div className={cx('theme-picker-toggle')}>
           <button

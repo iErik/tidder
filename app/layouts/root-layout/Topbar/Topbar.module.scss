@@ -6,7 +6,7 @@
 //  Object Structure
 //  ----------------
 
-.host {
+.topbar {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -147,7 +147,7 @@
   }
 }
 
-:global(.root-container:not(.darwin)) .host {
+:global(.root-container:not(.darwin)) .topbar {
   width: calc(100% - #{$win32-border-width * 2});
 
   top: $win32-border-width;

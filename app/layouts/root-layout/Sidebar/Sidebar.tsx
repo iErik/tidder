@@ -24,7 +24,7 @@ export default function Sidebar({ isActive }: Props) {
   }
 
   return (
-    <div className={cx('host', { 'is-active': isActive })}>
+    <div className={cx('sidebar', { 'is-active': isActive })}>
       <ul className={cx('sidebar-layout')}>
 
         <li className={cx('sidebar-section')}>

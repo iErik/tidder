@@ -8,7 +8,7 @@ $heading-button-spacing: 25px;
 //  Object Structure
 //  ----------------
 
-.host {
+.login-screen {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -118,7 +118,7 @@ $heading-button-spacing: 25px;
 //  Theming
 //  -------
 
-.host {
+.login-screen {
   @include themify {
     .heading { color: primary-color(); }
 

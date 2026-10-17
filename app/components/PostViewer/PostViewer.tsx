@@ -17,7 +17,7 @@ interface Props {
 
 export default function PostViewer({ currentPost, onFeedAction }: Props) {
   return (
-    <div className={cx('host')}>
+    <div className={cx('post-viewer')}>
       <PostCard post={currentPost} onFeedAction={onFeedAction} />
       <CommentFeed post={currentPost} />
     </div>

@@ -18,7 +18,7 @@ export default function SearchBar({
   placeholder = 'Type your search here...'
 }: Props) {
   return (
-    <div className={cx('host')}>
+    <div className={cx('search-bar')}>
       <input
         value={searchQuery}
         onChange={(ev) => onSearchQueryChange(ev.target.value)}

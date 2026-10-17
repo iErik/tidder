@@ -7,12 +7,12 @@
 //  Object Definition
 //  -----------------
 
-.host {
+.window-controls {
   display: flex;
   align-items: center;
   height: 100%;
 
-  .window-controls {
+  .window-controls-inner {
     display: flex;
     align-items: center;
     height: 100%;

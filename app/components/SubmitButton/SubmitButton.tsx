@@ -24,7 +24,7 @@ export default function SubmitButton({
   onClick
 }: Props) {
   return (
-    <div className={cx('host')}>
+    <div className={cx('submit-button')}>
       <button
         type="submit"
         className={cx('button', { outline, 'is-loading': isLoading })}

@@ -35,7 +35,7 @@ export default function Topbar({ onSidebarToggle }: Props) {
   const { pathname } = useLocation()
 
   return (
-    <div className={cx('host')}>
+    <div className={cx('topbar')}>
       <div className={cx('section section-left')}>
         <div className={cx('topbar-controls')}>
           <div className={cx('topbar-control')}>

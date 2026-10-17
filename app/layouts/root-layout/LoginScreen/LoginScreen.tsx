@@ -9,7 +9,7 @@ export default function LoginScreen() {
   const status = useAuth().loginStatus
 
   return (
-    <div className={cx('host')}>
+    <div className={cx('login-screen')}>
       <div className={cx('login-prompt')}>
         <h1 className={cx('heading')}>Sign in to Reddit</h1>
 
