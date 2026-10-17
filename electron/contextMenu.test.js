@@ -95,7 +95,8 @@ describe('download', { concurrent: false }, () => {
     const file = downloads('a.jpg')
     chooseFile(file)
     electron().net.fetch.mockResolvedValueOnce(
-      new Response('', { status: 404 }))
+      new Response('', { status: 404 })
+    )
 
     const result = await loadContextMenu()
       .download(null, IMAGE_URL, 'a.jpg')
@@ -127,6 +128,43 @@ describe('download', { concurrent: false }, () => {
 
     expect(result).toEqual({ status: 'failed' })
     expect(fs.readFileSync(file, 'utf8')).toBe('keep me')
+  })
+
+  it('leaves a file it couldn\'t open alone', async () => {
+    const file = downloads('read-only.jpg')
+    fs.writeFileSync(file, 'keep me')
+    fs.chmodSync(file, 0o444)
+    chooseFile(file)
+    electron().net.fetch.mockResolvedValueOnce(new Response('image'))
+
+    const result = await loadContextMenu()
+      .download(null, IMAGE_URL, 'read-only.jpg')
+
+    expect(result).toEqual({ status: 'failed' })
+    expect(fs.readFileSync(file, 'utf8')).toBe('keep me')
+  })
+
+  it('fails when the file can\'t be removed', async () => {
+    const file = downloads('a.jpg')
+    chooseFile(file)
+    electron().net.fetch.mockResolvedValueOnce(brokenResponse())
+    vi.spyOn(fs, 'rmSync').mockImplementation(() => {
+      throw new Error('EPERM')
+    })
+
+    const result = await loadContextMenu()
+      .download(null, IMAGE_URL, 'a.jpg')
+
+    expect(result).toEqual({ status: 'failed' })
+    expect(fs.rmSync).toHaveBeenCalled()
+  })
+
+  it('keeps the suggestion inside Downloads', async () => {
+    await loadContextMenu()
+      .download(null, IMAGE_URL, '../../outside.jpg')
+
+    const [options] = electron().dialog.showSaveDialog.mock.calls[0]
+    expect(options.defaultPath).toBe(downloads('outside.jpg'))
   })
 
   it('only downloads web URLs', async () => {

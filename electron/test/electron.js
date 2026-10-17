@@ -53,8 +53,10 @@ export function createElectron() {
 
     // The user cancels, unless a test stubs it
     dialog: {
-      showSaveDialog: vi.fn(() => Promise.resolve(
-        { canceled: true, filePath: '' }))
+      showSaveDialog: vi.fn(() => Promise.resolve({
+        canceled: true,
+        filePath: ''
+      }))
     },
 
     // Records the handlers, so a test can call them (see

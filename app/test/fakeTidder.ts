@@ -54,8 +54,9 @@ export function createFakeTidder(
       inspect: vi.fn(),
       copyImage: vi.fn(() => Promise.resolve()),
       writeText: vi.fn(),
-      download: vi.fn(() => Promise.resolve(
-        { status: 'cancelled' } as TidderDownloadResult)),
+      download: vi.fn(() => Promise.resolve<TidderDownloadResult>({
+        status: 'cancelled'
+      })),
 
       onForwarded: vi.fn((listener: ContextMenuListener) => {
         contextMenuListeners.add(listener)

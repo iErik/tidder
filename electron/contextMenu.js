@@ -33,8 +33,12 @@ async function download(win, url, suggestedName) {
   if (!isWebUrl(url))
     return { status: 'failed' }
 
+  // Only the name, so the dialog always starts in Downloads
   const options = {
-    defaultPath: path.join(app.getPath('downloads'), suggestedName)
+    defaultPath: path.join(
+      app.getPath('downloads'),
+      path.basename(suggestedName)
+    )
   }
   const { canceled, filePath } = win
     ? await dialog.showSaveDialog(win, options)
@@ -43,9 +47,10 @@ async function download(win, url, suggestedName) {
   if (canceled || !filePath)
     return { status: 'cancelled' }
 
-  // Only a file this download started writing is removed on failure,
-  // never one the user chose to replace that was never touched
-  let writing = false
+  // Only a file this download opened is removed on failure,
+  // never one it couldn't open, like a read-only file the
+  // user chose to replace
+  let opened = false
 
   try {
     const res = await net.fetch(url)
@@ -53,18 +58,28 @@ async function download(win, url, suggestedName) {
     if (!res.ok || !res.body)
       throw new Error(`${res.status} ${res.statusText} (${url})`)
 
-    writing = true
-    await pipeline(Readable.fromWeb(res.body),
-      fs.createWriteStream(filePath))
+    const file = fs.createWriteStream(filePath)
+    file.once('open', () => { opened = true })
+    await pipeline(Readable.fromWeb(res.body), file)
 
     return { status: 'saved', fileName: path.basename(filePath) }
   } catch (err) {
     console.error('Download failed:', err)
 
-    if (writing)
-      fs.rmSync(filePath, { force: true })
+    if (opened)
+      removePartial(filePath)
 
     return { status: 'failed' }
+  }
+}
+
+// A failed removal is only logged, so the download still
+// resolves to failed
+function removePartial(filePath) {
+  try {
+    fs.rmSync(filePath, { force: true })
+  } catch (err) {
+    console.error('Couldn\'t remove the partial download:', err)
   }
 }
 
@@ -89,8 +104,10 @@ function forwardedParams(webContents, params) {
 // handle itself, so the renderer gets the rest this way
 function forward(webContents) {
   webContents.on('context-menu', (ev, params) => {
-    webContents.send('context-menu:forwarded',
-      forwardedParams(webContents, params))
+    webContents.send(
+      'context-menu:forwarded',
+      forwardedParams(webContents, params)
+    )
   })
 }
 
