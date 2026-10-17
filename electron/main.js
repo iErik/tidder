@@ -9,6 +9,7 @@ const {
 } = require('electron')
 
 const auth = require('./auth')
+const contextMenu = require('./contextMenu')
 const settings = require('./settings')
 
 const devServerUrl = process.env.TIDDER_DEV_URL
@@ -78,6 +79,8 @@ function openMainWindow() {
     }
   })
 
+  contextMenu.forward(mainWindow.webContents)
+
   if (isDev) {
     mainWindow.webContents.on('context-menu', (e, props) => {
       const { x, y } = props
@@ -95,6 +98,16 @@ function openMainWindow() {
 ipcMain.on('window:close', () => mainWindow && mainWindow.close())
 ipcMain.on('window:minimize', () => mainWindow && mainWindow.minimize())
 ipcMain.on('window:maximize', () => mainWindow && mainWindow.maximize())
+
+// Whether the app runs under the dev server, for the renderer
+
+ipcMain.on('app:is-dev', (ev) => {
+  ev.returnValue = isDev
+})
+
+// The context menu's native features (see contextMenu.js)
+
+contextMenu.register({ isDev })
 
 // Settings
 

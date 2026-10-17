@@ -4,8 +4,17 @@
 
 const { contextBridge, ipcRenderer } = require('electron')
 
+const isDev = ipcRenderer.sendSync('app:is-dev')
+
 const settingsCache = ipcRenderer.sendSync('settings:get-all')
 const settingsWatchers = []
+
+// Right-clicks the main process forwards (see contextMenu.js)
+const contextMenuListeners = new Set()
+
+ipcRenderer.on('context-menu:forwarded', (ev, params) => {
+  contextMenuListeners.forEach(listener => listener(params))
+})
 
 ipcRenderer.on('settings:changed', (ev, key, value) => {
   settingsCache[key] = value
@@ -17,6 +26,7 @@ ipcRenderer.on('settings:changed', (ev, key, value) => {
 
 contextBridge.exposeInMainWorld('tidder', {
   platform: process.platform,
+  isDev,
 
   window: {
     close: () => ipcRenderer.send('window:close'),
@@ -28,6 +38,20 @@ contextBridge.exposeInMainWorld('tidder', {
 
   openPopup: (url, width, height, title) =>
     ipcRenderer.send('window:popup', url, width, height, title),
+
+  contextMenu: {
+    inspect: (x, y) => ipcRenderer.send('context-menu:inspect', x, y),
+    copyImage: (x, y) => ipcRenderer.invoke('context-menu:copy-image', x, y),
+    writeText: (text) => ipcRenderer.send('context-menu:write-text', text),
+
+    download: (url, suggestedName) =>
+      ipcRenderer.invoke('context-menu:download', url, suggestedName),
+
+    onForwarded: (listener) => {
+      contextMenuListeners.add(listener)
+      return { dispose: () => contextMenuListeners.delete(listener) }
+    }
+  },
 
   auth: {
     login: () => ipcRenderer.invoke('auth:login'),

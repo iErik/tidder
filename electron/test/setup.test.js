@@ -36,7 +36,15 @@ describe('fake electron', { concurrent: false }, () => {
     expect(fs.existsSync(userData)).toBe(true)
   })
 
-  it('only fakes the userData path', () => {
+  it('keeps Downloads inside userData', () => {
+    const { getPath } = electron().app
+    const downloads = getPath('downloads')
+
+    expect(path.dirname(downloads)).toBe(getPath('userData'))
+    expect(fs.existsSync(downloads)).toBe(true)
+  })
+
+  it('only fakes the userData and downloads paths', () => {
     expect(() => electron().app.getPath('home'))
       .toThrow('isn\'t faked')
   })
