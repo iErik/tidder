@@ -23,16 +23,16 @@
       }
 
     , "success":
-      { "base":   "#77A473"
-      , "border": "#98AF95"
+      { "base":   "#5CA670"
+      , "border": "#79BF91"
       }
     , "warning":
-      { "base":   "#B9AA68"
-      , "border": "#C9C19E"
+      { "base":   "#BB8C57"
+      , "border": "#CBA171"
       }
     , "error":
-      { "base":   "#A47374"
-      , "border": "#B29090"
+      { "base":   "#A65C5D"
+      , "border": "#BF797A"
       }
     , "toast":
       { "foreground": "#FFFFFF"
@@ -66,16 +66,16 @@
       }
 
     , "success":
-      { "base":   "#77A473"
-      , "border": "#98AF95"
+      { "base":   "#709260"
+      , "border": "#709260"
       }
     , "warning":
-      { "base":   "#B9AA68"
-      , "border": "#C9C19E"
+      { "base":   "#928360"
+      , "border": "#928360"
       }
     , "error":
-      { "base":   "#A47374"
-      , "border": "#B29090"
+      { "base":   "#926061"
+      , "border": "#926061"
       }
     , "toast":
       { "foreground": "#FFFFFF"
@@ -153,16 +153,16 @@
       }
 
     , "success":
-      { "base":   "#77A473"
-      , "border": "#98AF95"
+      { "base":   "#87CF81"
+      , "border": "#89C584"
       }
     , "warning":
-      { "base":   "#B9AA68"
-      , "border": "#C9C19E"
+      { "base":   "#D8B476"
+      , "border": "#CAB47C"
       }
     , "error":
-      { "base":   "#A47374"
-      , "border": "#B29090"
+      { "base":   "#CF8182"
+      , "border": "#C07C7D"
       }
     , "toast":
       { "foreground": "#FFFFFF"

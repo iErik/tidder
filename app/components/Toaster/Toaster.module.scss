@@ -3,12 +3,13 @@
 //  Variables
 //  ---------
 
-// From the Figma frames
+// From the Figma frames, with the text and type icon scaled
+// from 9px and 15px up to 12px and 20px (x4/3)
 $edge-spacing: 10px;
 $toast-max-width: 360px;
-$toast-height: 35px;
 $toast-radius: 6px;
-$icon-size: 15px;
+$font-size: 12px;
+$icon-size: 20px;
 $dismiss-size: 14px;
 
 $statuses: error, warning, success;
@@ -40,17 +41,16 @@ $statuses: error, warning, success;
 
   box-sizing: border-box;
   max-width: $toast-max-width;
-  min-height: $toast-height;
   // With the border, 10px on the left, top and bottom, and 8px
-  // on the right, as in Figma
+  // on the right, as in Figma. The height follows the content.
   padding: 9px 7px 9px 9px;
 
   border: 1px solid transparent;
   border-radius: $toast-radius;
 
   font-family: $font-sans;
-  font-size: 9px;
-  // Lato's SemiBold isn't bundled; the Bold face is weight 500.
+  font-size: $font-size;
+  // Lato SemiBold
   font-weight: 500;
   line-height: normal;
 
