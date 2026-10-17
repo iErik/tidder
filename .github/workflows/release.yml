@@ -52,6 +52,8 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          # No pnpm in this job; v5 would cache for it anyway
+          package-manager-cache: false
 
       - id: next
         run: node scripts/next-version.mjs
@@ -137,6 +139,8 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          # No pnpm in this job; v5 would cache for it anyway
+          package-manager-cache: false
 
       - uses: actions/download-artifact@v5
         with:
@@ -264,6 +268,8 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          # No pnpm in this job; v5 would cache for it anyway
+          package-manager-cache: false
 
       - name: Commit and push
         env:
