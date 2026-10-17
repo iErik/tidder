@@ -89,7 +89,7 @@ export default function ReportCard({ thing, onCancel }: Props) {
   )
 
   return (
-    <div className={cx('host')}>
+    <div className={cx('report-card')}>
       <div className={cx('card-title')}>
         <p className={cx('title')}>
           We're sorry something's wrong. How can we help?

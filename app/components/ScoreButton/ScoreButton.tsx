@@ -16,7 +16,7 @@ interface Props {
 
 export default function ScoreButton({ score, likes, onVote }: Props) {
   return (
-    <div className={cx('host')}>
+    <div className={cx('score-button')}>
       <button
         onClick={() => onVote(likes ? 0 : 1)}
         className={cx('btn-vote upvote', { 'is-active': likes === true })}

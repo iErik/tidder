@@ -50,7 +50,7 @@ export default function SharePostCard({ post }: Props) {
   const [postLink, setPostLink] = useState(`https://www.reddit.com${post.permalink}`)
 
   return (
-    <div className={cx('host')}>
+    <div className={cx('share-post-card')}>
       <div className={cx('social-icons')}>
         <div className={cx('social-icon')}>
           <button

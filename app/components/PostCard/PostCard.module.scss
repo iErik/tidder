@@ -8,13 +8,13 @@ $post-card-max-width: 1100px;
 //  Object Structure
 //  ----------------
 
-.host {
+.post-card {
   // Angular host elements were inline by default.
   display: inline;
 
   flex-shrink: 0;
 
-  .post-card {
+  .post-card-inner {
     display: flex;
     flex-direction: column;
 

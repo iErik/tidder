@@ -9,13 +9,13 @@ import styles from 'components/CommentCard/CommentCard.module.scss'
 import { bindStyles } from './classNames'
 
 const cx = bindStyles({
-  host: 'host_hash',
+  'comment-card': 'comment-card_hash',
   'is-active': 'is-active_hash'
 })
 
 describe('bindStyles', () => {
   it('adds the hashed name of a class the module defines', () => {
-    expect(cx('host')).toBe('host host_hash')
+    expect(cx('comment-card')).toBe('comment-card comment-card_hash')
   })
 
   it('keeps global classes as written', () => {
@@ -28,20 +28,20 @@ describe('bindStyles', () => {
   })
 
   it('skips empty values and extra whitespace', () => {
-    expect(cx('', null, undefined, false, '  host  '))
-      .toBe('host host_hash')
+    expect(cx('', null, undefined, false, '  comment-card  '))
+      .toBe('comment-card comment-card_hash')
   })
 
   it('combines strings and objects in order', () => {
-    expect(cx('button', { 'is-active': 1 }, 'host')).toBe(
-      'button is-active is-active_hash host host_hash')
+    expect(cx('button', { 'is-active': 1 }, 'comment-card')).toBe(
+      'button is-active is-active_hash comment-card comment-card_hash')
   })
 
   it('works with a compiled SCSS module', () => {
     const cxModule = bindStyles(styles)
 
-    expect(styles.host).toBeTruthy()
-    expect(cxModule('host button'))
-      .toBe(`host ${styles.host} button`)
+    expect(styles['comment-card']).toBeTruthy()
+    expect(cxModule('comment-card button'))
+      .toBe(`comment-card ${styles['comment-card']} button`)
   })
 })

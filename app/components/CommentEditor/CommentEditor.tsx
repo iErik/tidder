@@ -43,7 +43,7 @@ export default function CommentEditor({
   }
 
   return (
-    <div className={cx('host')}>
+    <div className={cx('comment-editor')}>
       <div className={cx('comment-editor-layout', { 'is-child': isChild })}>
         <div className={cx('comment-editor-textarea')}>
           <textarea

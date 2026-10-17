@@ -80,9 +80,9 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
   const showContent = hasContent(post)
 
   return (
-    <div className={cx('host')}>
+    <div className={cx('post-card')}>
       <div className={cx('post-card-layout')}>
-        <div className={cx('post-card')}>
+        <div className={cx('post-card-inner')}>
 
           <div className={cx('post-info')}>
             <div className={cx('post-score')}>

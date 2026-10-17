@@ -16,8 +16,8 @@ function controlIcon(control: Control): IconName {
 
 export default function WindowControls() {
   return (
-    <div className={cx('host')}>
-      <div className={cx('window-controls', platform)}>
+    <div className={cx('window-controls')}>
+      <div className={cx('window-controls-inner', platform)}>
         <button
           className={cx('btn btn-maximize')}
           onClick={() => window.tidder.window.maximize()}

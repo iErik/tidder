@@ -60,7 +60,7 @@ export default function PostSubmit({ onCancel }: Props) {
   }
 
   return (
-    <div className={cx('host')}>
+    <div className={cx('post-submit')}>
       <div className={cx('tab-group')}>
         <div
           className={cx('tab', { 'is-active': post.kind === 'link' })}

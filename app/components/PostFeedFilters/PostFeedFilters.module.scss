@@ -8,7 +8,7 @@ $display-shadow: true;
 //  Object Structure
 //  ----------------
 
-.host {
+.post-feed-filters {
   // Angular host elements were inline by default.
   display: inline;
 
@@ -84,7 +84,7 @@ $display-shadow: true;
     }
   }
 
-  .post-feed-filters {
+  .post-feed-filters-inner {
 
     .post-feed-filter {
       display: flex;

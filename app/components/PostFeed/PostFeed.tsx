@@ -59,7 +59,7 @@ export default function PostFeed({ onFeedAction }: Props) {
     .flatMap((page) => page.subs) ?? [])
 
   return (
-    <div className={cx('host')}>
+    <div className={cx('post-feed')}>
       <PostFeedFilters onFeedAction={onFeedAction} />
 
       {feed.isPending ? (

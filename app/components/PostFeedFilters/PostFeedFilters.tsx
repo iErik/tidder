@@ -42,7 +42,7 @@ export default function PostFeedFilters({
     : FEED_SORTS
 
   return (
-    <div className={cx('host')}>
+    <div className={cx('post-feed-filters')}>
       <div className={cx('post-feed-filters-layout')}>
 
         <div className={cx('post-feed-actions')}>
@@ -63,7 +63,7 @@ export default function PostFeedFilters({
           </div>
         </div>
 
-        <div className={cx('post-feed-filters')}>
+        <div className={cx('post-feed-filters-inner')}>
           <ul className={cx('post-feed-filter')}>
             {sorts.map(([sort, label]) => (
               <li

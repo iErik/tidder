@@ -6,7 +6,7 @@
 //  Object Structure
 //  ----------------
 
-.host {
+.post-viewer {
   display: flex;
   flex-direction: column;
 
@@ -14,6 +14,6 @@
   overflow-y: auto;
 }
 
-:global(.root-container:not(.darwin)) .host {
+:global(.root-container:not(.darwin)) .post-viewer {
   height: calc(100vh - #{$topbar-height + ($win32-border-width * 2)});
 }

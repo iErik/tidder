@@ -42,7 +42,7 @@ export default function CommentCard({ comment: rawComment, isParent }: Props) {
   }
 
   return (
-    <div className={cx('host')}>
+    <div className={cx('comment-card')}>
       <div
         className={cx('comment-card-layout', {
           'is-parent': isParent,

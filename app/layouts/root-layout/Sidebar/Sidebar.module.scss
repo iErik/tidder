@@ -8,7 +8,7 @@ $display-thumbnails: false;
 //  Object Definition
 //  -----------------
 
-.host {
+.sidebar {
   display: flex;
 
   position: fixed;
@@ -175,7 +175,7 @@ $display-thumbnails: false;
   }
 }
 
-:global(.root-container:not(.darwin)) .host {
+:global(.root-container:not(.darwin)) .sidebar {
   height: calc(100% - #{$topbar-height + $win32-border-width});
   &.is-active { left: $win32-border-width; }
 }
