@@ -1,51 +1,88 @@
-// Picks the version of the next release. package.json's
-// `version` holds the release line, and each release takes
-// the next free number on it, after the highest existing
-// tag:
+// Picks the version of the next release, and bumps
+// package.json to it afterwards. package.json's `version` is
+// the last version released, and the next release takes the
+// next number on its line, after the highest existing tag:
 //
-//   1.0.0-beta (pre-release line) -> 1.0.0-beta.1, .2, ...
-//   1.1 (stable line)             -> 1.1.0, 1.1.1, ...
+//   1.0.0-beta.3 (line 1.0.0-beta) -> 1.0.0-beta.4, .5, ...
+//   1.1.2        (line 1.1)        -> 1.1.3, 1.1.4, ...
 //
-// Run by the release workflow, which reads `version` and
-// `prerelease` from $GITHUB_OUTPUT. Without it, prints them
+// Moving to a new line is a manual edit to its first version
+// (1.1.0, 1.0.0-rc.1), which is released as is
+//
+// Run by the release workflow, which reads its outputs from
+// $GITHUB_OUTPUT. Without it, prints them:
+//
+//   node scripts/next-version.mjs                 version=, prerelease=
+//   node scripts/next-version.mjs bump <version>  bumped=
 
 import { execFileSync } from 'node:child_process'
 import {
   appendFileSync,
-  readFileSync
+  readFileSync,
+  writeFileSync
 } from 'node:fs'
 
 const escape = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-// `tags` are tag names (`v1.0.0-beta.3`); ones that aren't
-// on the line are ignored
-export function nextVersion(line, tags) {
-  let first
+// X.Y.Z, or X.Y.Z-<word>.N
+const STABLE = /^(\d+\.\d+)\.(\d+)$/
+const PRERELEASE = /^(\d+\.\d+\.\d+-[0-9A-Za-z-]+)\.(\d+)$/
 
-  if (/^\d+\.\d+\.\d+-[0-9A-Za-z-]+$/.test(line))
-    first = 1
-  else if (/^\d+\.\d+$/.test(line))
-    first = 0
-  else
+// `1.0.0-beta.3` -> { line: '1.0.0-beta', number: 3 }
+// `1.1.2`        -> { line: '1.1', number: 2 }
+export function parseVersion(version) {
+  const match = STABLE.exec(version) ?? PRERELEASE.exec(version)
+
+  if (!match)
     throw new Error(
-      `"${line}" isn't a release line: use X.Y or ` +
-      'X.Y.Z-<word>, e.g. 1.1 or 1.0.0-beta'
+      `"${version}" isn't a release version: use X.Y.Z or ` +
+      'X.Y.Z-<word>.N, e.g. 1.1.0 or 1.0.0-beta.1'
     )
 
+  return { line: match[1], number: Number(match[2]) }
+}
+
+// `tags` are tag names (`v1.0.0-beta.3`); ones that aren't
+// on the version's line are ignored
+export function nextVersion(version, tags) {
+  const { line, number } = parseVersion(version)
+
   const pattern = new RegExp(`^v${escape(line)}\\.(\\d+)$`)
-  const numbers = tags
+  const tagged = tags
     .map(tag => pattern.exec(tag))
     .filter(match => match !== null)
-    .map(match => Number(match[1]))
+    .map(match => Number(match[1]) + 1)
 
-  const next = numbers.length > 0
-    ? Math.max(...numbers) + 1
-    : first
-
-  return `${line}.${next}`
+  // An untagged version (a new line, or a release whose bump
+  // never landed) is released as is
+  return `${line}.${Math.max(number, ...tagged)}`
 }
 
 export const isPrerelease = version => version.includes('-')
+
+// Only moves forward on the same line, so a late run never
+// takes package.json back, or off a line changed by hand
+export function shouldBump(current, released) {
+  const from = parseVersion(current)
+  const to = parseVersion(released)
+
+  return from.line === to.line && to.number > from.number
+}
+
+// Replaces the top-level `version` and nothing else, keeping
+// the file's formatting
+export function setVersion(text, version) {
+  const pattern = /^ {2}"version": "[^"]*"/gm
+  const matches = text.match(pattern) ?? []
+
+  if (matches.length !== 1)
+    throw new Error(
+      'Expected one top-level "version" in package.json, ' +
+      `found ${matches.length}`
+    )
+
+  return text.replace(pattern, `  "version": "${version}"`)
+}
 
 function remoteTags() {
   const output = execFileSync(
@@ -60,18 +97,30 @@ function remoteTags() {
     .map(row => row.split('\t')[1].replace('refs/tags/', ''))
 }
 
-if (import.meta.main) {
-  const pkg = JSON.parse(readFileSync(
-    new URL('../package.json', import.meta.url), 'utf8'
-  ))
-
-  const version = nextVersion(pkg.version, remoteTags())
-  const output =
-    `version=${version}\n` +
-    `prerelease=${isPrerelease(version)}\n`
-
+function report(output) {
   if (process.env.GITHUB_OUTPUT)
     appendFileSync(process.env.GITHUB_OUTPUT, output)
   else
     process.stdout.write(output)
+}
+
+if (import.meta.main) {
+  const file = new URL('../package.json', import.meta.url)
+  const text = readFileSync(file, 'utf8')
+  const current = JSON.parse(text).version
+  const [command, released] = process.argv.slice(2)
+
+  if (command === 'bump') {
+    const bumped = shouldBump(current, released)
+    if (bumped) writeFileSync(file, setVersion(text, released))
+
+    report(`bumped=${bumped}\n`)
+  } else {
+    const version = nextVersion(current, remoteTags())
+
+    report(
+      `version=${version}\n` +
+      `prerelease=${isPrerelease(version)}\n`
+    )
+  }
 }

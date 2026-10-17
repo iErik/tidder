@@ -1,7 +1,9 @@
 # Packages the app for every platform and publishes it as a
-# GitHub release. The version is the next free number on the
-# release line in package.json (scripts/next-version.mjs);
-# nothing is committed back to master
+# GitHub release. The version is the next number after
+# package.json's `version` and the existing tags
+# (scripts/next-version.mjs). Once it's published, the release
+# App commits package.json's new `version` to master: the one
+# push in any workflow allowed past master's ruleset
 name: Release
 
 on:
@@ -177,3 +179,86 @@ jobs:
             --notes-file notes.md \
             --generate-notes \
             "${kind[@]}"
+
+  # Sets package.json's `version` to the release on master. The
+  # App bypasses master's ruleset and the checks for this commit
+  # only: it must never push anything but the `version` line. If
+  # this job fails, the release still stands, and the next run
+  # still picks the right number from the tags
+  bump:
+    name: Bump package.json
+    needs: [version, release]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      CLIENT_ID: ${{ vars.RELEASE_APP_CLIENT_ID }}
+      HAS_KEY: ${{ secrets.RELEASE_APP_PRIVATE_KEY != '' }}
+    steps:
+      - name: Check the App's credentials
+        run: |
+          if [ -z "$CLIENT_ID" ] || [ "$HAS_KEY" != true ]; then
+            echo "::error::v$VERSION is released, but package.json" \
+              "wasn't bumped: set the RELEASE_APP_CLIENT_ID variable" \
+              "and the RELEASE_APP_PRIVATE_KEY secret"
+            exit 1
+          fi
+
+      - id: app
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+
+      # master as it is now, which may be past the released commit
+      - uses: actions/checkout@v5
+        with:
+          ref: master
+          token: ${{ steps.app.outputs.token }}
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Commit and push
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          SLUG: ${{ steps.app.outputs.app-slug }}
+        run: |
+          id=$(gh api "/users/$SLUG[bot]" --jq .id)
+          git config user.name "$SLUG[bot]"
+          git config user.email \
+            "$id+$SLUG[bot]@users.noreply.github.com"
+
+          one_line=$(printf '1\t1\tpackage.json')
+
+          # Retries from master's new head if a push lands first
+          for attempt in 1 2 3; do
+            # Empty GITHUB_OUTPUT: the script prints to stdout
+            result=$(GITHUB_OUTPUT= \
+              node scripts/next-version.mjs bump "$VERSION")
+            echo "$result"
+            if [ "$result" != bumped=true ]; then
+              echo "master is already at or past v$VERSION"
+              exit 0
+            fi
+
+            if [ "$(git diff --numstat)" != "$one_line" ]; then
+              echo "::error::The bump changed more than the version"
+              git diff
+              exit 1
+            fi
+
+            # [skip ci]: pushes made with an App token start
+            # workflows, and package.json would start this one
+            git commit -qam "Release v$VERSION [skip ci]"
+            git push origin HEAD:master && exit 0
+
+            git fetch origin master
+            git reset --hard origin/master
+          done
+
+          echo "::error::Couldn't push the bump to master"
+          exit 1
