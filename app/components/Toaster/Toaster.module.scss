@@ -1,0 +1,136 @@
+@import 'styles/helpers/component';
+
+//  Variables
+//  ---------
+
+// From the Figma frames, with these scaled up: text 9px to
+// 12px, type icon 15px to 16px, and the x box (with its glyph)
+// 14px to 19px
+$edge-spacing: 10px;
+$toast-max-width: 360px;
+$toast-radius: 6px;
+$font-size: 12px;
+$icon-size: 16px;
+$dismiss-size: 19px;
+
+$statuses: error, warning, success;
+
+//  Object Structure
+//  ----------------
+
+.toaster {
+  position: fixed;
+  right: $edge-spacing;
+  bottom: $edge-spacing;
+  z-index: 400;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: $edge-spacing;
+
+  // Only the Toasts themselves take the pointer.
+  pointer-events: none;
+
+  &.newest-on-top { flex-direction: column-reverse; }
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  box-sizing: border-box;
+  max-width: $toast-max-width;
+  // With the border, 10px on the left, top and bottom, and 8px
+  // on the right, as in Figma. The height follows the content.
+  padding: 9px 7px 9px 9px;
+
+  border: 1px solid transparent;
+  border-radius: $toast-radius;
+
+  font-family: $font-sans;
+  font-size: $font-size;
+  font-weight: 400;
+  line-height: normal;
+
+  pointer-events: auto;
+
+  // Keyframes rather than an opacity transition, so a Toast
+  // closed while it's still fading in fades out too.
+  animation: fade-in var(--fade) ease;
+  transition: transform var(--fade) ease;
+
+  &.closing {
+    pointer-events: none;
+
+    animation: fade-out var(--fade) ease forwards;
+  }
+}
+
+.type-icon {
+  flex-shrink: 0;
+
+  font-size: $icon-size;
+}
+
+.message {
+  flex-grow: 1;
+
+  overflow-wrap: anywhere;
+}
+
+.dismiss {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+
+  width: $dismiss-size;
+  height: $dismiss-size;
+  margin-left: auto;
+  padding: 0;
+
+  border: 0;
+  border-radius: 2px;
+  background: none;
+  color: inherit;
+
+  font-size: $dismiss-size;
+
+  cursor: pointer;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+//  Themes
+//  ------
+
+.toaster {
+  @include themify('local') {
+    .toast {
+      color: toast-color('foreground');
+      box-shadow: 0 2px 9px toast-color('shadow');
+    }
+
+    @each $status in $statuses {
+      .is-#{$status} {
+        border-color: status-color($status, 'border');
+        background-color: status-color($status);
+      }
+    }
+
+    .dismiss:hover,
+    .dismiss:focus-visible {
+      background-color: toast-color('closeHover');
+    }
+  }
+}

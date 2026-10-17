@@ -22,6 +22,24 @@
       , "light": "#3C3C3C"
       }
 
+    , "success":
+      { "base":   "#5CA670"
+      , "border": "#79BF91"
+      }
+    , "warning":
+      { "base":   "#BB8C57"
+      , "border": "#CBA171"
+      }
+    , "error":
+      { "base":   "#A65C5D"
+      , "border": "#BF797A"
+      }
+    , "toast":
+      { "foreground": "#FFFFFF"
+      , "closeHover": "rgba(255, 255, 255, 0.29)"
+      , "shadow":     "rgba(0, 0, 0, 0.16)"
+      }
+
     , "isDark": true
     , "topbarShadow": true
     , "sidebarShadow": true
@@ -45,6 +63,24 @@
     , "background":
       { "base":  "#394B57"
       , "light": "#4B5B65"
+      }
+
+    , "success":
+      { "base":   "#709260"
+      , "border": "#7FA36E"
+      }
+    , "warning":
+      { "base":   "#928360"
+      , "border": "#AB986E"
+      }
+    , "error":
+      { "base":   "#926061"
+      , "border": "#9E7676"
+      }
+    , "toast":
+      { "foreground": "#FFFFFF"
+      , "closeHover": "rgba(255, 255, 255, 0.29)"
+      , "shadow":     "rgba(0, 0, 0, 0.16)"
       }
 
     , "isDark": true
@@ -72,6 +108,24 @@
       { "base": "#626682"
       }
 
+    , "success":
+      { "base":   "#77A473"
+      , "border": "#98AF95"
+      }
+    , "warning":
+      { "base":   "#B9AA68"
+      , "border": "#C9C19E"
+      }
+    , "error":
+      { "base":   "#A47374"
+      , "border": "#B29090"
+      }
+    , "toast":
+      { "foreground": "#FFFFFF"
+      , "closeHover": "rgba(255, 255, 255, 0.29)"
+      , "shadow":     "rgba(0, 0, 0, 0.16)"
+      }
+
     , "isDark": true
     , "topbarShadow": true
     , "sidebarShadow": true
@@ -96,6 +150,24 @@
       }
     , "background":
       { "base": "#F6F6F6"
+      }
+
+    , "success":
+      { "base":   "#87CF81"
+      , "border": "#89C584"
+      }
+    , "warning":
+      { "base":   "#D8B476"
+      , "border": "#CAB47C"
+      }
+    , "error":
+      { "base":   "#CF8182"
+      , "border": "#C07C7D"
+      }
+    , "toast":
+      { "foreground": "#FFFFFF"
+      , "closeHover": "rgba(255, 255, 255, 0.29)"
+      , "shadow":     "rgba(0, 0, 0, 0.16)"
       }
 
     , "isDark": false

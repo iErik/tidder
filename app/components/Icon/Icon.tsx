@@ -8,6 +8,7 @@ import Close from './icons/close.svg?react'
 import Comment from './icons/comment.svg?react'
 import Default from './icons/default.svg?react'
 import Facebook from './icons/facebook.svg?react'
+import Forbidden2 from './icons/forbidden-2.svg?react'
 import Gear from './icons/gear.svg?react'
 import Information from './icons/information.svg?react'
 import MaximizeDarwin from './icons/maximize-darwin.svg?react'
@@ -40,6 +41,7 @@ const icons = {
   'comment': Comment,
   'default': Default,
   'facebook': Facebook,
+  'forbidden-2': Forbidden2,
   'gear': Gear,
   'information': Information,
   'maximize-darwin': MaximizeDarwin,
