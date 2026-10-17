@@ -3,7 +3,7 @@
   "description": "An multi-platform reddit client built with web technologies",
   "repository": "iErik/tidder",
   "productName": "Tidder",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.3",
   "license": "GPL-2.0-only",
   "author": {
     "name": "Erik Isidore",
@@ -11,6 +11,7 @@
     "url": "https://github.com/ierik"
   },
   "main": "electron/main.js",
+  "packageManager": "pnpm@12.3.4",
   "scripts": {
     "themes": "node scripts/generate-theme-scss.mjs",
     "dev": "pnpm run themes && concurrently -k -n vite,electron \"vite\" \"wait-on http-get://localhost:4200 && cross-env TIDDER_DEV_URL=http://localhost:4200 electron .\"",
@@ -33,7 +34,6 @@
   },
   "build": {
     "productName": "Tidder",
-    "artifactName": "${productName} Beta-${arch}.${ext}",
     "appId": "org.isidore.Tidder",
     "directories": {
       "buildResources": "resources",
@@ -52,7 +52,8 @@
       "category": "public.app-category.social-networking",
       "target": "zip",
       "identity": "-",
-      "hardenedRuntime": false
+      "hardenedRuntime": false,
+      "artifactName": "${productName}-${version}-mac-${arch}.${ext}"
     },
     "linux": {
       "category": "Feed",
@@ -60,10 +61,20 @@
         "AppImage",
         "deb",
         "rpm"
-      ]
+      ],
+      "artifactName": "${productName}-${version}-linux-x64.${ext}"
     },
     "win": {
-      "target": "portable"
+      "target": [
+        "portable",
+        "nsis"
+      ]
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-win-${arch}-portable.${ext}"
+    },
+    "nsis": {
+      "artifactName": "${productName}-${version}-win-${arch}-setup.${ext}"
     }
   },
   "devDependencies": {

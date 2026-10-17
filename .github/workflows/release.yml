@@ -1,0 +1,322 @@
+# Packages the app for every platform and publishes it as a
+# GitHub release. The version is the next number after
+# package.json's `version` and the existing tags
+# (scripts/next-version.mjs). Once it's published, the release
+# App commits package.json's new `version` to master: the one
+# push in any workflow allowed past master's ruleset
+name: Release
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'app/**'
+      - 'electron/**'
+      - 'resources/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'vite.config.mts'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Package only: no tag, no release'
+        type: boolean
+        default: false
+
+# One release at a time, so two runs can't take the same
+# number. Runs queue instead of being cancelled, but GitHub
+# keeps only one pending run per group: a newer one replaces
+# it
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    uses: ./.github/workflows/checks.yml
+
+  version:
+    name: Pick the version
+    needs: checks
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.next.outputs.version }}
+      prerelease: ${{ steps.next.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - id: next
+        run: node scripts/next-version.mjs
+
+  package:
+    name: Package (${{ matrix.os }})
+    needs: version
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - os: mac
+            runner: macos-latest
+            flags: --mac --x64 --arm64
+            files: release/Tidder-*.zip
+          - os: win
+            runner: windows-latest
+            flags: --win --x64
+            files: release/Tidder-*.exe
+          - os: linux
+            runner: ubuntu-latest
+            flags: --linux --x64
+            files: |
+              release/Tidder-*.AppImage
+              release/Tidder-*.deb
+              release/Tidder-*.rpm
+    defaults:
+      run:
+        shell: bash
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      # electron-builder needs rpmbuild for the .rpm
+      - if: matrix.os == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y rpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+
+      # extraMetadata puts the version into the packaged
+      # package.json, which app.getVersion() reads
+      - run: >-
+          pnpm exec electron-builder ${{ matrix.flags }}
+          --publish never
+          -c.extraMetadata.version="$VERSION"
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: packages-${{ matrix.os }}
+          path: ${{ matrix.files }}
+          if-no-files-found: error
+
+  # Runs only when every packaging job succeeded, so a failed
+  # run leaves no tag and no partial release
+  release:
+    name: Publish the release
+    needs: [version, package]
+    if: >-
+      !inputs.dry_run && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      commit: ${{ steps.commit.outputs.commit }}
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      PRERELEASE: ${{ needs.version.outputs.prerelease }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      # The commit that was built. Checked out first, since
+      # checkout empties the workspace
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: packages-*
+          merge-multiple: true
+          path: packages
+
+      - name: Check the files
+        run: |
+          base="Tidder-$VERSION"
+          printf '%s\n' \
+            "$base-linux-x64.AppImage" \
+            "$base-linux-x64.deb" \
+            "$base-linux-x64.rpm" \
+            "$base-mac-arm64.zip" \
+            "$base-mac-x64.zip" \
+            "$base-win-x64-portable.exe" \
+            "$base-win-x64-setup.exe" \
+            | sort > expected.txt
+          ls packages | sort > actual.txt
+          diff expected.txt actual.txt
+
+      - name: Write the notes
+        run: |
+          cat > notes.md <<'EOF'
+          ## Installing
+
+          The builds aren't signed yet, so the OS warns about
+          them the first time:
+
+          - **macOS**: move Tidder to Applications, then run
+            `xattr -cr /Applications/Tidder.app`, or right-click
+            the app and choose Open.
+          - **Windows**: on the SmartScreen prompt, click More
+            info, then Run anyway.
+
+          EOF
+
+      # The tag points at the built commit plus the `version`
+      # bump, so the tagged package.json shows the release.
+      # Without a bump to make (a new line's first version), it's
+      # the built commit itself. Only the tag is pushed here, not
+      # master
+      - id: commit
+        name: Tag the release commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email \
+            '41898283+github-actions[bot]@users.noreply.github.com'
+
+          result=$(GITHUB_OUTPUT= \
+            node scripts/next-version.mjs bump "$VERSION")
+          if [ "$result" = bumped=true ]; then
+            if [ "$(git diff --numstat)" != \
+              "$(printf '1\t1\tpackage.json')" ]; then
+              echo "::error::The bump changed more than the version"
+              git diff
+              exit 1
+            fi
+
+            git commit -qm "Release v$VERSION [skip ci]" package.json
+          fi
+
+          git push origin "HEAD:refs/tags/v$VERSION"
+          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Publish
+        run: |
+          if [ "$PRERELEASE" = true ]
+          then kind=(--prerelease --latest=false)
+          else kind=(--latest)
+          fi
+
+          # No tag without its release
+          if ! gh release create "v$VERSION" packages/* \
+            --verify-tag \
+            --title "v$VERSION" \
+            --notes-file notes.md \
+            --generate-notes \
+            "${kind[@]}"
+          then
+            git push origin ":refs/tags/v$VERSION"
+            exit 1
+          fi
+
+  # Sets package.json's `version` to the release on master. The
+  # App bypasses master's ruleset and the checks for this commit
+  # only: it must never push anything but the `version` line. If
+  # this job fails, the release still stands, and the next run
+  # still picks the right number from the tags
+  bump:
+    name: Bump package.json
+    needs: [version, release]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      RELEASE_COMMIT: ${{ needs.release.outputs.commit }}
+      CLIENT_ID: ${{ vars.RELEASE_APP_CLIENT_ID }}
+      HAS_KEY: ${{ secrets.RELEASE_APP_PRIVATE_KEY != '' }}
+    steps:
+      - name: Check the App's credentials
+        run: |
+          if [ -z "$CLIENT_ID" ] || [ "$HAS_KEY" != true ]; then
+            echo "::error::v$VERSION is released, but package.json" \
+              "wasn't bumped: set the RELEASE_APP_CLIENT_ID variable" \
+              "and the RELEASE_APP_PRIVATE_KEY secret"
+            exit 1
+          fi
+
+      - id: app
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+
+      # master as it is now, which may be past the released commit
+      - uses: actions/checkout@v5
+        with:
+          ref: master
+          token: ${{ steps.app.outputs.token }}
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Commit and push
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          SLUG: ${{ steps.app.outputs.app-slug }}
+        run: |
+          id=$(gh api "/users/$SLUG[bot]" --jq .id)
+          git config user.name "$SLUG[bot]"
+          git config user.email \
+            "$id+$SLUG[bot]@users.noreply.github.com"
+
+          # Usually master is still at the built commit. It then
+          # fast-forwards to the tagged release commit, which only
+          # adds the bump, so the tag sits on master's history
+          if [ "$RELEASE_COMMIT" != "$GITHUB_SHA" ] &&
+            [ "$(git rev-parse HEAD)" = "$GITHUB_SHA" ]; then
+            git fetch -q origin "refs/tags/v$VERSION"
+            if git push origin "$RELEASE_COMMIT:refs/heads/master"
+            then exit 0
+            fi
+
+            git fetch origin master
+            git reset --hard origin/master
+          fi
+
+          # Otherwise, a bump commit of its own on master's head
+          one_line=$(printf '1\t1\tpackage.json')
+
+          # Retries from master's new head if a push lands first
+          for attempt in 1 2 3; do
+            # Empty GITHUB_OUTPUT: the script prints to stdout
+            result=$(GITHUB_OUTPUT= \
+              node scripts/next-version.mjs bump "$VERSION")
+            echo "$result"
+            if [ "$result" != bumped=true ]; then
+              echo "master is already at or past v$VERSION"
+              exit 0
+            fi
+
+            if [ "$(git diff --numstat)" != "$one_line" ]; then
+              echo "::error::The bump changed more than the version"
+              git diff
+              exit 1
+            fi
+
+            # [skip ci]: pushes made with an App token start
+            # workflows, and package.json would start this one
+            git commit -qam "Release v$VERSION [skip ci]"
+            git push origin HEAD:master && exit 0
+
+            git fetch origin master
+            git reset --hard origin/master
+          done
+
+          echo "::error::Couldn't push the bump to master"
+          exit 1
