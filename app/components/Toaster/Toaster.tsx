@@ -61,7 +61,7 @@ export default function Toaster() {
   return (
     <div
       ref={hostRef}
-      className={cx('host', `theme-${appTheme}`,
+      className={cx('toast-host', `theme-${appTheme}`,
         { 'newest-on-top': newestOnTop })}
       style={fade}
     >

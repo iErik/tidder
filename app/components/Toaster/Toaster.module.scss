@@ -18,7 +18,7 @@ $statuses: error, warning, success;
 //  Object Structure
 //  ----------------
 
-.host {
+.toast-host {
   position: fixed;
   right: $edge-spacing;
   bottom: $edge-spacing;
@@ -114,7 +114,7 @@ $statuses: error, warning, success;
 //  Themes
 //  ------
 
-.host {
+.toast-host {
   @include themify('local') {
     .toast {
       color: toast-color('foreground');
