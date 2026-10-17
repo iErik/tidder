@@ -15,6 +15,7 @@ import Icon from 'components/Icon/Icon'
 import { bindStyles } from 'utils/classNames'
 
 import styles from './CommentFeed.module.scss'
+import { mergeComments } from './mergeComments'
 
 const cx = bindStyles(styles)
 
@@ -31,7 +32,8 @@ const SORT_MODES = [
 const PAGE_SIZE = 10
 
 // What the user added to the thread Reddit sent: their own new comments,
-// and comments loaded from behind "load more". Reset when the sort changes.
+// and comments loaded from behind "load more". A sort change resets the
+// loaded comments, but the submitted ones stay until the post is left.
 interface Additions {
   submitted: CommentThing[]
   loaded: CommentThing[]
@@ -54,11 +56,13 @@ export default function CommentFeed({ post }: Props) {
 
   const thread = useComments(post, sortMode)
 
-  const comments = [
-    ...additions.submitted,
-    ...(thread.data?.comments ?? []),
-    ...additions.loaded
-  ]
+  const threadComments = thread.data?.comments ?? []
+  const comments = mergeComments(
+    additions.submitted, threadComments, additions.loaded
+  )
+  // Submitted comments Reddit doesn't list yet aren't in num_comments.
+  const newCount =
+    comments.length - threadComments.length - additions.loaded.length
   const more = additions.more !== undefined
     ? additions.more
     : thread.data?.more ?? null
@@ -68,8 +72,8 @@ export default function CommentFeed({ post }: Props) {
 
   const changeSortMode = (sort: string) => {
     setSortMode(sort)
-    setAdditions(NO_ADDITIONS)
-    setDisplayLimit(PAGE_SIZE)
+    setAdditions((prev) => ({ ...NO_ADDITIONS, submitted: prev.submitted }))
+    setDisplayLimit(PAGE_SIZE + additions.submitted.length)
   }
 
   const loadMore = async () => {
@@ -115,7 +119,7 @@ export default function CommentFeed({ post }: Props) {
         <div className={cx('comments-meta')}>
           <Icon name="comment" />
           <span className={cx('meta')}>
-            {post.num_comments + additions.submitted.length} comments
+            {post.num_comments + newCount} comments
           </span>
         </div>
 
