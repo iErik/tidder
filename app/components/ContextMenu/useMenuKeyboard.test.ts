@@ -81,13 +81,25 @@ describe('useMenuKeyboard', () => {
     expect(onChoose).toHaveBeenCalledWith(ITEMS[2])
   })
 
-  it('leaves Enter to the page without an active item', () => {
-    const { press, onChoose } = renderKeyboard()
+  it('closes on Enter without an active item', () => {
+    const { press, onChoose, onClose } = renderKeyboard()
 
     const event = press('Enter')
 
     expect(onChoose).not.toHaveBeenCalled()
-    expect(event.defaultPrevented).toBe(false)
+    expect(onClose).toHaveBeenCalled()
+    expect(event.defaultPrevented).toBe(true)
+  })
+
+  it('does nothing on Enter over a disabled item', () => {
+    const { result, press, onChoose, onClose } = renderKeyboard()
+
+    act(() => result.current[1](1))
+    const event = press('Enter')
+
+    expect(onChoose).not.toHaveBeenCalled()
+    expect(onClose).not.toHaveBeenCalled()
+    expect(event.defaultPrevented).toBe(true)
   })
 
   it('closes with Escape', () => {

@@ -8,11 +8,12 @@ interface Handlers {
 }
 
 // The open menu's keyboard: the arrows move between enabled
-// items, Enter chooses the active one and Escape closes. It
+// items, Enter chooses the active one (or closes the menu
+// with none, as a native menu does) and Escape closes. It
 // listens on the document instead of taking focus, so a text
-// field keeps its focus and selection while the menu is open.
-// Returns the active item's index (null for none), which the
-// pointer sets too.
+// field keeps its focus and selection while the menu is open,
+// and never sees these keys. Returns the active item's index
+// (null for none), which the pointer sets too.
 export function useMenuKeyboard(
   items: readonly ContextMenuItem[],
   { onChoose, onClose }: Handlers
@@ -20,13 +21,19 @@ export function useMenuKeyboard(
   const [active, setActive] = useState<number | null>(null)
 
   useEffect(() => {
+    // A disabled item does nothing, even if it's active
+    function enter() {
+      if (active === null) onClose()
+      else if (!items[active].disabled) onChoose(items[active])
+    }
+
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === 'ArrowDown')
         setActive(step(items, active, 1))
       else if (event.key === 'ArrowUp')
         setActive(step(items, active, -1))
-      else if (event.key === 'Enter' && active !== null)
-        onChoose(items[active])
+      else if (event.key === 'Enter')
+        enter()
       else if (event.key === 'Escape')
         onClose()
       else
