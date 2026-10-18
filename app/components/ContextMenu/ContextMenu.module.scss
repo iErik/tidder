@@ -1,0 +1,81 @@
+@import 'styles/helpers/component';
+
+//  Variables
+//  ---------
+
+// From the Figma frames, with the text scaled up from 7px to
+// 9.33px (4/3, as the Toaster's is). The frame grows past its
+// 107px when a label needs the room; the insets, rows, radius
+// and border stay as drawn.
+$menu-min-width: 107px;
+$menu-radius: 6px;
+$item-height: 20px;
+$item-radius: 4px;
+$item-gap: 1px;
+// From the frame's edge, with its border: 2px to an item, and
+// 14px to the label
+$item-inset: 1px;
+$label-inset: 12px;
+$font-size: 9.33px;
+$disabled-opacity: .47;
+
+//  Object Structure
+//  ----------------
+
+.context-menu {
+  position: fixed;
+  // Between the Toaster (400) and the WindowControls (500)
+  z-index: 450;
+
+  display: flex;
+  flex-direction: column;
+  gap: $item-gap;
+
+  box-sizing: border-box;
+  width: max-content;
+  min-width: $menu-min-width;
+  margin: 0;
+  padding: $item-inset;
+
+  border: 1px solid transparent;
+  border-radius: $menu-radius;
+
+  list-style: none;
+
+  font-family: $font-sans;
+  font-size: $font-size;
+  // Lato Semibold (see styles/base/_fonts.scss)
+  font-weight: 500;
+  line-height: normal;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  cursor: default;
+  user-select: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+
+  height: $item-height;
+  padding: 0 $label-inset;
+
+  border-radius: $item-radius;
+
+  &.is-disabled { opacity: $disabled-opacity; }
+}
+
+//  Themes
+//  ------
+
+.context-menu {
+  @include themify('local') {
+    border-color: border-color();
+    background-color: background-color('dark');
+    color: foreground-color();
+    box-shadow: 0 2px 5px context-menu-color('shadow');
+
+    .is-active { background-color: background-color(); }
+  }
+}
