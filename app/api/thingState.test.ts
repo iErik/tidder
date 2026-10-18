@@ -30,6 +30,7 @@ interface Post {
   title: string
   likes: boolean | null
   saved: boolean
+  hidden: boolean
 }
 
 function post(patch: Partial<Post> = { }): Post {
@@ -38,6 +39,7 @@ function post(patch: Partial<Post> = { }): Post {
     title: 'A post',
     likes: null,
     saved: false,
+    hidden: false,
     ...patch
   }
 }
@@ -74,7 +76,7 @@ describe('optimistic changes', () => {
     const answer = pendingFetch()
     const { result } = render(state, post())
 
-    let request: Promise<void> | undefined
+    let request: Promise<boolean> | undefined
     act(() => { request = state.voteThing(post(), 1) })
     expect(result.current.likes).toBe(true)
 
@@ -120,6 +122,52 @@ describe('optimistic changes', () => {
     expect((url as URL).pathname).toBe('/api/vote')
     expect(Object.fromEntries(init?.body as URLSearchParams))
       .toMatchObject({ id: thing.name, dir: '-1' })
+  })
+
+  it('resolve to whether Reddit accepted them', async () => {
+    const state = await loadThingState()
+    stubFetch(jsonResponse({ }), failure())
+
+    expect(await state.saveThing(post(), true)).toBe(true)
+    expect(await state.saveThing(post(), false)).toBe(false)
+  })
+})
+
+describe('hideThing', () => {
+  it('hides the post before Reddit answers', async () => {
+    const state = await loadThingState()
+    const answer = pendingFetch()
+    const { result } = render(state, post())
+
+    let request: Promise<boolean> | undefined
+    act(() => { request = state.hideThing(post(), true) })
+    expect(result.current.hidden).toBe(true)
+
+    answer(jsonResponse({ }))
+    expect(await act(() => request)).toBe(true)
+    expect(result.current.hidden).toBe(true)
+  })
+
+  it('brings the post back when Reddit refuses', async () => {
+    const state = await loadThingState()
+    stubFetch(failure())
+    const { result } = render(state, post())
+
+    expect(await act(() => state.hideThing(post(), true))).toBe(false)
+    expect(result.current.hidden).toBe(false)
+  })
+
+  it('sends the hide and unhide requests', async () => {
+    const state = await loadThingState()
+    const fetch = stubFetch(jsonResponse({ }), jsonResponse({ }))
+
+    await state.hideThing(post(), true)
+    await state.hideThing(post(), false)
+
+    const paths = fetch.mock.calls.map(([url]) => (url as URL).pathname)
+    expect(paths).toEqual(['/api/hide', '/api/unhide'])
+    const body = fetch.mock.calls[0][1]?.body as URLSearchParams
+    expect(body.get('id')).toBe('t3_abc')
   })
 })
 

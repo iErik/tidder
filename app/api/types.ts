@@ -40,6 +40,7 @@ export interface Post {
   likes: boolean | null
   saved: boolean
   reported?: boolean
+  hidden: boolean
   is_self: boolean
   is_video: boolean
   selftext_html: string | null
