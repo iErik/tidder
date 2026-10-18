@@ -40,9 +40,16 @@ interface Props {
 
   // Allows https iframes, for media embeds.
   embed?: boolean
+
+  onContextMenu?: (ev: MouseEvent) => void
 }
 
-export default function SafeHtml({ html, className, embed = false }: Props) {
+export default function SafeHtml({
+  html,
+  className,
+  embed = false,
+  onContextMenu
+}: Props) {
   const clean = useMemo(
     () => DOMPurify.sanitize(html ?? '', embed ? EMBED_CONFIG : { }),
     [html, embed])
@@ -51,6 +58,7 @@ export default function SafeHtml({ html, className, embed = false }: Props) {
     <div
       className={className}
       onClick={openLink}
+      onContextMenu={onContextMenu}
       dangerouslySetInnerHTML={{ __html: clean }}
     />
   )

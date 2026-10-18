@@ -7,6 +7,8 @@ import {
 
 import type { Post } from 'api/types'
 
+import type { ContextMenuItem } from 'core/contextMenu'
+
 import { toast } from 'core/toasts'
 
 import { jsonResponse, stubFetch } from '../../test/fetch'
@@ -14,6 +16,8 @@ import { tidder } from '../../test/fakeTidder'
 
 import {
   defaultMenuItems,
+  embedMenuItems,
+  mediaMenuItems,
   postMenuItems,
   withInspect
 } from './menus'
@@ -177,5 +181,110 @@ describe('postMenuItems', () => {
     await vi.waitFor(() => {
       expect(error).toHaveBeenCalledWith(message)
     })
+  })
+})
+
+const IMAGE = { url: 'https://i.redd.it/abc.jpg', title: 'A cat' }
+const VIDEO = { url: 'https://v.redd.it/abc/DASH_720.mp4', title: 'A clip' }
+
+const find = (items: ContextMenuItem[], label: string) =>
+  items.find((entry) => entry.label === label)!
+
+describe('media menus', () => {
+  it('lists the media menu with a point to copy at', () => {
+    const items = mediaMenuItems(IMAGE, { x: 10, y: 20 })
+
+    expect(labels(items)).toEqual(['Download', 'Copy', 'Copy URL'])
+    expect(items.some(({ disabled }) => disabled)).toBe(false)
+  })
+
+  it('disables Copy without a point', () => {
+    const items = mediaMenuItems(VIDEO)
+
+    expect(labels(items)).toEqual(['Download', 'Copy', 'Copy URL'])
+    expect(find(items, 'Copy').disabled).toBe(true)
+  })
+
+  it('downloads under the title-based name', async () => {
+    const { download } = tidder().contextMenu
+    download.mockResolvedValue({ status: 'saved', fileName: 'A cat.jpg' })
+    const success = vi.spyOn(toast, 'success')
+
+    find(mediaMenuItems(IMAGE, { x: 10, y: 20 }), 'Download').action()
+
+    expect(download).toHaveBeenCalledWith(IMAGE.url, 'A cat.jpg')
+    await vi.waitFor(() => {
+      expect(success).toHaveBeenCalledWith('Downloaded A cat.jpg')
+    })
+  })
+
+  it.each([
+    ['a failed download', () => Promise.resolve({ status: 'failed' as const })],
+    ['a failed request', () => Promise.reject(new Error('IPC'))]
+  ])('shows an error Toast for %s', async (_, result) => {
+    tidder().contextMenu.download.mockImplementation(result)
+    const error = vi.spyOn(toast, 'error')
+
+    find(mediaMenuItems(VIDEO), 'Download').action()
+
+    await vi.waitFor(() => {
+      expect(error).toHaveBeenCalledWith('Download failed')
+    })
+  })
+
+  it('shows nothing when the download is cancelled', async () => {
+    const { download } = tidder().contextMenu
+    download.mockResolvedValue({ status: 'cancelled' })
+    const success = vi.spyOn(toast, 'success')
+    const error = vi.spyOn(toast, 'error')
+
+    find(mediaMenuItems(IMAGE, { x: 10, y: 20 }), 'Download').action()
+    await download.mock.results[0].value
+
+    expect(success).not.toHaveBeenCalled()
+    expect(error).not.toHaveBeenCalled()
+  })
+
+  it('copies the image at the point', async () => {
+    const success = vi.spyOn(toast, 'success')
+
+    find(mediaMenuItems(IMAGE, { x: 10, y: 20 }), 'Copy').action()
+
+    expect(tidder().contextMenu.copyImage).toHaveBeenCalledWith(10, 20)
+    await vi.waitFor(() => {
+      expect(success).toHaveBeenCalledWith('Image copied')
+    })
+  })
+
+  it('reports an image it couldn\'t copy', async () => {
+    tidder().contextMenu.copyImage.mockRejectedValue(new Error('IPC'))
+    const error = vi.spyOn(toast, 'error')
+
+    find(mediaMenuItems(IMAGE, { x: 10, y: 20 }), 'Copy').action()
+
+    await vi.waitFor(() => {
+      expect(error).toHaveBeenCalledWith('Couldn\'t copy the image')
+    })
+  })
+
+  it.each([
+    ['image', mediaMenuItems(IMAGE, { x: 10, y: 20 }), IMAGE.url],
+    ['video', mediaMenuItems(VIDEO), VIDEO.url],
+    [
+      'embed',
+      embedMenuItems(post({ url: 'https://youtu.be/abc' })),
+      'https://youtu.be/abc'
+    ]
+  ])('copies the %s\'s link', (_, items, url) => {
+    const success = vi.spyOn(toast, 'success')
+
+    find(items, 'Copy URL').action()
+
+    expect(tidder().contextMenu.writeText).toHaveBeenCalledWith(url)
+    expect(success).toHaveBeenCalledWith('Link copied')
+  })
+
+  it('lists only Copy URL for an embed', () => {
+    expect(labels(embedMenuItems(post()))).toEqual(['Copy URL'])
   })
 })

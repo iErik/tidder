@@ -45,14 +45,30 @@ function openDefaultMenu(x: number, y: number) {
   openContextMenu(x, y, defaultMenuItems(x, y))
 }
 
+// A right-click at the point, as if it had happened on the
+// page's element there
+function replayRightClick(x: number, y: number) {
+  const target = document.elementFromPoint(x, y) ?? document.body
+
+  target.dispatchEvent(new MouseEvent('contextmenu', {
+    bubbles: true,
+    cancelable: true,
+    clientX: x,
+    clientY: y
+  }))
+}
+
 // A component opens its own menu from onContextMenu. Before
 // any component sees a right-click, it's cancelled here, so
 // the native menu never shows, even when a component stops
 // the event; and the right button's mousedown is too, so it
 // doesn't move the focus, caret or selection. A right-click
-// that opened no menu on its way up opens the default one, as
-// does one inside an embed's iframe, which only reaches the
-// page through the main process.
+// that opened no menu on its way up opens the default one.
+//
+// A right-click inside an embed's iframe never reaches the
+// page; the main process forwards it, and it's replayed on
+// the iframe, so the component around it can open its menu
+// like for any other right-click.
 function useDefaultMenu() {
   useEffect(() => {
     // The menu open when the current right-click started
@@ -74,7 +90,7 @@ function useDefaultMenu() {
 
     const forwarded = window.tidder.contextMenu
       .onForwarded(({ isSubframe, x, y }) => {
-        if (isSubframe) openDefaultMenu(x, y)
+        if (isSubframe) replayRightClick(x, y)
       })
 
     const capture = { capture: true }

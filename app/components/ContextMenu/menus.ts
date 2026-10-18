@@ -7,6 +7,7 @@ import { openContextMenu } from 'core/contextMenu'
 import type { ContextMenuItem } from 'core/contextMenu'
 import { toast } from 'core/toasts'
 import type { FeedAction } from 'pages/FeedPage/FeedPage'
+import { downloadName } from 'utils/downloadName'
 
 // The items each menu shows. Plain functions of what was
 // right-clicked, so they can be tested without rendering.
@@ -85,6 +86,71 @@ export function postMenuItems(
   })
 
   return items
+}
+
+interface Media {
+  url: string
+  // The post's, for the download's file name
+  title: string
+}
+
+interface Point {
+  x: number
+  y: number
+}
+
+// An image or video in the viewer. Electron copies the image
+// at a point in the window, so `copyAt` is where an image was
+// clicked; without one, as for a video, Copy is disabled
+export function mediaMenuItems(
+  media: Media,
+  copyAt?: Point
+): ContextMenuItem[] {
+  return [
+    { label: 'Download', action: () => void download(media) },
+    {
+      label: 'Copy',
+      disabled: !copyAt,
+      action: () => {
+        if (copyAt) void copyImage(copyAt.x, copyAt.y)
+      }
+    },
+    { label: 'Copy URL', action: () => copyLink(media.url) }
+  ]
+}
+
+// An embedded player: the post's link, not the embed's
+export function embedMenuItems(post: Post): ContextMenuItem[] {
+  return [
+    { label: 'Copy URL', action: () => copyLink(post.url) }
+  ]
+}
+
+async function download({ url, title }: Media) {
+  const result = await window.tidder.contextMenu
+    .download(url, downloadName(title, url))
+    .catch(() => ({ status: 'failed' }) as const)
+
+  if (result.status === 'saved')
+    toast.success(`Downloaded ${result.fileName}`)
+  else if (result.status === 'failed')
+    toast.error('Download failed')
+}
+
+// Electron reports nothing back, so only a failed request
+// shows the error
+async function copyImage(x: number, y: number) {
+  try {
+    await window.tidder.contextMenu.copyImage(x, y)
+    toast.success('Image copied')
+  } catch {
+    toast.error('Couldn\'t copy the image')
+  }
+}
+
+function copyLink(url: string) {
+  window.tidder.contextMenu.writeText(url)
+  toast.success('Link copied')
 }
 
 async function hide(post: Post) {
