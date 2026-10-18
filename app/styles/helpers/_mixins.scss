@@ -92,6 +92,14 @@ $css-module: false !default;
   }
 }
 
+@function border-color($key: 'base') {
+  @if map-has-key(map-get($theme, 'border'), $key) {
+    @return map-get(map-get($theme, 'border'), $key);
+  } @else {
+    @return null;
+  }
+}
+
 // A Toast type's color: `status-color('error', 'border')`.
 @function status-color($status, $key: 'base') {
   @if map-has-key(map-get($theme, $status), $key) {
@@ -104,6 +112,14 @@ $css-module: false !default;
 @function toast-color($key) {
   @if map-has-key(map-get($theme, 'toast'), $key) {
     @return map-get(map-get($theme, 'toast'), $key);
+  } @else {
+    @return null;
+  }
+}
+
+@function context-menu-color($key) {
+  @if map-has-key(map-get($theme, 'contextMenu'), $key) {
+    @return map-get(map-get($theme, 'contextMenu'), $key);
   } @else {
     @return null;
   }

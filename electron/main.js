@@ -3,7 +3,6 @@ const {
   app,
   BrowserWindow,
   ipcMain,
-  Menu,
   session,
   shell
 } = require('electron')
@@ -79,18 +78,8 @@ function openMainWindow() {
     }
   })
 
+  // The renderer draws the context menu (see contextMenu.js)
   contextMenu.forward(mainWindow.webContents)
-
-  if (isDev) {
-    mainWindow.webContents.on('context-menu', (e, props) => {
-      const { x, y } = props
-
-      Menu.buildFromTemplate([{
-        label: 'Inspect element',
-        click: () => mainWindow.webContents.inspectElement(x, y)
-      }]).popup({ window: mainWindow })
-    })
-  }
 }
 
 // Window controls (the main window is frameless)

@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-query-devtools'
 
 import RootLayout from 'layouts/root-layout/RootLayout'
+import ContextMenu from 'components/ContextMenu/ContextMenu'
 import Toaster from 'components/Toaster/Toaster'
 
 import { setup } from 'core/auth'
@@ -29,8 +30,9 @@ createRoot(document.getElementById('root')!).render(
       </HashRouter>
 
       {/* Outside RootLayout's login check, so Toasts show
-          on the login screen too */}
+          on the login screen too, and so does the menu */}
       <Toaster />
+      <ContextMenu />
 
       {/* Dev only: the production build drops it as dead code. */}
       {import.meta.env.DEV && (
