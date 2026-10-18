@@ -4,10 +4,15 @@ import { Link } from 'react-router'
 import { useThing, voteThing } from 'api/thingState'
 import type { Post } from 'api/types'
 
+import {
+  openMenu,
+  postMenuItems
+} from 'components/ContextMenu/menus'
 import Icon, { type IconName } from 'components/Icon/Icon'
 import ScoreButton from 'components/ScoreButton/ScoreButton'
 import type { FeedAction } from 'pages/FeedPage/FeedPage'
 
+import { useAuth } from 'core/auth'
 import { bindStyles } from 'utils/classNames'
 import { timeAgo } from 'utils/timeAgo'
 import { abbreviate } from 'utils/utils'
@@ -42,6 +47,7 @@ export default function PostFeedCard({
   onFeedAction
 }: Props) {
   const post = useThing(rawPost)
+  const { user } = useAuth()
   const hasThumbnail = post.thumbnail.startsWith('http')
 
   const openPost = (ev: MouseEvent) => {
@@ -50,7 +56,13 @@ export default function PostFeedCard({
   }
 
   return (
-    <div className={cx('post-feed-card')}>
+    <div
+      className={cx('post-feed-card')}
+      onContextMenu={(ev) => openMenu(
+        ev,
+        postMenuItems(post, { user, onFeedAction })
+      )}
+    >
       <div className={cx('post-score')}>
         <ScoreButton
           score={abbreviate(post.score, 1, 1)}

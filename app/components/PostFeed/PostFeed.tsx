@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
 
 import { useFeed } from 'api/queries'
+import { useThing } from 'api/thingState'
+import type { Post } from 'api/types'
 
 import PostFeedCard from 'components/PostFeedCard/PostFeedCard'
 import PostFeedFilters from 'components/PostFeedFilters/PostFeedFilters'
@@ -27,12 +29,33 @@ function uniqueByName<T extends { name: string }>(
     !seen.has(thing.name) && !!seen.add(thing.name))
 }
 
+interface EntryProps {
+  post: Post
+  displaySubreddit: boolean
+  // The Saved feed keeps hidden posts, as Reddit does
+  keepHidden: boolean
+  onFeedAction: (action: FeedAction) => void
+}
+
+// A post in the feed, gone once the user hides it
+function PostEntry({ keepHidden, ...card }: EntryProps) {
+  const { hidden } = useThing(card.post)
+
+  if (hidden && !keepHidden) return null
+
+  return (
+    <li className={cx('feed-entry')}>
+      <PostFeedCard {...card} />
+    </li>
+  )
+}
+
 interface Props {
   onFeedAction: (action: FeedAction) => void
 }
 
 export default function PostFeed({ onFeedAction }: Props) {
-  const { displaySub } = useFeedState()
+  const { displaySub, feedSource } = useFeedState()
   const feed = useFeed(useSettledFeedParams())
 
   const listRef = useRef<HTMLDivElement>(null)
@@ -81,16 +104,13 @@ export default function PostFeed({ onFeedAction }: Props) {
           {posts.length > 0 && (
             <ul className={cx('feed-entries')}>
               {posts.map((post) => (
-                <li
-                  className={cx('feed-entry')}
+                <PostEntry
                   key={post.name}
-                >
-                  <PostFeedCard
-                    post={post}
-                    displaySubreddit={displaySub}
-                    onFeedAction={onFeedAction}
-                  />
-                </li>
+                  post={post}
+                  displaySubreddit={displaySub}
+                  keepHidden={feedSource === 'saved'}
+                  onFeedAction={onFeedAction}
+                />
               ))}
             </ul>
           )}

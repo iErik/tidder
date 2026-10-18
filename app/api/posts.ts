@@ -204,6 +204,11 @@ export function setSaved(id: string, saved: boolean): Promise<unknown> {
     { method: 'POST', params: { id } })
 }
 
+export function setHidden(id: string, hidden: boolean): Promise<unknown> {
+  return redditFetch(hidden ? '/api/hide' : '/api/unhide',
+    { method: 'POST', params: { id } })
+}
+
 // dir: 1 upvotes, -1 downvotes, 0 removes the vote.
 export function vote(id: string, dir: -1 | 0 | 1): Promise<unknown> {
   return redditFetch('/api/vote', { method: 'POST', params: { id, dir } })

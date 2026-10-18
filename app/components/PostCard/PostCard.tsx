@@ -8,10 +8,15 @@ import {
 } from 'api/thingState'
 import type { Post } from 'api/types'
 
+import {
+  openMenu,
+  postMenuItems
+} from 'components/ContextMenu/menus'
 import SafeHtml from 'components/SafeHtml/SafeHtml'
 import ScoreButton from 'components/ScoreButton/ScoreButton'
 import type { FeedAction } from 'pages/FeedPage/FeedPage'
 
+import { useAuth } from 'core/auth'
 import { bindStyles } from 'utils/classNames'
 import { timeAgo } from 'utils/timeAgo'
 import { abbreviate } from 'utils/utils'
@@ -76,6 +81,7 @@ interface Props {
 
 export default function PostCard({ post: rawPost, onFeedAction }: Props) {
   const post = useThing(rawPost)
+  const { user } = useAuth()
   const [isCollapsed, setCollapsed] = useState(false)
   const showContent = hasContent(post)
 
@@ -84,7 +90,13 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
       <div className={cx('post-card-layout')}>
         <div className={cx('post-card-inner')}>
 
-          <div className={cx('post-info')}>
+          <div
+            className={cx('post-info')}
+            onContextMenu={(ev) => openMenu(
+              ev,
+              postMenuItems(post, { user, onFeedAction, inViewer: true })
+            )}
+          >
             <div className={cx('post-score')}>
               <ScoreButton
                 score={abbreviate(post.score, 1, 1)}

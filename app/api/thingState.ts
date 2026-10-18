@@ -6,8 +6,8 @@ import * as posts from 'api/posts'
 import * as subreddits from 'api/subreddits'
 import type { ReportReason } from 'api/posts'
 
-// The user's changes to things Reddit sent (votes, saves, reports and
-// subscriptions), keyed by fullname. The same post can be shown by several
+// The user's changes to things Reddit sent (votes, saves, hides, reports
+// and subscriptions), keyed by fullname. The same post can be shown by several
 // components at once, such as a feed card and the post viewer, each with
 // its own copy of Reddit's data; reading these through useThing() keeps
 // them in step. Changes are applied immediately and undone if Reddit
@@ -16,6 +16,7 @@ import type { ReportReason } from 'api/posts'
 export interface ThingChanges {
   likes?: boolean | null
   saved?: boolean
+  hidden?: boolean
   reported?: boolean
   user_is_subscriber?: boolean
 }
@@ -34,12 +35,12 @@ function update(name: string, patch: ThingChanges): void {
 }
 
 // Applies `patch` right away, then reverts to the previous values if the
-// request fails.
+// request fails. Resolves to whether Reddit accepted it.
 async function optimistic<T extends { name: string }>(
   thing: T,
   patch: ThingChanges,
   request: () => Promise<unknown>
-): Promise<void> {
+): Promise<boolean> {
   const previous = { ...changes[thing.name] }
   const reverted = Object.fromEntries(Object.keys(patch).map((key) =>
     [key, key in previous
@@ -50,9 +51,11 @@ async function optimistic<T extends { name: string }>(
 
   try {
     await request()
+    return true
   } catch (err) {
     console.error(err)
     update(thing.name, reverted)
+    return false
   }
 }
 
@@ -67,7 +70,7 @@ export function useThing<T extends { name: string }>(thing: T): T {
 export function voteThing(
   thing: { name: string },
   dir: -1 | 0 | 1
-): Promise<void> {
+): Promise<boolean> {
   const likes = dir === 0 ? null : dir > 0
   return optimistic(thing, { likes }, () => posts.vote(thing.name, dir))
 }
@@ -75,8 +78,17 @@ export function voteThing(
 export function saveThing(
   thing: { name: string },
   saved: boolean
-): Promise<void> {
+): Promise<boolean> {
   return optimistic(thing, { saved }, () => posts.setSaved(thing.name, saved))
+}
+
+// The feeds leave out hidden posts (see PostFeed)
+export function hideThing(
+  thing: { name: string },
+  hidden: boolean
+): Promise<boolean> {
+  return optimistic(thing, { hidden },
+    () => posts.setHidden(thing.name, hidden))
 }
 
 // Unlike the others, a report is only marked once Reddit accepts it, and
