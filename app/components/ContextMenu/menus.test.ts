@@ -234,11 +234,13 @@ describe('media menus', () => {
   })
 
   it('shows nothing when the download is cancelled', async () => {
+    const { download } = tidder().contextMenu
+    download.mockResolvedValue({ status: 'cancelled' })
     const success = vi.spyOn(toast, 'success')
     const error = vi.spyOn(toast, 'error')
 
     find(imageMenuItems(IMAGE, 10, 20), 'Download').action()
-    await tidder().contextMenu.download.mock.results[0].value
+    await download.mock.results[0].value
 
     expect(success).not.toHaveBeenCalled()
     expect(error).not.toHaveBeenCalled()
