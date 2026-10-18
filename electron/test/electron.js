@@ -1,6 +1,7 @@
 // A fake of the parts of Electron the main process uses. A
 // new one is made for each test (see setup.js), with
-// userData in a fresh temp directory
+// userData (and Downloads inside it) in a fresh temp
+// directory
 
 import fs from 'node:fs'
 import os from 'node:os'
@@ -19,23 +20,50 @@ export function electron() {
   return current
 }
 
-// The main process only asks for userData, so any other name
-// is a bug
+// The main process only asks for userData and downloads, so
+// any other name is a bug
 function getPath(name) {
-  if (name !== 'userData')
-    throw new Error(`app.getPath('${name}') isn't faked`)
+  if (name === 'userData')
+    return userData
 
-  return userData
+  if (name === 'downloads')
+    return path.join(userData, 'Downloads')
+
+  throw new Error(`app.getPath('${name}') isn't faked`)
 }
 
 export function createElectron() {
   userData = fs.mkdtempSync(
     path.join(os.tmpdir(), 'tidder-test-'))
+  fs.mkdirSync(getPath('downloads'))
 
   current = {
     app: {
       getPath: vi.fn(getPath),
       getVersion: vi.fn(() => '0.0.0-test')
+    },
+
+    BrowserWindow: {
+      fromWebContents: vi.fn(() => null)
+    },
+
+    clipboard: {
+      writeText: vi.fn()
+    },
+
+    // The user cancels, unless a test stubs it
+    dialog: {
+      showSaveDialog: vi.fn(() => Promise.resolve({
+        canceled: true,
+        filePath: ''
+      }))
+    },
+
+    // Records the handlers, so a test can call them (see
+    // ipcHandler())
+    ipcMain: {
+      handle: vi.fn(),
+      on: vi.fn()
     },
 
     // Rejects, like a failed request in Electron, unless a
@@ -60,6 +88,19 @@ export function createElectron() {
   }
 
   return current
+}
+
+// The handler registered for an IPC channel, with
+// ipcMain.handle() or ipcMain.on()
+export function ipcHandler(channel) {
+  const { handle, on } = current.ipcMain
+  const call = [...handle.mock.calls, ...on.mock.calls]
+    .find(([name]) => name === channel)
+
+  if (!call)
+    throw new Error(`Nothing handles '${channel}'`)
+
+  return call[1]
 }
 
 export function removeElectron() {

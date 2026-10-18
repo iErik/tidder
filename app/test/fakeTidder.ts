@@ -22,6 +22,7 @@ type Fake<T> = {
 export type FakeTidder = Fake<TidderBridge>
 
 type Watcher = (value: unknown) => void
+type ContextMenuListener = (params: TidderContextMenuParams) => void
 
 // Settings live in memory, seeded from the defaults like the
 // real store. As in the app, set() notifies the watchers
@@ -33,9 +34,11 @@ export function createFakeTidder(
     ...settings
   }))
   const watchers = new Map<string, Set<Watcher>>()
+  const contextMenuListeners = new Set<ContextMenuListener>()
 
   return {
     platform: 'linux',
+    isDev: false,
 
     window: {
       close: vi.fn(),
@@ -45,6 +48,21 @@ export function createFakeTidder(
 
     openExternal: vi.fn(),
     openPopup: vi.fn(),
+
+    // A download the user cancels, unless a test stubs it
+    contextMenu: {
+      inspect: vi.fn(),
+      copyImage: vi.fn(() => Promise.resolve()),
+      writeText: vi.fn(),
+      download: vi.fn(() => Promise.resolve<TidderDownloadResult>({
+        status: 'cancelled'
+      })),
+
+      onForwarded: vi.fn((listener: ContextMenuListener) => {
+        contextMenuListeners.add(listener)
+        return { dispose: () => contextMenuListeners.delete(listener) }
+      })
+    },
 
     // Logged out, as if there's no stored session
     auth: {
