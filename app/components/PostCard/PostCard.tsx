@@ -9,8 +9,11 @@ import {
 import type { Post } from 'api/types'
 
 import {
+  embedMenuItems,
+  imageMenuItems,
   openMenu,
-  postMenuItems
+  postMenuItems,
+  videoMenuItems
 } from 'components/ContextMenu/menus'
 import SafeHtml from 'components/SafeHtml/SafeHtml'
 import ScoreButton from 'components/ScoreButton/ScoreButton'
@@ -202,11 +205,22 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
                   className={cx('post-media')}
                   html={post.secure_media_embed.content}
                   embed
+                  // Right-clicks inside the player arrive from
+                  // the main process (see ContextMenu)
+                  onContextMenu={(ev) =>
+                    openMenu(ev, embedMenuItems(post))}
                 />}
 
               {isImage(post) && (
                 <div className={cx('post-image')}>
-                  <img className={cx('image')} src={imageSource(post)} />
+                  <img
+                    className={cx('image')}
+                    src={imageSource(post)}
+                    onContextMenu={(ev) => openMenu(ev, imageMenuItems(
+                      { url: imageSource(post), title: post.title },
+                      ev.clientX, ev.clientY
+                    ))}
+                  />
                 </div>
               )}
 
@@ -219,6 +233,9 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
                     loop={!post.is_video}
                     muted={!post.is_video}
                     src={videoSource(post)}
+                    onContextMenu={(ev) => openMenu(ev, videoMenuItems(
+                      { url: videoSource(post)!, title: post.title }
+                    ))}
                   >
                   </video>
                 </div>

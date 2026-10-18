@@ -127,6 +127,37 @@ describe('ContextMenu', () => {
     expect(labels()).toEqual(['Inspect'])
   })
 
+  it('replays a right-click inside an embed on the iframe', async () => {
+    const { openContextMenu } = await renderMenu()
+    const iframe = appended(document.createElement('iframe'))
+    const points: number[][] = []
+    iframe.addEventListener('contextmenu', (e) => {
+      points.push([e.clientX, e.clientY])
+      openContextMenu(e.clientX, e.clientY, [
+        { label: 'Copy URL', action: vi.fn() }
+      ])
+    })
+    const fromPoint = vi.spyOn(document, 'elementFromPoint')
+      .mockReturnValue(iframe)
+    const [listener] = tidder().contextMenu.onForwarded.mock.calls[0]
+
+    act(() => listener(forwarded({ isSubframe: true })))
+
+    expect(fromPoint).toHaveBeenCalledWith(10, 20)
+    expect(points).toEqual([[10, 20]])
+    expect(labels()).toEqual(['Copy URL'])
+  })
+
+  it('ignores forwarded right-clicks outside iframes', async () => {
+    tidder().isDev = true
+    await renderMenu()
+    const [listener] = tidder().contextMenu.onForwarded.mock.calls[0]
+
+    act(() => listener(forwarded({ isSubframe: false })))
+
+    expect(menu()).toBeNull()
+  })
+
   it('shows the items, disabled ones as such', async () => {
     const { openContextMenu } = await renderMenu()
 
