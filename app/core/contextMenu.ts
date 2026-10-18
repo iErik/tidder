@@ -36,7 +36,12 @@ function subscribe(listener: () => void): () => void {
 }
 
 export function useContextMenu(): ContextMenu | null {
-  return useSyncExternalStore(subscribe, () => menu)
+  return useSyncExternalStore(subscribe, getContextMenu)
+}
+
+// The open menu, outside React
+export function getContextMenu(): ContextMenu | null {
+  return menu
 }
 
 // Replaces any menu already open. With no items, nothing

@@ -8,6 +8,7 @@ import type { RefObject } from 'react'
 
 import {
   closeContextMenu,
+  getContextMenu,
   openContextMenu,
   useContextMenu
 } from 'core/contextMenu'
@@ -40,28 +41,50 @@ export default function ContextMenu() {
   return menu && <MenuList key={menu.id} menu={menu} />
 }
 
-// A component opens its own menu from onContextMenu and calls
-// preventDefault. The native menu never shows, and a
-// right-click no component took opens the default menu, as
+function openDefaultMenu(x: number, y: number) {
+  openContextMenu(x, y, defaultMenuItems(x, y))
+}
+
+// A component opens its own menu from onContextMenu. Before
+// any component sees a right-click, it's cancelled here, so
+// the native menu never shows, even when a component stops
+// the event; and the right button's mousedown is too, so it
+// doesn't move the focus, caret or selection. A right-click
+// that opened no menu on its way up opens the default one, as
 // does one inside an embed's iframe, which only reaches the
 // page through the main process.
 function useDefaultMenu() {
   useEffect(() => {
-    function onContextMenu(event: MouseEvent) {
-      if (event.defaultPrevented) return
+    // The menu open when the current right-click started
+    let before: Menu | null = null
 
+    function onMouseDown(event: MouseEvent) {
+      if (event.button === 2) event.preventDefault()
+    }
+
+    function cancel(event: MouseEvent) {
       event.preventDefault()
-      const { clientX: x, clientY: y } = event
-      openContextMenu(x, y, defaultMenuItems(x, y))
+      before = getContextMenu()
+    }
+
+    function onContextMenu(event: MouseEvent) {
+      if (getContextMenu() === before)
+        openDefaultMenu(event.clientX, event.clientY)
     }
 
     const forwarded = window.tidder.contextMenu
       .onForwarded(({ isSubframe, x, y }) => {
-        if (isSubframe) openContextMenu(x, y, defaultMenuItems(x, y))
+        if (isSubframe) openDefaultMenu(x, y)
       })
 
+    const capture = { capture: true }
+    window.addEventListener('mousedown', onMouseDown, capture)
+    window.addEventListener('contextmenu', cancel, capture)
     document.addEventListener('contextmenu', onContextMenu)
+
     return () => {
+      window.removeEventListener('mousedown', onMouseDown, capture)
+      window.removeEventListener('contextmenu', cancel, capture)
       document.removeEventListener('contextmenu', onContextMenu)
       forwarded.dispose()
     }
@@ -111,7 +134,8 @@ function MenuList({ menu }: { menu: Menu }) {
       className={cx('context-menu', `theme-${appTheme}`)}
       // Keeps the focus and the selection where they were
       onMouseDown={(event) => event.preventDefault()}
-      onContextMenu={(event) => event.preventDefault()}
+      // A right-click on the menu opens no other menu
+      onContextMenu={(event) => event.stopPropagation()}
     >
       {menu.items.map((item, index) => (
         <li

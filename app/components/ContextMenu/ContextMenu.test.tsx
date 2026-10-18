@@ -38,7 +38,18 @@ function rightClick(target: Element = document.body) {
   return fireEvent.contextMenu(target, { clientX: 10, clientY: 20 })
 }
 
-afterEach(cleanup)
+// An element in the page for the test, removed afterwards
+const added: Element[] = []
+
+function appended<T extends Element>(element: T): T {
+  added.push(element)
+  return document.body.appendChild(element)
+}
+
+afterEach(() => {
+  cleanup()
+  added.splice(0).forEach((element) => element.remove())
+})
 
 describe('ContextMenu', () => {
   it('opens nothing outside dev mode, without the native menu', async () => {
@@ -60,19 +71,50 @@ describe('ContextMenu', () => {
     expect(labels()).toEqual(['Inspect'])
   })
 
-  it('leaves a right-click a component handled alone', async () => {
+  it('keeps the menu a component opened', async () => {
     tidder().isDev = true
-    await renderMenu()
-    const target = document.createElement('div')
-    document.body.append(target)
-    target.addEventListener('contextmenu', (e) => e.preventDefault())
+    const { openContextMenu } = await renderMenu()
+    const target = appended(document.createElement('div'))
+    target.addEventListener('contextmenu', () => {
+      openContextMenu(10, 20, [{ label: 'Save', action: vi.fn() }])
+    })
 
-    try {
-      rightClick(target)
-      expect(menu()).toBeNull()
-    } finally {
-      target.remove()
-    }
+    act(() => { rightClick(target) })
+
+    expect(labels()).toEqual(['Save'])
+  })
+
+  it('stops the native menu even if a component stops the event',
+    async () => {
+      await renderMenu()
+      const target = appended(document.createElement('div'))
+      target.addEventListener('contextmenu', (e) => e.stopPropagation())
+
+      expect(rightClick(target)).toBe(false)
+    })
+
+  it('keeps the focus and selection on a right mousedown', async () => {
+    await renderMenu()
+    const input = appended(document.createElement('input'))
+
+    const right = fireEvent.mouseDown(input, { button: 2 })
+    const left = fireEvent.mouseDown(input, { button: 0 })
+
+    // fireEvent returns false once preventDefault was called
+    expect(right).toBe(false)
+    expect(left).toBe(true)
+  })
+
+  it('opens nothing over itself on a right-click', async () => {
+    tidder().isDev = true
+    const { openContextMenu } = await renderMenu()
+
+    act(() => openContextMenu(10, 20, [
+      { label: 'Save', action: vi.fn() }
+    ]))
+    rightClick(screen.getByText('Save'))
+
+    expect(labels()).toEqual(['Save'])
   })
 
   it('opens Inspect for a right-click inside an embed', async () => {
