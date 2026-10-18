@@ -17,9 +17,8 @@ import { tidder } from '../../test/fakeTidder'
 import {
   defaultMenuItems,
   embedMenuItems,
-  imageMenuItems,
+  mediaMenuItems,
   postMenuItems,
-  videoMenuItems,
   withInspect
 } from './menus'
 
@@ -192,15 +191,15 @@ const find = (items: ContextMenuItem[], label: string) =>
   items.find((entry) => entry.label === label)!
 
 describe('media menus', () => {
-  it('lists the image menu', () => {
-    const items = imageMenuItems(IMAGE, 10, 20)
+  it('lists the media menu with a point to copy at', () => {
+    const items = mediaMenuItems(IMAGE, { x: 10, y: 20 })
 
     expect(labels(items)).toEqual(['Download', 'Copy', 'Copy URL'])
     expect(items.some(({ disabled }) => disabled)).toBe(false)
   })
 
-  it('lists the video menu, with Copy disabled', () => {
-    const items = videoMenuItems(VIDEO)
+  it('disables Copy without a point', () => {
+    const items = mediaMenuItems(VIDEO)
 
     expect(labels(items)).toEqual(['Download', 'Copy', 'Copy URL'])
     expect(find(items, 'Copy').disabled).toBe(true)
@@ -211,7 +210,7 @@ describe('media menus', () => {
     download.mockResolvedValue({ status: 'saved', fileName: 'A cat.jpg' })
     const success = vi.spyOn(toast, 'success')
 
-    find(imageMenuItems(IMAGE, 10, 20), 'Download').action()
+    find(mediaMenuItems(IMAGE, { x: 10, y: 20 }), 'Download').action()
 
     expect(download).toHaveBeenCalledWith(IMAGE.url, 'A cat.jpg')
     await vi.waitFor(() => {
@@ -226,7 +225,7 @@ describe('media menus', () => {
     tidder().contextMenu.download.mockImplementation(result)
     const error = vi.spyOn(toast, 'error')
 
-    find(videoMenuItems(VIDEO), 'Download').action()
+    find(mediaMenuItems(VIDEO), 'Download').action()
 
     await vi.waitFor(() => {
       expect(error).toHaveBeenCalledWith('Download failed')
@@ -239,7 +238,7 @@ describe('media menus', () => {
     const success = vi.spyOn(toast, 'success')
     const error = vi.spyOn(toast, 'error')
 
-    find(imageMenuItems(IMAGE, 10, 20), 'Download').action()
+    find(mediaMenuItems(IMAGE, { x: 10, y: 20 }), 'Download').action()
     await download.mock.results[0].value
 
     expect(success).not.toHaveBeenCalled()
@@ -249,7 +248,7 @@ describe('media menus', () => {
   it('copies the image at the point', async () => {
     const success = vi.spyOn(toast, 'success')
 
-    find(imageMenuItems(IMAGE, 10, 20), 'Copy').action()
+    find(mediaMenuItems(IMAGE, { x: 10, y: 20 }), 'Copy').action()
 
     expect(tidder().contextMenu.copyImage).toHaveBeenCalledWith(10, 20)
     await vi.waitFor(() => {
@@ -261,7 +260,7 @@ describe('media menus', () => {
     tidder().contextMenu.copyImage.mockRejectedValue(new Error('IPC'))
     const error = vi.spyOn(toast, 'error')
 
-    find(imageMenuItems(IMAGE, 10, 20), 'Copy').action()
+    find(mediaMenuItems(IMAGE, { x: 10, y: 20 }), 'Copy').action()
 
     await vi.waitFor(() => {
       expect(error).toHaveBeenCalledWith('Couldn\'t copy the image')
@@ -269,8 +268,8 @@ describe('media menus', () => {
   })
 
   it.each([
-    ['image', imageMenuItems(IMAGE, 10, 20), IMAGE.url],
-    ['video', videoMenuItems(VIDEO), VIDEO.url],
+    ['image', mediaMenuItems(IMAGE, { x: 10, y: 20 }), IMAGE.url],
+    ['video', mediaMenuItems(VIDEO), VIDEO.url],
     [
       'embed',
       embedMenuItems(post({ url: 'https://youtu.be/abc' })),

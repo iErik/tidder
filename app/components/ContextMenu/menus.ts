@@ -94,26 +94,28 @@ interface Media {
   title: string
 }
 
-// An image in the viewer; x and y are where it was clicked,
-// for copying it
-export function imageMenuItems(
-  image: Media,
-  x: number,
+interface Point {
+  x: number
   y: number
-): ContextMenuItem[] {
-  return [
-    { label: 'Download', action: () => void download(image) },
-    { label: 'Copy', action: () => void copyImage(x, y) },
-    { label: 'Copy URL', action: () => copyLink(image.url) }
-  ]
 }
 
-// A video in the viewer. Electron can only copy images.
-export function videoMenuItems(video: Media): ContextMenuItem[] {
+// An image or video in the viewer. Electron copies the image
+// at a point in the window, so `copyAt` is where an image was
+// clicked; without one, as for a video, Copy is disabled
+export function mediaMenuItems(
+  media: Media,
+  copyAt?: Point
+): ContextMenuItem[] {
   return [
-    { label: 'Download', action: () => void download(video) },
-    { label: 'Copy', disabled: true, action: () => { } },
-    { label: 'Copy URL', action: () => copyLink(video.url) }
+    { label: 'Download', action: () => void download(media) },
+    {
+      label: 'Copy',
+      disabled: !copyAt,
+      action: () => {
+        if (copyAt) void copyImage(copyAt.x, copyAt.y)
+      }
+    },
+    { label: 'Copy URL', action: () => copyLink(media.url) }
   ]
 }
 
