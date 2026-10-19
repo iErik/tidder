@@ -1,8 +1,9 @@
 // The native side of the app's context menu, which the renderer draws
 // itself (app/components/ContextMenu): inspecting, copying an image,
-// writing to the clipboard and downloading, plus forwarding the
-// right-clicks the renderer can't see, like those inside an embed's
-// iframe.
+// writing to the clipboard and downloading, plus forwarding each
+// right-click with what it landed on (the selection, a link, a text
+// field), including those inside an embed's iframe, which the renderer
+// can't see.
 
 const fs = require('fs')
 const path = require('path')
@@ -93,6 +94,7 @@ function forwardedParams(webContents, params) {
       && params.frame !== webContents.mainFrame,
     selectionText: params.selectionText,
     linkURL: params.linkURL,
+    linkText: params.linkText,
     srcURL: params.srcURL,
     mediaType: params.mediaType,
     isEditable: params.isEditable,
@@ -101,7 +103,9 @@ function forwardedParams(webContents, params) {
 }
 
 // Electron only fires context-menu for right-clicks the page didn't
-// handle itself, so the renderer gets the rest this way
+// cancel. The renderer leaves its own uncancelled, so it learns what
+// they landed on this way, and gets those inside iframes, which it
+// never sees
 function forward(webContents) {
   webContents.on('context-menu', (ev, params) => {
     webContents.send(

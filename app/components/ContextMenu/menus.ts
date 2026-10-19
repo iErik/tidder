@@ -9,6 +9,8 @@ import { toast } from 'core/toasts'
 import type { FeedAction } from 'pages/FeedPage/FeedPage'
 import { downloadName } from 'utils/downloadName'
 
+import type { MenuTarget } from './target'
+
 // The items each menu shows. Plain functions of what was
 // right-clicked, so they can be tested without rendering.
 
@@ -32,6 +34,21 @@ export function defaultMenuItems(
   y: number
 ): ContextMenuItem[] {
   return withInspect([], x, y)
+}
+
+// Selected text, right-clicked on the selection
+export function selectionMenuItems(text: string): ContextMenuItem[] {
+  return [{ label: 'Copy text', action: () => copyText(text) }]
+}
+
+// A target no component in the page opens the menu for (see
+// pickTarget), with Inspect in dev mode
+export function targetMenuItems(
+  target: Exclude<MenuTarget, { type: 'page' }>,
+  x: number,
+  y: number
+): ContextMenuItem[] {
+  return withInspect(selectionMenuItems(target.text), x, y)
 }
 
 // Opens a component's menu at the right-click, with Inspect
@@ -151,6 +168,11 @@ async function copyImage(x: number, y: number) {
 function copyLink(url: string) {
   window.tidder.contextMenu.writeText(url)
   toast.success('Link copied')
+}
+
+function copyText(text: string) {
+  window.tidder.contextMenu.writeText(text)
+  toast.success('Text copied')
 }
 
 async function hide(post: Post) {

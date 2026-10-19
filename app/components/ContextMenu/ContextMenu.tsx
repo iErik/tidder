@@ -19,8 +19,10 @@ import type {
 import { useSetting } from 'core/useSetting'
 import { bindStyles } from 'utils/classNames'
 
-import { defaultMenuItems } from './menus'
+import { defaultMenuItems, targetMenuItems } from './menus'
 import { placeMenu } from './placeMenu'
+import { isOnSelection, pickTarget } from './target'
+import type { MenuTarget } from './target'
 import { useMenuKeyboard } from './useMenuKeyboard'
 
 import styles from './ContextMenu.module.scss'
@@ -45,40 +47,63 @@ function openDefaultMenu(x: number, y: number) {
   openContextMenu(x, y, defaultMenuItems(x, y))
 }
 
+// The right-clicks replayRightClick dispatched
+const replayed = new WeakSet<Event>()
+
 // A right-click at the point, as if it had happened on the
 // page's element there
 function replayRightClick(x: number, y: number) {
   const target = document.elementFromPoint(x, y) ?? document.body
-
-  target.dispatchEvent(new MouseEvent('contextmenu', {
+  const event = new MouseEvent('contextmenu', {
     bubbles: true,
     cancelable: true,
     clientX: x,
     clientY: y
-  }))
+  })
+
+  replayed.add(event)
+  target.dispatchEvent(event)
 }
 
-// A component opens its own menu from onContextMenu. Before
-// any component sees a right-click, it's cancelled here, so
-// the native menu never shows, even when a component stops
-// the event; and the right button's mousedown is too, so it
-// doesn't move the focus, caret or selection. A right-click
-// that opened no menu on its way up opens the default one.
+// Opens the menu for a right-click the main process
+// forwarded, once it reports what it landed on. One inside an
+// embed's iframe, or on nothing pickTarget ranks above the
+// page's own menus, is replayed on the element at the point.
+function onForwarded(params: TidderContextMenuParams) {
+  const { x, y } = params
+  const target: MenuTarget = params.isSubframe
+    ? { type: 'page' }
+    : pickTarget({ params, onSelection: isOnSelection(x, y) })
+
+  if (target.type === 'page') replayRightClick(x, y)
+  else openContextMenu(x, y, targetMenuItems(target, x, y))
+}
+
+// A right-click opens no menu until the main process reports
+// what it landed on (see onForwarded). Until then, it's
+// stopped before any component sees it, but not cancelled, or
+// Electron wouldn't report it. The right button's mousedown
+// is cancelled, so it doesn't move the focus, caret or
+// selection.
 //
-// A right-click inside an embed's iframe never reaches the
-// page; the main process forwards it, and it's replayed on
-// the iframe, so the component around it can open its menu
-// like for any other right-click.
+// A component opens its own menu from onContextMenu, when the
+// right-click is replayed on it. A replayed right-click that
+// opened no menu on its way up opens the default one.
 function useDefaultMenu() {
   useEffect(() => {
-    // The menu open when the current right-click started
+    // The menu open when the current replay started
     let before: Menu | null = null
 
     function onMouseDown(event: MouseEvent) {
       if (event.button === 2) event.preventDefault()
     }
 
-    function cancel(event: MouseEvent) {
+    function hold(event: MouseEvent) {
+      if (!replayed.has(event)) {
+        event.stopImmediatePropagation()
+        return
+      }
+
       event.preventDefault()
       before = getContextMenu()
     }
@@ -89,18 +114,16 @@ function useDefaultMenu() {
     }
 
     const forwarded = window.tidder.contextMenu
-      .onForwarded(({ isSubframe, x, y }) => {
-        if (isSubframe) replayRightClick(x, y)
-      })
+      .onForwarded(onForwarded)
 
     const capture = { capture: true }
     window.addEventListener('mousedown', onMouseDown, capture)
-    window.addEventListener('contextmenu', cancel, capture)
+    window.addEventListener('contextmenu', hold, capture)
     document.addEventListener('contextmenu', onContextMenu)
 
     return () => {
       window.removeEventListener('mousedown', onMouseDown, capture)
-      window.removeEventListener('contextmenu', cancel, capture)
+      window.removeEventListener('contextmenu', hold, capture)
       document.removeEventListener('contextmenu', onContextMenu)
       forwarded.dispose()
     }

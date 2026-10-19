@@ -193,6 +193,7 @@ const PARAMS = {
   y: 20,
   selectionText: '',
   linkURL: '',
+  linkText: '',
   srcURL: 'https://www.youtube.com/embed/id',
   mediaType: 'none',
   isEditable: false,
@@ -219,6 +220,26 @@ describe('forward', { concurrent: false }, () => {
     webContents.rightClick({ ...PARAMS, frame: webContents.mainFrame })
 
     expect(webContents.send.mock.calls[0][1].isSubframe).toBe(false)
+  })
+
+  it('sends what a right-click in the page landed on', () => {
+    const webContents = fakeWebContents()
+    loadContextMenu().forward(webContents)
+    const target = {
+      selectionText: 'Selected text',
+      linkURL: 'https://www.reddit.com/r/pics',
+      linkText: 'r/pics',
+      isEditable: true,
+      editFlags: { canCopy: true, canPaste: true }
+    }
+
+    webContents.rightClick({
+      ...PARAMS,
+      ...target,
+      frame: webContents.mainFrame
+    })
+
+    expect(webContents.send.mock.calls[0][1]).toMatchObject(target)
   })
 })
 
