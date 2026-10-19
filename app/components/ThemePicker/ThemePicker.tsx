@@ -36,11 +36,11 @@ export default function ThemePicker() {
 
   return (
     <div className={cx('theme-picker')}>
-      <div className={cx('theme-picker-layout')}>
-        <div className={cx('theme-picker-toggle')}>
+      <div className={cx('layout')}>
+        <div className={cx('toggle')}>
           <button
             type="button"
-            className={cx('btn-trigger')}
+            className={cx('trigger')}
             onClick={toggleMenu}
           >
             <Icon name="arrow-down-o" />
@@ -50,22 +50,22 @@ export default function ThemePicker() {
         {menu !== 'closed' && (
           <div
             className={cx(
-              'theme-picker-menu',
-              menu === 'open' ? 'fade-enter' : 'fade-leave'
+              'dropdown',
+              menu === 'open' ? '-entering' : '-leaving'
             )}
             onAnimationEnd={() => {
               if (menu === 'closing') setMenu('closed')
             }}
           >
-            <div className={cx('menu-heading')}>
-              <p className={cx('heading')}>Themes</p>
+            <div className={cx('heading')}>
+              <p className={cx('title')}>Themes</p>
             </div>
-            <ul className={cx('theme-picker-entries')}>
+            <ul className={cx('entries')}>
               {themes.map((theme) => (
                 <li
                   key={theme}
                   className={cx(
-                    'theme-picker-entry',
+                    'entry',
                     `theme-${theme}`
                   )}
                   onClick={() => changeTheme(theme)}

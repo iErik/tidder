@@ -70,9 +70,13 @@
 
       &:not(:last-child) { margin-right: 15px; }
 
-      @include icon {
-        display: flex;
-        font-size: 1.13em;
+      // Only the icons in Topbar's own buttons, not the ones
+      // inside nested components like ThemePicker.
+      > .btn-trigger {
+        @include icon {
+          display: flex;
+          font-size: 1.13em;
+        }
       }
     }
   }
