@@ -15,10 +15,7 @@ import Icon from 'components/Icon/Icon'
 import { bindStyles } from 'utils/classNames'
 
 import styles from './CommentFeed.module.scss'
-import {
-  mergeComments,
-  unlistedComments
-} from './mergeComments'
+import { mergeComments } from './mergeComments'
 
 const cx = bindStyles(styles)
 
@@ -59,17 +56,15 @@ export default function CommentFeed({ post }: Props) {
 
   const thread = useComments(post, sortMode)
 
-  const threadComments = thread.data?.comments ?? []
   const comments = mergeComments(
-    additions.submitted, threadComments, additions.loaded
+    additions.submitted,
+    thread.data?.comments ?? [],
+    additions.loaded
   )
-  // Reddit's own count, from the thread once it's loaded (the feed's copy
-  // of the post is older), plus the submitted comments it doesn't count yet
-  const unlisted = unlistedComments(
-    additions.submitted, threadComments, additions.loaded
-  )
-  const commentCount =
-    (thread.data?.post.num_comments ?? post.num_comments) + unlisted.length
+  // The feed's copy of the post is never refetched while it's
+  // open, so its count never includes the submitted comments.
+  // The thread's fresh count might, but can't say which ones.
+  const commentCount = post.num_comments + additions.submitted.length
   const more = additions.more !== undefined
     ? additions.more
     : thread.data?.more ?? null
