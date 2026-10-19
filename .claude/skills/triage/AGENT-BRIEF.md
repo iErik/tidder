@@ -40,6 +40,8 @@ State what is out of scope. This prevents the agent from gold-plating or making 
 
 Each PR has a size limit, set in the repo's issue-tracker guide (`docs/agents/issue-tracker.md`, "PR size"). When the work is likely to go over it, the brief says how to split it into PRs that each stand on their own, and in what order. Split by behaviour (setup first, then each area), not by file. Never ask for fewer PRs than the limit allows: if the agent finds the work is bigger than planned, the limit wins, and it splits further.
 
+When the brief plans more than one PR, create a sub-issue for each part once the brief is posted, as set out in the issue-tracker guide ("Sub-issues"), and name each part's sub-issue in the **Delivery** list.
+
 ## Template
 
 ```markdown

@@ -14,4 +14,4 @@ Once done, use /code-review to review the work.
 
 Commit your work to the current branch.
 
-Keep each PR within the size limit in `docs/agents/issue-tracker.md` ("PR size"). Measure the diff with the command there before opening a PR. When the work is bigger, split it into PRs that each build and pass their tests on their own, and announce each one on the ticket.
+Keep each PR within the size limit in `docs/agents/issue-tracker.md` ("PR size"). Measure the diff with the command there before opening a PR. When the work is bigger, split it into PRs that each build and pass their tests on their own, create a sub-issue for each one (see "Sub-issues" there), and announce each one on the ticket.
