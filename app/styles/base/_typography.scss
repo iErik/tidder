@@ -62,6 +62,7 @@
     -webkit-font-smoothing: antialiased;
     margin: 0;
 
+    /* stylelint-disable-next-line block-no-empty -- nested code block has no declarations; removing it is past a lint fix */
     code { }
   }
 

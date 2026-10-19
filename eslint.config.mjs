@@ -179,7 +179,8 @@ export default defineConfig(
     files: [
       'scripts/**/*.mjs',
       'eslint-rules/**/*.mjs',
-      'eslint.config.mjs'
+      'eslint.config.mjs',
+      'stylelint.config.mjs'
     ],
     languageOptions: { ...node, sourceType: 'module' }
   }
