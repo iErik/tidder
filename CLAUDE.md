@@ -145,7 +145,7 @@ The Linux pattern spells `x64` out because electron-builder's `${arch}` is `x86_
 
 ### Issue tracker
 
-Issues live in Tidder's Team board within Linear, managed with Linear's MCP. See `docs/agents/issue-tracker.md`. Every PR has at most 700 changed lines, not counting generated files ("PR size" there says what counts and how to measure it). A ticket that needs more is split into several PRs, each announced on the ticket.
+Issues live in Tidder's Team board within Linear, managed with Linear's MCP. See `docs/agents/issue-tracker.md`. Every PR has at most 700 changed lines, not counting generated files ("PR size" there says what counts and how to measure it). A ticket that needs more is split into several PRs, each with a sub-issue of its own ("Sub-issues" there) and announced on the ticket.
 
 ### Triage labels
 
