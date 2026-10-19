@@ -79,7 +79,7 @@ $display-shadow: true;
         letter-spacing: 2px;
         line-height: 1.5;
 
-        @include themify { color: primary-color() }
+        @include themify { color: primary-color(); }
       }
     }
   }

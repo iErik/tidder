@@ -19,8 +19,8 @@
     "test": "pnpm run themes && vitest run",
     "test:watch": "pnpm run themes && vitest",
     "test:coverage": "pnpm run themes && vitest run --coverage",
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix .",
+    "lint": "eslint . && stylelint \"**/*.scss\"",
+    "lint:fix": "eslint --fix . && stylelint --fix \"**/*.scss\"",
     "start": "pnpm run build && electron .",
     "build:pack": "pnpm run build && electron-builder",
     "build:pack:multi": "pnpm run build && electron-builder -mlw --x64 --arm64",
@@ -30,7 +30,8 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{ts,tsx,mts,js,mjs,cjs}": "eslint --fix"
+    "*.{ts,tsx,mts,js,mjs,cjs}": "eslint --fix",
+    "*.scss": "stylelint --fix"
   },
   "build": {
     "productName": "Tidder",
@@ -80,6 +81,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@stylistic/eslint-plugin": "^5.10.0",
+    "@stylistic/stylelint-plugin": "^5.3.1",
     "@tanstack/react-query": "5.104.0",
     "@tanstack/react-query-devtools": "5.104.0",
     "@testing-library/dom": "^10.4.2",
@@ -101,10 +103,13 @@
     "happy-dom": "^21.0.1",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
+    "postcss-scss": "^4.0.9",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-router": "^8.4.0",
     "sass": "^1.105.1",
+    "stylelint": "^17.16.0",
+    "stylelint-scss": "^7.3.0",
     "typescript": "~6.0.0",
     "typescript-eslint": "^8.71.2",
     "vite": "^8.3.1",

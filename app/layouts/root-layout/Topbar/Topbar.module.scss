@@ -90,7 +90,7 @@
       font-size:      0.875rem;
       letter-spacing: 3.5px;
       line-height:    $topbar-height;
-      @include themify { color: foreground-color() }
+      @include themify { color: foreground-color(); }
 
       cursor: default;
       user-select: none;

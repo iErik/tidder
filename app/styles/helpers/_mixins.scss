@@ -22,29 +22,29 @@ $css-module: false !default;
 
     @if $scope == 'local' {
       &#{$theme-class} {
-         $theme: $colors !global;
+        $theme: $colors !global;
 
-         @content;
+        @content;
 
-         $theme: null !global;
-       }
+        $theme: null !global;
+      }
     } @else if $scope == 'parent' {
       #{$theme-class} & {
-         $theme: $colors !global;
+        $theme: $colors !global;
 
-         @content;
+        @content;
 
-         $theme: null !global;
-       }
+        $theme: null !global;
+      }
     } @else if $scope == 'both' {
       #{$theme-class} &,
       &#{$theme-class} {
-         $theme: $colors !global;
+        $theme: $colors !global;
 
-         @content;
+        @content;
 
-         $theme: null !global;
-       }
+        $theme: null !global;
+      }
     }
   }
 }

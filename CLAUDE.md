@@ -68,7 +68,7 @@ Conventions:
 - `electron/test/setup.js` gives each main-process test a fake `electron` (`electron/test/electron.js`, read with `electron()`): `app.getPath('userData')` points at a fresh temp directory that's removed afterwards (any other name throws), `safeStorage` is a reversible fake, and `net.fetch` rejects until a test stubs it. `vi.mock('electron')` doesn't work here: it can't reach the `require()` calls in `electron/`, so the fake goes into Node's `require.cache`, and the project's own files are dropped from that cache before each test. Load the module under test with `createRequire(import.meta.url)` inside the test: a `require` at the top of the file runs before the fake is installed, and gets the real `electron` package. The cache and the fake are shared by the whole file, so main-process tests stay sequential: no `it.concurrent` or `describe.concurrent`, and a `describe` whose tests share state passes `{ concurrent: false }`. One whose tests also depend on running in order passes `{ concurrent: false, shuffle: false }`: `concurrent: false` alone doesn't stop `--sequence.shuffle` from reordering them. Both options hold even when concurrency or shuffling is turned on for the whole run.
 - `electron/test/` and `*.test.js` are left out of the packaged app (`build.files`).
 
-Linting is configured in `eslint.config.mjs`, and every rule is an error:
+Linting is configured in `eslint.config.mjs` and `stylelint.config.mjs`, and every enabled rule is an error. Stylelint does not extend a shareable preset.
 
 - Stylistic formatting everywhere:
   - no semicolons, single quotes, 2-space indent, no trailing spaces;
@@ -79,8 +79,22 @@ Linting is configured in `eslint.config.mjs`, and every rule is an error:
 - `app/`: `typescript-eslint` `recommendedTypeChecked` and `react-hooks` `recommended`, with React Compiler rules. `no-misused-promises` doesn't check JSX attributes, so async event handlers need no `void`.
 - `electron/` (CommonJS), and `scripts/` and `eslint-rules/` (ESM): `@eslint/js` recommended with Node globals.
 - A finding that can't be fixed without a refactor gets `// eslint-disable-next-line <rule>`, with the reason in a comment on the lines above it.
+- SCSS is linted by Stylelint (`customSyntax` `postcss-scss`). There is no column limit. The only rules are:
+  - `@stylistic/indentation`: 2;
+  - `@stylistic/string-quotes`: single, with `avoidEscape`;
+  - `@stylistic/declaration-block-trailing-semicolon`: always;
+  - `block-no-empty`;
+  - `declaration-block-no-duplicate-properties`;
+  - `property-no-unknown`;
+  - `unit-no-unknown`;
+  - `color-no-invalid-hex`;
+  - `scss/at-rule-no-unknown` (the SCSS variant; core `at-rule-no-unknown` is not enabled).
+- `ignoreFiles` skips `app/styles/vendors/**` and the generated `app/styles/helpers/_themes.generated.scss`.
+- These stay legal with no per-line disable, because no shipped rule flags them: `:global(...)`, Sass nesting, `!global`, `@if`, `lighten()`, `darken()`, and the color helpers.
+- A Stylelint finding that isn't a behavior-equivalent autofix gets `/* stylelint-disable-next-line <rule> -- <reason> */`. A duplicate property with two different values stays, under that comment: autofix would drop one of them. `reportDescriptionlessDisables`, `reportUnscopedDisables`, `reportInvalidScopeDisables`, and `reportNeedlessDisables` are on.
+- `pnpm lint` and `pnpm lint:fix` run ESLint and Stylelint, and fail if either fails. `pnpm run build` does not lint.
 
-`pnpm install` sets up a husky pre-commit hook (the `prepare` script) that runs `eslint --fix` on staged TS/JS files through lint-staged, and blocks the commit if errors remain. The hook runs `pnpm`, so commit from inside the nix/direnv shell. `.git-blame-ignore-revs` lists formatting-only commits; enable it with `git config blame.ignoreRevsFile .git-blame-ignore-revs`.
+`pnpm install` sets up a husky pre-commit hook (the `prepare` script) that runs `eslint --fix` on staged TS/JS files and Stylelint on staged SCSS through lint-staged, and blocks the commit if errors remain. The hook runs `pnpm`, so commit from inside the nix/direnv shell. `.git-blame-ignore-revs` lists formatting-only commits; enable it with `git config blame.ignoreRevsFile .git-blame-ignore-revs`.
 
 ## CI and releases
 
