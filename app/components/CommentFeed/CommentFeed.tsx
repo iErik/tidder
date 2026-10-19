@@ -15,7 +15,10 @@ import Icon from 'components/Icon/Icon'
 import { bindStyles } from 'utils/classNames'
 
 import styles from './CommentFeed.module.scss'
-import { mergeComments } from './mergeComments'
+import {
+  mergeComments,
+  unlistedComments
+} from './mergeComments'
 
 const cx = bindStyles(styles)
 
@@ -60,9 +63,13 @@ export default function CommentFeed({ post }: Props) {
   const comments = mergeComments(
     additions.submitted, threadComments, additions.loaded
   )
-  // Submitted comments Reddit doesn't list yet aren't in num_comments.
-  const newCount =
-    comments.length - threadComments.length - additions.loaded.length
+  // Reddit's own count, from the thread once it's loaded (the feed's copy
+  // of the post is older), plus the submitted comments it doesn't count yet
+  const unlisted = unlistedComments(
+    additions.submitted, threadComments, additions.loaded
+  )
+  const commentCount =
+    (thread.data?.post.num_comments ?? post.num_comments) + unlisted.length
   const more = additions.more !== undefined
     ? additions.more
     : thread.data?.more ?? null
@@ -73,7 +80,7 @@ export default function CommentFeed({ post }: Props) {
   const changeSortMode = (sort: string) => {
     setSortMode(sort)
     setAdditions((prev) => ({ ...NO_ADDITIONS, submitted: prev.submitted }))
-    setDisplayLimit(PAGE_SIZE + additions.submitted.length)
+    setDisplayLimit(PAGE_SIZE)
   }
 
   const loadMore = async () => {
@@ -119,7 +126,7 @@ export default function CommentFeed({ post }: Props) {
         <div className={cx('comments-meta')}>
           <Icon name="comment" />
           <span className={cx('meta')}>
-            {post.num_comments + newCount} comments
+            {commentCount} comments
           </span>
         </div>
 

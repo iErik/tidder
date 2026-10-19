@@ -6,7 +6,10 @@ import {
 
 import type { CommentThing } from 'api/types'
 
-import { mergeComments } from './mergeComments'
+import {
+  mergeComments,
+  unlistedComments
+} from './mergeComments'
 
 function comment(id: string): CommentThing {
   return {
@@ -86,5 +89,27 @@ describe('mergeComments', () => {
     mergeComments(submitted, thread, loaded)
 
     expect({ submitted, thread, loaded }).toEqual(copies)
+  })
+})
+
+describe('unlistedComments', () => {
+  it('keeps the submitted comments Reddit lists nowhere', () => {
+    const unlisted = unlistedComments(
+      [comment('new2'), comment('new1')],
+      [comment('a')],
+      []
+    )
+
+    expect(names(unlisted)).toEqual(['t1_new2', 't1_new1'])
+  })
+
+  it('drops those the thread or a loaded page has', () => {
+    const unlisted = unlistedComments(
+      [comment('new3'), comment('new2'), comment('new1')],
+      [comment('a'), comment('new1')],
+      [comment('new2')]
+    )
+
+    expect(names(unlisted)).toEqual(['t1_new3'])
   })
 })
