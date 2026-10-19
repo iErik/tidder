@@ -1,8 +1,17 @@
-import { QueryClient } from '@tanstack/react-query'
+import {
+  MutationCache,
+  QueryClient
+} from '@tanstack/react-query'
 
 import { RedditApiError } from 'api/client'
 
 export const queryClient = new QueryClient({
+  // Every failed write is logged. The cache's onError runs as
+  // well as a mutation's own; a default in defaultOptions
+  // would be replaced by it.
+  mutationCache: new MutationCache({
+    onError: (error) => console.error(error)
+  }),
   defaultOptions: {
     queries: {
       // Data is only refetched when the user asks for it (changing the
@@ -22,9 +31,6 @@ export const queryClient = new QueryClient({
         return failureCount < 2
       },
       retryDelay: 1000
-    },
-    mutations: {
-      onError: (error) => console.error(error)
     }
   }
 })

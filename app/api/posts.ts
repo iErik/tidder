@@ -184,7 +184,11 @@ export async function submitPost(post: NewPost): Promise<{ url: string }> {
   const res = await redditFetch<JsonResponse<{ url: string }>>('/api/submit',
     { method: 'POST', params: { ...post } })
 
-  return throwOnJsonErrors(res)!
+  // Neither errors nor the new post's URL: it wasn't submitted
+  const data = throwOnJsonErrors(res)
+  if (!data?.url) throw new Error('Reddit returned no post URL')
+
+  return data
 }
 
 export async function submitComment(

@@ -27,7 +27,7 @@ export default function CommentEditor({
 }: Props) {
   const [text, setText] = useState('')
   const [hasFocus, setFocus] = useState(false)
-  const comment = useMutation({
+  const submission = useMutation({
     mutationFn: (body: string) => submitComment(parentId, body),
     onSuccess: (submitted) => {
       onCommentSubmitted(submitted)
@@ -38,8 +38,8 @@ export default function CommentEditor({
   })
 
   const submit = () => {
-    if (!text || comment.isPending) return
-    comment.mutate(text)
+    if (!text || submission.isPending) return
+    submission.mutate(text)
   }
 
   return (
@@ -62,7 +62,7 @@ export default function CommentEditor({
           <div className={cx('comment-editor-action')}>
             <SubmitButton
               onClick={submit}
-              isLoading={comment.isPending}
+              isLoading={submission.isPending}
               outline
             >
               Submit

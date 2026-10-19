@@ -42,7 +42,8 @@ describe('mergeComments', () => {
     )
 
     expect(names(merged)).toEqual(
-      ['t1_new2', 't1_new1', 't1_a', 't1_b', 't1_c'])
+      ['t1_new2', 't1_new1', 't1_a', 't1_b', 't1_c']
+    )
   })
 
   it('drops a submitted comment once the thread has it', () => {

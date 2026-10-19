@@ -9,7 +9,15 @@ import type {
   MoreThing
 } from 'api/types'
 
-import { unflattenComments } from './posts'
+import {
+  jsonResponse,
+  stubFetch
+} from '../test/fetch'
+
+import {
+  submitPost,
+  unflattenComments
+} from './posts'
 
 const POST = 't3_post'
 
@@ -110,5 +118,22 @@ describe('unflattenComments', () => {
     unflattenComments(things)
 
     expect(things).toEqual(before)
+  })
+})
+
+describe('submitPost', () => {
+  const POST_FORM = { sr: 'sub', kind: 'self' as const, title: 'A post' }
+
+  it('resolves to the new post\'s URL', async () => {
+    const url = 'https://www.reddit.com/r/sub/comments/abc/'
+    stubFetch(jsonResponse({ json: { errors: [], data: { url } } }))
+
+    await expect(submitPost(POST_FORM)).resolves.toEqual({ url })
+  })
+
+  it('fails when Reddit sends no URL and no errors', async () => {
+    stubFetch(jsonResponse({ json: { errors: [] } }))
+
+    await expect(submitPost(POST_FORM)).rejects.toThrow()
   })
 })
