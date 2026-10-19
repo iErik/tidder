@@ -24,6 +24,7 @@ import { timeAgo } from 'utils/timeAgo'
 import { abbreviate } from 'utils/utils'
 
 import styles from './PostCard.module.scss'
+import { videoFileUrl, videoSource } from './videoSource'
 
 const cx = bindStyles(styles)
 
@@ -61,13 +62,6 @@ function isEmbedded(post: Post): boolean {
 function imageSource(post: Post): string {
   const image = previewImage(post)!
   return image.variants.gif ? image.variants.gif.source.url : image.source.url
-}
-
-function videoSource(post: Post): string | undefined {
-  if (post.is_video)
-    return post.media!.reddit_video!.fallback_url
-
-  return previewImage(post)?.variants['mp4']?.source.url
 }
 
 function openExternal(ev: MouseEvent, url: string): void {
@@ -238,7 +232,7 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
                     onContextMenu={(ev) => openMenu(
                       ev,
                       mediaMenuItems(
-                        { url: videoSource(post)!, title: post.title }
+                        { url: videoFileUrl(post)!, title: post.title }
                       )
                     )}
                   >
