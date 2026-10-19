@@ -34,29 +34,104 @@ function update(name: string, patch: ThingChanges): void {
   listeners.forEach((listener) => listener())
 }
 
-// Applies `patch` right away, then reverts to the previous values if the
-// request fails. Resolves to whether Reddit accepted it.
-async function optimistic<T extends { name: string }>(
-  thing: T,
-  patch: ThingChanges,
-  request: () => Promise<unknown>
-): Promise<boolean> {
-  const previous = { ...changes[thing.name] }
-  const reverted = Object.fromEntries(Object.keys(patch).map((key) =>
-    [key, key in previous
-      ? previous[key as keyof ThingChanges]
-      : thing[key as keyof T]]))
+// The fields optimistic() writes. Each thing's field has at most
+// one request in flight; writes made meanwhile wait, and only
+// the latest of them is sent once it settles.
+type Field = Exclude<keyof ThingChanges, 'reported'>
+type Value = ThingChanges[Field]
 
-  update(thing.name, patch)
+interface Write {
+  value: Value
+  request: () => Promise<unknown>
+  // The resolvers of this write and of the writes it replaced
+  resolvers: ((accepted: boolean) => void)[]
+}
+
+// Present while a request for the field is in flight
+interface Pending {
+  confirmed: Value
+  waiting?: Write
+}
+
+// Keyed by `${fullname} ${field}`. Replaced on logout, so a late
+// response can tell that its entry is gone.
+let pending = new Map<string, Pending>()
+
+function settle(write: Write, accepted: boolean): void {
+  write.resolvers.forEach((resolve) => resolve(accepted))
+}
+
+async function send(
+  name: string,
+  field: Field,
+  entry: Pending,
+  write: Write
+): Promise<void> {
+  let accepted = true
 
   try {
-    await request()
-    return true
+    await write.request()
   } catch (err) {
     console.error(err)
-    update(thing.name, reverted)
-    return false
+    accepted = false
   }
+
+  const key = `${name} ${field}`
+  // Logged out meanwhile: leave the cleared store alone
+  if (pending.get(key) !== entry) return settle(write, accepted)
+
+  if (accepted) entry.confirmed = write.value
+  settle(write, accepted)
+
+  const next = entry.waiting
+  entry.waiting = undefined
+
+  // Nothing newer to send, or nothing it would change
+  if (!next || next.value === entry.confirmed) {
+    pending.delete(key)
+    if (next) settle(next, true)
+    else if (!accepted) update(name, { [field]: entry.confirmed })
+    return
+  }
+
+  return send(name, field, entry, next)
+}
+
+// Shows `value` right away and sends the request in turn with the
+// field's other writes. If Reddit rejects it, and no newer write
+// is waiting, the field goes back to the last value Reddit
+// confirmed. Resolves to whether Reddit accepted it, or for a
+// write replaced before it was sent, the write that replaced it.
+function optimistic<T extends { name: string }>(
+  thing: T,
+  field: Field,
+  value: Value,
+  request: () => Promise<unknown>
+): Promise<boolean> {
+  const key = `${thing.name} ${field}`
+  const stored = changes[thing.name]
+  const entry = pending.get(key)
+
+  update(thing.name, { [field]: value })
+
+  return new Promise((resolve) => {
+    const write: Write = { value, request, resolvers: [resolve] }
+
+    if (entry) {
+      write.resolvers.unshift(...entry.waiting?.resolvers ?? [])
+      entry.waiting = write
+      return
+    }
+
+    // With nothing in flight, the store holds confirmed values
+    const created: Pending = {
+      confirmed: stored && field in stored
+        ? stored[field]
+        : thing[field as keyof T] as Value
+    }
+    pending.set(key, created)
+    void send(thing.name, field, created, write)
+  })
 }
 
 // `thing` with the user's changes applied.
@@ -72,14 +147,16 @@ export function voteThing(
   dir: -1 | 0 | 1
 ): Promise<boolean> {
   const likes = dir === 0 ? null : dir > 0
-  return optimistic(thing, { likes }, () => posts.vote(thing.name, dir))
+  return optimistic(thing, 'likes', likes,
+    () => posts.vote(thing.name, dir))
 }
 
 export function saveThing(
   thing: { name: string },
   saved: boolean
 ): Promise<boolean> {
-  return optimistic(thing, { saved }, () => posts.setSaved(thing.name, saved))
+  return optimistic(thing, 'saved', saved,
+    () => posts.setSaved(thing.name, saved))
 }
 
 // The feeds leave out hidden posts (see PostFeed)
@@ -87,7 +164,7 @@ export function hideThing(
   thing: { name: string },
   hidden: boolean
 ): Promise<boolean> {
-  return optimistic(thing, { hidden },
+  return optimistic(thing, 'hidden', hidden,
     () => posts.setHidden(thing.name, hidden))
 }
 
@@ -105,14 +182,22 @@ export async function setSubscribed(
   sub: { name: string },
   subscribed: boolean
 ): Promise<void> {
-  await optimistic(sub, { user_is_subscriber: subscribed },
+  await optimistic(sub, 'user_is_subscriber', subscribed,
     () => subreddits.subscribe(sub.name, subscribed ? 'sub' : 'unsub'))
 
   // The sidebar lists the user's subscriptions.
   void queryClient.invalidateQueries({ queryKey: ['subscriptions'] })
 }
 
+// On logout. Waiting writes are dropped and resolve to false, and
+// responses to requests in flight leave the store alone.
 export function clearThingChanges(): void {
+  const dropped = pending
+  pending = new Map()
+  dropped.forEach((entry) => {
+    if (entry.waiting) settle(entry.waiting, false)
+  })
+
   changes = { }
   listeners.forEach((listener) => listener())
 }
