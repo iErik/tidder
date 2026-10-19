@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { useMutation } from '@tanstack/react-query'
 
 import type { ReportReason } from 'api/posts'
 import { useSubRules } from 'api/queries'
@@ -39,31 +40,23 @@ export default function ReportCard({ thing, onCancel }: Props) {
 
   const [choice, setChoice] = useState<Choice | null>(null)
   const [isRuleReason, setRuleReason] = useState(false)
-  const [isLoading, setLoading] = useState(false)
-  const [isSubmitted, setSubmitted] = useState(false)
-  const [error, setError] = useState('')
 
-  const submit = async (ev: FormEvent) => {
+  // Through thingState, so the thing shows as reported everywhere.
+  const report = useMutation({
+    mutationFn: (reason: ReportReason) => reportThing(thing, reason)
+  })
+  const isSubmitted = report.isSuccess
+
+  const submit = (ev: FormEvent) => {
     ev.preventDefault()
-    if (!choice || isLoading) return
+    if (!choice || report.isPending) return
 
     if (choice === 'subRules') {
       setRuleReason(true)
       return
     }
 
-    setLoading(true)
-    setError('')
-
-    try {
-      await reportThing(thing, choice)
-      setSubmitted(true)
-    } catch (err) {
-      console.error('Reporting failed:', err)
-      setError('The report could not be sent. Please try again.')
-    } finally {
-      setLoading(false)
-    }
+    report.mutate(choice)
   }
 
   const rollback = () => {
@@ -116,15 +109,20 @@ export default function ReportCard({ thing, onCancel }: Props) {
             }
           </div>
 
-          {error && (
+          {report.isError && (
             <div className={cx('form-errors')}>
-              <span className={cx('error')}>{error}</span>
+              <span className={cx('error')}>
+                The report could not be sent. Please try again.
+              </span>
             </div>
           )}
 
           <div className={cx('form-controls')}>
             <div className={cx('form-control')}>
-              <SubmitButton isDisabled={!choice} isLoading={isLoading}>
+              <SubmitButton
+                isDisabled={!choice}
+                isLoading={report.isPending}
+              >
                 {choice === 'subRules' ? 'Next' : 'Submit'}
               </SubmitButton>
             </div>

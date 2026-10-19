@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { useMutation } from '@tanstack/react-query'
 
 import { submitComment } from 'api/posts'
 import type { CommentThing } from 'api/types'
 
 import SubmitButton from 'components/SubmitButton/SubmitButton'
 
+import { toast } from 'core/toasts'
 import { bindStyles } from 'utils/classNames'
 
 import styles from './CommentEditor.module.scss'
@@ -25,21 +27,19 @@ export default function CommentEditor({
 }: Props) {
   const [text, setText] = useState('')
   const [hasFocus, setFocus] = useState(false)
-  const [isLoading, setLoading] = useState(false)
-
-  const submit = async () => {
-    if (!text || isLoading) return
-
-    setLoading(true)
-
-    try {
-      onCommentSubmitted(await submitComment(parentId, text))
+  const submission = useMutation({
+    mutationFn: (body: string) => submitComment(parentId, body),
+    onSuccess: (submitted) => {
+      onCommentSubmitted(submitted)
       setText('')
-    } catch (err) {
-      console.error('Submitting the comment failed:', err)
-    } finally {
-      setLoading(false)
-    }
+    },
+    // The text stays in the editor, so it can be sent again.
+    onError: () => toast.error('Couldn\'t post the comment')
+  })
+
+  const submit = () => {
+    if (!text || submission.isPending) return
+    submission.mutate(text)
   }
 
   return (
@@ -60,7 +60,11 @@ export default function CommentEditor({
 
         <div className={cx('comment-editor-actions')}>
           <div className={cx('comment-editor-action')}>
-            <SubmitButton onClick={submit} isLoading={isLoading} outline>
+            <SubmitButton
+              onClick={submit}
+              isLoading={submission.isPending}
+              outline
+            >
               Submit
             </SubmitButton>
           </div>

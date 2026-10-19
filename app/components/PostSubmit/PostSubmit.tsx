@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { useMutation } from '@tanstack/react-query'
 
 import { RedditJsonError } from 'api/client'
 import { submitPost, type NewPost } from 'api/posts'
@@ -6,6 +7,7 @@ import { useSubNameSuggestions } from 'api/queries'
 
 import SubmitButton from 'components/SubmitButton/SubmitButton'
 
+import { toast } from 'core/toasts'
 import { useDebouncedValue } from 'hooks/useDebouncedValue'
 import { bindStyles } from 'utils/classNames'
 
@@ -26,9 +28,19 @@ export default function PostSubmit({ onCancel }: Props) {
     text: ''
   })
   const [isDirty, setDirty] = useState(false)
-  const [isLoading, setLoading] = useState(false)
-  const [errors, setErrors] = useState<string[]>([])
-  const [postUrl, setPostUrl] = useState<string | null>(null)
+
+  const submission = useMutation({
+    mutationFn: submitPost,
+    // Reddit's validation errors are shown in the form instead.
+    onError: (err) => {
+      if (!(err instanceof RedditJsonError))
+        toast.error('Couldn\'t submit the post')
+    }
+  })
+  const postUrl = submission.data?.url ?? null
+  const errors = submission.error instanceof RedditJsonError
+    ? submission.error.errors.map(([, reason]) => reason)
+    : []
 
   const subQuery = useDebouncedValue(post.sr.trim(), 250)
   const suggestions = useSubNameSuggestions(subQuery).data ?? []
@@ -40,23 +52,11 @@ export default function PostSubmit({ onCancel }: Props) {
     setDirty(true)
   }
 
-  const submit = async (ev: FormEvent) => {
+  const submit = (ev: FormEvent) => {
     ev.preventDefault()
-    if (!isValid || isLoading) return
+    if (!isValid || submission.isPending) return
 
-    setLoading(true)
-    setErrors([])
-
-    try {
-      const { url } = await submitPost({ ...post, sr: post.sr.trim() })
-      setPostUrl(url)
-    } catch (err) {
-      setErrors(err instanceof RedditJsonError
-        ? err.errors.map(([, reason]) => reason)
-        : ['The post could not be submitted. Please try again.'])
-    } finally {
-      setLoading(false)
-    }
+    submission.mutate({ ...post, sr: post.sr.trim() })
   }
 
   return (
@@ -158,7 +158,7 @@ export default function PostSubmit({ onCancel }: Props) {
           <div className={cx('form-control')}>
             <SubmitButton
               isDisabled={!isDirty || !isValid}
-              isLoading={isLoading}
+              isLoading={submission.isPending}
             >
               Submit
             </SubmitButton>
