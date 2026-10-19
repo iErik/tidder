@@ -25,6 +25,7 @@ Work in this repo is organized as Linear tickets (team prefix: `TDR`). Use the L
 
 | When | Move to |
 |---|---|
+| Triage labels it `ready-for-agent` or `ready-for-human` | **Ready** |
 | You start working | **In Progress** |
 | PR is open and checks pass | **In Review** |
 | You start the ticket's next PR | **In Progress** |
@@ -82,7 +83,7 @@ Whenever you determine that a ticket needs more than one PR, whether during tria
 - **Title:** `Part N of M: <what it covers>`.
 - **Description:** what this part covers and which of the parent's acceptance criteria it meets, with a link back to the parent's brief or plan comment. The parent's brief stays the contract; don't copy it. Sub-issues created during triage start with the triage disclaimer.
 - **Labels:** the parent's category label, plus its state label (`ready-for-agent` when the parent is).
-- **Status:** **Backlog**, like any new ticket.
+- **Status:** the parent's: **Ready** when the parent is `ready-for-agent` or `ready-for-human`, otherwise **Backlog**, like any new ticket.
 - **Order:** a part that depends on an earlier one is marked as blocked by that part's sub-issue (`blockedBy`).
 - **Changes later:** when the split changes (the limit wins, or a part moves), add, retitle or renumber the sub-issues to match, and say so on the parent.
 
