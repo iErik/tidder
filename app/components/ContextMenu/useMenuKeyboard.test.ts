@@ -110,24 +110,72 @@ describe('useMenuKeyboard', () => {
     expect(onClose).toHaveBeenCalled()
   })
 
-  it('takes its keys from a focused field without moving focus', () => {
-    const input = document.createElement('input')
-    document.body.append(input)
-    input.focus()
-    const onFieldKey = vi.fn()
-    input.addEventListener('keydown', onFieldKey)
+  it.each(['ArrowDown', 'ArrowUp', 'Enter', 'Escape'])(
+    'keeps %s from the field, and its caret and selection',
+    (key) => {
+      const input = document.createElement('input')
+      input.value = 'some text'
+      document.body.append(input)
+      input.focus()
+      input.setSelectionRange(2, 6)
+      const onFieldKey = vi.fn()
+      input.addEventListener('keydown', onFieldKey)
+
+      try {
+        const { press } = renderKeyboard()
+        const event = press(key, input)
+
+        expect(event.defaultPrevented).toBe(true)
+        expect(onFieldKey).not.toHaveBeenCalled()
+        expect(document.activeElement).toBe(input)
+        expect([input.selectionStart, input.selectionEnd])
+          .toEqual([2, 6])
+      } finally {
+        input.remove()
+      }
+    }
+  )
+
+  it('gets its keys before any listener in the page', () => {
+    const onPageKey = vi.fn()
+    document.addEventListener('keydown', onPageKey, true)
 
     try {
       const { active, press } = renderKeyboard()
-      const event = press('ArrowDown', input)
+      press('ArrowDown')
 
       expect(active()).toBe(0)
-      expect(event.defaultPrevented).toBe(true)
-      expect(onFieldKey).not.toHaveBeenCalled()
-      expect(document.activeElement).toBe(input)
+      expect(onPageKey).not.toHaveBeenCalled()
     } finally {
-      input.remove()
+      document.removeEventListener('keydown', onPageKey, true)
     }
+  })
+
+  it('leaves other keys to the page', () => {
+    const { active, press, onClose } = renderKeyboard()
+
+    const event = press('a')
+
+    expect(event.defaultPrevented).toBe(false)
+    expect(active()).toBeNull()
+    expect(onClose).not.toHaveBeenCalled()
+  })
+
+  it('stops listening once the menu is gone', () => {
+    const onClose = vi.fn()
+    const { unmount } = renderHook(() =>
+      useMenuKeyboard(ITEMS, { onChoose: vi.fn(), onClose }))
+
+    unmount()
+    const event = new KeyboardEvent('keydown', {
+      key: 'Escape',
+      bubbles: true,
+      cancelable: true
+    })
+    document.dispatchEvent(event)
+
+    expect(onClose).not.toHaveBeenCalled()
+    expect(event.defaultPrevented).toBe(false)
   })
 
   it('lets the pointer set the active item', () => {
