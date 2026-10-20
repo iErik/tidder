@@ -43,6 +43,7 @@ contextBridge.exposeInMainWorld('tidder', {
     inspect: (x, y) => ipcRenderer.send('context-menu:inspect', x, y),
     copyImage: (x, y) => ipcRenderer.invoke('context-menu:copy-image', x, y),
     writeText: (text) => ipcRenderer.send('context-menu:write-text', text),
+    edit: (command) => ipcRenderer.send('context-menu:edit', command),
 
     download: (url, suggestedName) =>
       ipcRenderer.invoke('context-menu:download', url, suggestedName),

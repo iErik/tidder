@@ -223,6 +223,7 @@ describe('forward', { concurrent: false }, () => {
   })
 
   it('sends what a right-click in the page landed on', () => {
+    electron().clipboard.readText.mockReturnValue('Some text')
     const webContents = fakeWebContents()
     loadContextMenu().forward(webContents)
     const target = {
@@ -241,6 +242,53 @@ describe('forward', { concurrent: false }, () => {
 
     expect(webContents.send.mock.calls[0][1]).toMatchObject(target)
   })
+
+  // Electron's canPaste ignores what the clipboard holds
+  it.each([
+    ['empty', '', false],
+    ['holding text', 'Some text', true]
+  ])('lets a field take a paste with the clipboard %s',
+    (_, text, canPaste) => {
+      electron().clipboard.readText.mockReturnValue(text)
+      const webContents = fakeWebContents()
+      loadContextMenu().forward(webContents)
+
+      webContents.rightClick({
+        ...PARAMS,
+        isEditable: true,
+        editFlags: { canCopy: false, canPaste: true }
+      })
+
+      expect(webContents.send.mock.calls[0][1].editFlags)
+        .toEqual({ canCopy: false, canPaste })
+    })
+
+  it('never lets a read-only field take a paste', () => {
+    electron().clipboard.readText.mockReturnValue('Some text')
+    const webContents = fakeWebContents()
+    loadContextMenu().forward(webContents)
+
+    webContents.rightClick({
+      ...PARAMS,
+      isEditable: true,
+      editFlags: { canCopy: false, canPaste: false }
+    })
+
+    expect(webContents.send.mock.calls[0][1].editFlags.canPaste)
+      .toBe(false)
+  })
+
+  it('reads the clipboard only for a field', () => {
+    const webContents = fakeWebContents()
+    loadContextMenu().forward(webContents)
+
+    webContents.rightClick({
+      ...PARAMS,
+      editFlags: { canCopy: false, canPaste: true }
+    })
+
+    expect(electron().clipboard.readText).not.toHaveBeenCalled()
+  })
 })
 
 // The event an IPC handler gets, from the main window
@@ -248,7 +296,11 @@ function ipcEvent() {
   return {
     sender: {
       inspectElement: vi.fn(),
-      copyImageAt: vi.fn()
+      copyImageAt: vi.fn(),
+      cut: vi.fn(),
+      copy: vi.fn(),
+      paste: vi.fn(),
+      selectAll: vi.fn()
     }
   }
 }
@@ -288,6 +340,30 @@ describe('register', { concurrent: false }, () => {
 
     expect(electron().clipboard.writeText)
       .toHaveBeenCalledWith(IMAGE_URL)
+  })
+
+  it.each(['cut', 'copy', 'paste', 'selectAll'])(
+    'runs %s on the sender',
+    (command) => {
+      loadContextMenu().register({ isDev: false })
+      const ev = ipcEvent()
+
+      ipcHandler('context-menu:edit')(ev, command)
+
+      expect(ev.sender[command]).toHaveBeenCalledTimes(1)
+    }
+  )
+
+  it('runs no other method of the sender', () => {
+    loadContextMenu().register({ isDev: false })
+    const ev = ipcEvent()
+
+    expect(() => {
+      ipcHandler('context-menu:edit')(ev, 'inspectElement')
+      ipcHandler('context-menu:edit')(ev, 'toString')
+    }).not.toThrow()
+
+    expect(ev.sender.inspectElement).not.toHaveBeenCalled()
   })
 
   it('downloads over the sender\'s window', async () => {

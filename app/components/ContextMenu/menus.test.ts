@@ -13,11 +13,15 @@ import type { ContextMenuItem } from 'core/contextMenu'
 import { toast } from 'core/toasts'
 
 import { jsonResponse, stubFetch } from '../../test/fetch'
-import { tidder } from '../../test/fakeTidder'
+import {
+  contextMenuParams,
+  tidder
+} from '../../test/fakeTidder'
 
 import {
   defaultMenuItems,
   embedMenuItems,
+  fieldMenuItems,
   linkMenuItems,
   mediaMenuItems,
   postMenuItems,
@@ -25,7 +29,7 @@ import {
   targetMenuItems,
   withInspect
 } from './menus'
-import type { LinkTarget } from './target'
+import type { EditFlags, LinkTarget } from './target'
 
 const save = { label: 'Save', action: () => { } }
 
@@ -170,6 +174,65 @@ describe('link menu', () => {
     expect(tidder().contextMenu.writeText)
       .toHaveBeenCalledWith('Some text')
     expect(success).toHaveBeenCalledWith('Text copied')
+  })
+})
+
+// A field's edit flags: none allowed, unless overridden
+function editFlags(
+  flags: Partial<EditFlags> = { }
+): EditFlags {
+  return { ...contextMenuParams().editFlags, ...flags }
+}
+
+const allowed = editFlags({
+  canCopy: true,
+  canPaste: true,
+  canCut: true,
+  canSelectAll: true
+})
+
+// The labels of the disabled items
+function disabled(items: ContextMenuItem[]) {
+  return labels(items.filter((item) => item.disabled))
+}
+
+describe('text field menu', () => {
+  it('lists Copy, Paste, Cut and Select all', () => {
+    expect(labels(fieldMenuItems(allowed)))
+      .toEqual(['Copy', 'Paste', 'Cut', 'Select all'])
+    expect(disabled(fieldMenuItems(allowed))).toEqual([])
+  })
+
+  it('adds Inspect last in dev mode', () => {
+    tidder().isDev = true
+    const target = { type: 'field', editFlags: allowed } as const
+
+    expect(labels(targetMenuItems(target, 10, 20)))
+      .toEqual(['Copy', 'Paste', 'Cut', 'Select all', 'Inspect'])
+  })
+
+  // Electron reports these from the field and the clipboard
+  it.each([
+    ['nothing is selected', { canCopy: false, canCut: false },
+      ['Copy', 'Cut']],
+    ['the field is read-only', { canCut: false, canPaste: false },
+      ['Paste', 'Cut']],
+    ['the clipboard has no text', { canPaste: false }, ['Paste']],
+    ['the field is empty', { canSelectAll: false }, ['Select all']]
+  ])('disables what doesn\'t apply when %s', (_, flags, expected) => {
+    const items = fieldMenuItems({ ...allowed, ...flags })
+
+    expect(disabled(items)).toEqual(expected)
+  })
+
+  it('runs each command on the focused field, quietly', () => {
+    const success = vi.spyOn(toast, 'success')
+
+    fieldMenuItems(allowed).forEach((item) => item.action())
+
+    expect(tidder().contextMenu.edit.mock.calls)
+      .toEqual([['copy'], ['paste'], ['cut'], ['selectAll']])
+    expect(success).not.toHaveBeenCalled()
   })
 })
 

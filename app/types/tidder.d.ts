@@ -31,6 +31,9 @@ interface TidderContextMenuParams {
   }
 }
 
+// What the context menu can do to the focused field
+type TidderEditCommand = 'cut' | 'copy' | 'paste' | 'selectAll'
+
 type TidderDownloadResult =
   | { status: 'saved'; fileName: string }
   | { status: 'cancelled' }
@@ -58,6 +61,9 @@ interface TidderBridge {
     inspect(x: number, y: number): void
     copyImage(x: number, y: number): Promise<void>
     writeText(text: string): void
+
+    // Runs the command on the field that has focus
+    edit(command: TidderEditCommand): void
 
     // Asks where to save the URL, starting in Downloads
     download(url: string, suggestedName: string): Promise<TidderDownloadResult>

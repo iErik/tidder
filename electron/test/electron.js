@@ -47,7 +47,9 @@ export function createElectron() {
       fromWebContents: vi.fn(() => null)
     },
 
+    // Empty, unless a test stubs readText
     clipboard: {
+      readText: vi.fn(() => ''),
       writeText: vi.fn()
     },
 

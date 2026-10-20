@@ -1,9 +1,9 @@
 // The native side of the app's context menu, which the renderer draws
 // itself (app/components/ContextMenu): inspecting, copying an image,
-// writing to the clipboard and downloading, plus forwarding each
-// right-click with what it landed on (the selection, a link, a text
-// field), including those inside an embed's iframe, which the renderer
-// can't see.
+// writing to the clipboard, downloading and editing the focused field,
+// plus forwarding each right-click with what it landed on (the
+// selection, a link, a text field), including those inside an embed's
+// iframe, which the renderer can't see.
 
 const fs = require('fs')
 const path = require('path')
@@ -84,6 +84,22 @@ function removePartial(filePath) {
   }
 }
 
+// The edit commands the renderer can run on the focused field, as
+// webContents methods
+const EDIT_COMMANDS = new Set(['cut', 'copy', 'paste', 'selectAll'])
+
+// Chromium's canPaste only says the field takes a paste. Its own menu
+// also checks that the clipboard has text, so this does too, only for
+// a right-click on a field, and the renderer never reads the clipboard
+function editFlags(params) {
+  const flags = { ...params.editFlags }
+
+  if (params.isEditable && flags.canPaste)
+    flags.canPaste = clipboard.readText() !== ''
+
+  return flags
+}
+
 // The parts of Electron's context-menu params the renderer can use, as
 // plain data (the frame itself can't be sent)
 function forwardedParams(webContents, params) {
@@ -98,7 +114,7 @@ function forwardedParams(webContents, params) {
     srcURL: params.srcURL,
     mediaType: params.mediaType,
     isEditable: params.isEditable,
-    editFlags: { ...params.editFlags }
+    editFlags: editFlags(params)
   }
 }
 
@@ -124,6 +140,13 @@ function register({ isDev }) {
 
   ipcMain.on('context-menu:write-text', (ev, text) =>
     clipboard.writeText(String(text)))
+
+  // Acts on the field that has focus: the one right-clicked (see
+  // app/components/ContextMenu)
+  ipcMain.on('context-menu:edit', (ev, command) => {
+    if (EDIT_COMMANDS.has(command))
+      ev.sender[command]()
+  })
 
   ipcMain.on('context-menu:inspect', (ev, x, y) => {
     if (isDev)

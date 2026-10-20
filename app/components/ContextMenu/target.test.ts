@@ -106,6 +106,48 @@ describe('pickTarget', () => {
     expect(pickTarget({ params, onSelection: false }))
       .toEqual({ type: 'page' })
   })
+
+  it('picks a text field, with its edit flags', () => {
+    const params = contextMenuParams({ isEditable: true })
+
+    expect(pickTarget({ params, onSelection: false })).toEqual({
+      type: 'field',
+      editFlags: params.editFlags
+    })
+  })
+
+  it('ranks a text field above the selection', () => {
+    const params = contextMenuParams({
+      isEditable: true,
+      selectionText: 'Some text'
+    })
+
+    expect(pickTarget({ params, onSelection: true }).type)
+      .toBe('field')
+  })
+
+  it('ranks a text field above an image', () => {
+    const params = contextMenuParams({
+      isEditable: true,
+      srcURL: 'https://i.redd.it/image.jpg',
+      mediaType: 'image'
+    })
+
+    expect(pickTarget({ params, onSelection: false }).type)
+      .toBe('field')
+  })
+
+  // Like a contenteditable with a link in it
+  it('ranks a text field above a link', () => {
+    const params = contextMenuParams({
+      isEditable: true,
+      linkURL: 'https://example.com/',
+      linkText: 'a link'
+    })
+
+    expect(pickTarget({ params, onSelection: false }).type)
+      .toBe('field')
+  })
 })
 
 interface Rect {

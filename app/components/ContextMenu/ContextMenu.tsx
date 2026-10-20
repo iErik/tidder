@@ -79,12 +79,50 @@ function onForwarded(params: TidderContextMenuParams) {
   else openContextMenu(x, y, targetMenuItems(target, x, y))
 }
 
+// The input types that take text
+const TEXT_INPUTS = new Set([
+  'text', 'search', 'url', 'tel', 'email', 'password', 'number'
+])
+
+// The text field the element is in, if any: an input that
+// takes text, a textarea or another editable
+function fieldAt(element: EventTarget | null): HTMLElement | null {
+  if (!(element instanceof Element)) return null
+
+  const field = element.closest('input, textarea, [contenteditable]')
+
+  if (field instanceof HTMLInputElement)
+    return TEXT_INPUTS.has(field.type) ? field : null
+
+  if (field instanceof HTMLTextAreaElement) return field
+
+  return field instanceof HTMLElement && field.isContentEditable
+    ? field
+    : null
+}
+
+// The right button's mousedown is cancelled, so it doesn't
+// move the focus, caret or selection. Except on a text field
+// without focus: it takes the focus, and the caret goes where
+// the right-click landed, as with a native menu. The field's
+// edit flags, and the edit commands, which act on the focused
+// field, then apply to the one right-clicked.
+function onRightMouseDown(event: MouseEvent) {
+  const field = fieldAt(event.target)
+
+  if (field && field !== document.activeElement) {
+    field.focus()
+    if (field === document.activeElement) return
+  }
+
+  event.preventDefault()
+}
+
 // A right-click opens no menu until the main process reports
 // what it landed on (see onForwarded). Until then, it's
 // stopped before any component sees it, but not cancelled, or
-// Electron wouldn't report it. The right button's mousedown
-// is cancelled, so it doesn't move the focus, caret or
-// selection.
+// Electron wouldn't report it. Its mousedown comes first (see
+// onRightMouseDown).
 //
 // A component opens its own menu from onContextMenu, when the
 // right-click is replayed on it. A replayed right-click that
@@ -95,7 +133,7 @@ function useDefaultMenu() {
     let before: Menu | null = null
 
     function onMouseDown(event: MouseEvent) {
-      if (event.button === 2) event.preventDefault()
+      if (event.button === 2) onRightMouseDown(event)
     }
 
     function hold(event: MouseEvent) {

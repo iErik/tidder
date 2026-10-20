@@ -4,6 +4,9 @@ import { redditUrl } from 'utils/redditUrl'
 // menu it opens. Menus are never merged: the most specific
 // target wins.
 
+// What a text field's edit commands can do there
+export type EditFlags = TidderContextMenuParams['editFlags']
+
 // A link, at its absolute URL (see redditUrl), with its own
 // text, and the selected text when the right-click is on the
 // selection
@@ -15,6 +18,8 @@ export interface LinkTarget {
 }
 
 export type MenuTarget =
+  // A text field (input, textarea or other editable)
+  | { type: 'field'; editFlags: EditFlags }
   | LinkTarget
   // Selected text, right-clicked on the selection itself
   | { type: 'selection'; text: string }
@@ -36,6 +41,9 @@ export interface RightClick {
 export function pickTarget(
   { params, onSelection }: RightClick
 ): MenuTarget {
+  if (params.isEditable)
+    return { type: 'field', editFlags: params.editFlags }
+
   const selectedText = onSelection ? params.selectionText : ''
 
   // A link to the app's own page (href="#") is a button

@@ -9,7 +9,11 @@ import { toast } from 'core/toasts'
 import type { FeedAction } from 'pages/FeedPage/FeedPage'
 import { downloadName } from 'utils/downloadName'
 
-import type { LinkTarget, MenuTarget } from './target'
+import type {
+  EditFlags,
+  LinkTarget,
+  MenuTarget
+} from './target'
 
 // The items each menu shows. Plain functions of what was
 // right-clicked, so they can be tested without rendering.
@@ -68,18 +72,45 @@ export function linkMenuItems(
   return items
 }
 
+// A text field, which has the focus (see ContextMenu). Each
+// item acts on it, and is disabled where it can't.
+export function fieldMenuItems(flags: EditFlags): ContextMenuItem[] {
+  const item = (
+    label: string,
+    command: TidderEditCommand,
+    enabled: boolean
+  ): ContextMenuItem => ({
+    label,
+    disabled: !enabled,
+    action: () => window.tidder.contextMenu.edit(command)
+  })
+
+  return [
+    item('Copy', 'copy', flags.canCopy),
+    item('Paste', 'paste', flags.canPaste),
+    item('Cut', 'cut', flags.canCut),
+    item('Select all', 'selectAll', flags.canSelectAll)
+  ]
+}
+
+type OwnTarget = Exclude<MenuTarget, { type: 'page' }>
+
+function ownTargetItems(target: OwnTarget): ContextMenuItem[] {
+  switch (target.type) {
+    case 'field': return fieldMenuItems(target.editFlags)
+    case 'link': return linkMenuItems(target)
+    case 'selection': return selectionMenuItems(target.text)
+  }
+}
+
 // A target no component in the page opens the menu for (see
 // pickTarget), with Inspect in dev mode
 export function targetMenuItems(
-  target: Exclude<MenuTarget, { type: 'page' }>,
+  target: OwnTarget,
   x: number,
   y: number
 ): ContextMenuItem[] {
-  const items = target.type === 'link'
-    ? linkMenuItems(target)
-    : selectionMenuItems(target.text)
-
-  return withInspect(items, x, y)
+  return withInspect(ownTargetItems(target), x, y)
 }
 
 // Opens a component's menu at the right-click, with Inspect

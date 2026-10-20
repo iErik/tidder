@@ -17,6 +17,7 @@ import {
 import type { ContextMenuItem } from 'core/contextMenu'
 
 import {
+  contextMenuParams,
   forwardRightClick,
   tidder
 } from '../../test/fakeTidder'
@@ -150,10 +151,10 @@ describe('ContextMenu', () => {
 
   it('keeps the focus and selection on a right mousedown', async () => {
     await renderMenu()
-    const input = appended(document.createElement('input'))
+    const text = appended(document.createElement('p'))
 
-    const right = fireEvent.mouseDown(input, { button: 2 })
-    const left = fireEvent.mouseDown(input, { button: 0 })
+    const right = fireEvent.mouseDown(text, { button: 2 })
+    const left = fireEvent.mouseDown(text, { button: 0 })
 
     // fireEvent returns false once preventDefault was called
     expect(right).toBe(false)
@@ -521,6 +522,143 @@ describe('ContextMenu focus', () => {
 
     expect(menu()).toBeNull()
     expect(onFieldKey).not.toHaveBeenCalled()
+    expectUntouched(input)
+  })
+})
+
+// What Electron reports for a right-click on a field with
+// text selected, the clipboard holding text
+const fieldParams = contextMenuParams({
+  isEditable: true,
+  editFlags: {
+    ...contextMenuParams().editFlags,
+    canCopy: true,
+    canPaste: true,
+    canCut: true,
+    canSelectAll: true
+  }
+})
+
+// A right-click on a text field, as in the app: the right
+// button's mousedown, then the right-click
+function rightClickField(
+  field: Element,
+  params: Partial<TidderContextMenuParams> = fieldParams
+) {
+  const shown = fireEvent.mouseDown(field, { button: 2 })
+  rightClick(field, params)
+
+  return shown
+}
+
+describe('ContextMenu text fields', () => {
+  it('opens Copy, Paste, Cut and Select all', async () => {
+    tidder().isDev = true
+    await renderMenu()
+
+    rightClickField(appended(document.createElement('textarea')))
+
+    expect(labels())
+      .toEqual(['Copy', 'Paste', 'Cut', 'Select all', 'Inspect'])
+  })
+
+  it('disables the items the field\'s edit flags rule out',
+    async () => {
+      await renderMenu()
+      const editFlags = {
+        ...fieldParams.editFlags,
+        canCut: false,
+        canPaste: false
+      }
+
+      rightClickField(
+        appended(document.createElement('input')),
+        { ...fieldParams, editFlags }
+      )
+
+      const disabled = screen.getAllByRole('menuitem')
+        .filter((item) => item.getAttribute('aria-disabled'))
+        .map((item) => item.textContent)
+      expect(disabled).toEqual(['Paste', 'Cut'])
+    })
+
+  it('prefers the field\'s menu to a post card\'s', async () => {
+    const { openContextMenu } = await renderMenu()
+    const field = withMenu(openContextMenu)
+      .appendChild(document.createElement('input'))
+
+    rightClickField(field)
+
+    expect(labels()).toEqual(['Copy', 'Paste', 'Cut', 'Select all'])
+  })
+
+  it('acts on field B, not the focused field A', async () => {
+    await renderMenu()
+    const a = focusedField()
+    const b = appended(document.createElement('input'))
+    b.value = 'other text'
+    // The field each command ran on
+    const ranOn: (Element | null)[] = []
+    tidder().contextMenu.edit.mockImplementation(() => {
+      ranOn.push(document.activeElement)
+    })
+
+    // fireEvent returns false once preventDefault was called,
+    // which would stop the caret moving to the click
+    expect(rightClickField(b)).toBe(true)
+    expect(document.activeElement).toBe(b)
+
+    for (const label of ['Copy', 'Paste', 'Cut', 'Select all']) {
+      if (label !== 'Copy') rightClickField(b)
+      fireEvent.click(screen.getByText(label))
+    }
+
+    expect(tidder().contextMenu.edit.mock.calls)
+      .toEqual([['copy'], ['paste'], ['cut'], ['selectAll']])
+    expect(ranOn).toEqual([b, b, b, b])
+    expect(a.selectionStart).toBe(2)
+  })
+
+  it('focuses a right-clicked editable', async () => {
+    await renderMenu()
+    const editable = appended(document.createElement('div'))
+    editable.contentEditable = 'true'
+    const child = editable.appendChild(document.createElement('b'))
+
+    rightClickField(child)
+
+    expect(document.activeElement).toBe(editable)
+  })
+
+  it('leaves fields that take no text unfocused', async () => {
+    await renderMenu()
+    const a = focusedField()
+    const checkbox = appended(document.createElement('input'))
+    checkbox.type = 'checkbox'
+
+    expect(fireEvent.mouseDown(checkbox, { button: 2 })).toBe(false)
+    expectUntouched(a)
+  })
+
+  it('keeps the selection of the field that has focus',
+    async () => {
+      await renderMenu()
+      const input = focusedField()
+
+      expect(rightClickField(input)).toBe(false)
+      expectUntouched(input)
+      expect(labels()).toEqual(['Copy', 'Paste', 'Cut', 'Select all'])
+    })
+
+  it('keeps the field\'s focus when an item is chosen', async () => {
+    await renderMenu()
+    const input = focusedField()
+
+    rightClickField(input)
+    fireEvent.keyDown(input, { key: 'ArrowDown' })
+    fireEvent.keyDown(input, { key: 'Enter' })
+
+    expect(tidder().contextMenu.edit).toHaveBeenCalledWith('copy')
     expectUntouched(input)
   })
 })
