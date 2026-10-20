@@ -19,6 +19,20 @@ describe('redditUrl', () => {
       .toBe('mailto:someone@example.com')
   })
 
+  it('puts a protocol-relative link on https', () => {
+    expect(redditUrl('//example.com/a?b=1', packaged))
+      .toBe('https://example.com/a?b=1')
+    expect(redditUrl('//example.com/a', dev))
+      .toBe('https://example.com/a')
+  })
+
+  // What Electron reports for //example.com/a in the
+  // packaged app
+  it('puts a file: URL with a host on https', () => {
+    expect(redditUrl('file://example.com/a', packaged))
+      .toBe('https://example.com/a')
+  })
+
   it('resolves a Reddit path against reddit.com', () => {
     expect(redditUrl('/r/pics/comments/abc/?sort=new', packaged))
       .toBe('https://www.reddit.com/r/pics/comments/abc/?sort=new')

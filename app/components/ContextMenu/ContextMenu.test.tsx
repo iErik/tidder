@@ -253,7 +253,7 @@ describe('ContextMenu', () => {
     rightClick(document.body, { linkURL: 'https://example.com/' })
 
     expect(labels()).toEqual([
-      'Open in browser', 'Copy link', 'Copy text', 'Inspect'
+      'Open in browser', 'Copy link', 'Copy link\'s text', 'Inspect'
     ])
   })
 
@@ -266,7 +266,7 @@ describe('ContextMenu', () => {
     )
 
     expect(labels()).toEqual([
-      'Open in browser', 'Copy link', 'Copy text'
+      'Open in browser', 'Copy link', 'Copy link\'s text'
     ])
   })
 
@@ -291,7 +291,7 @@ describe('ContextMenu', () => {
       linkText: 'a link',
       selectionText: 'Text with a link in it'
     })
-    fireEvent.click(screen.getByText('Copy text'))
+    fireEvent.click(screen.getByText('Copy selection'))
 
     expect(tidder().contextMenu.writeText)
       .toHaveBeenCalledWith('Text with a link in it')

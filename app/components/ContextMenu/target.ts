@@ -5,10 +5,15 @@ import { redditUrl } from 'utils/redditUrl'
 // target wins.
 
 export type MenuTarget =
-  // A link, at its absolute URL (see redditUrl). `text` is
-  // the link's, or the whole selection when the right-click
-  // is on one.
-  | { type: 'link'; url: string; text: string }
+  // A link, at its absolute URL (see redditUrl), with its own
+  // text, and the selected text when the right-click is on
+  // the selection
+  | {
+    type: 'link'
+    url: string
+    linkText: string
+    selection?: string
+  }
   // Selected text, right-clicked on the selection itself
   | { type: 'selection'; text: string }
   // Anything else: an image, video, embed or post, or
@@ -29,14 +34,20 @@ export interface RightClick {
 export function pickTarget(
   { params, onSelection }: RightClick
 ): MenuTarget {
-  const selection = onSelection ? params.selectionText : ''
+  const selectedText = onSelection ? params.selectionText : ''
 
   // A link to the app's own page (href="#") is a button
   const url = params.linkURL && redditUrl(params.linkURL)
-  if (url)
-    return { type: 'link', url, text: selection || params.linkText }
+  if (url) {
+    return {
+      type: 'link',
+      url,
+      linkText: params.linkText,
+      selection: selectedText || undefined
+    }
+  }
 
-  if (selection) return { type: 'selection', text: selection }
+  if (selectedText) return { type: 'selection', text: selectedText }
 
   return { type: 'page' }
 }

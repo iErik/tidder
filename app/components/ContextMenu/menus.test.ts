@@ -99,16 +99,36 @@ describe('link menu', () => {
     .find((entry) => entry.label === label)!
 
   it('lists the link menu', () => {
-    expect(labels(linkMenuItems(url, 'r/pics')))
-      .toEqual(['Open in browser', 'Copy link', 'Copy text'])
+    expect(labels(linkMenuItems(url, 'r/pics'))).toEqual([
+      'Open in browser', 'Copy link', 'Copy link\'s text'
+    ])
+  })
+
+  it('adds Copy selection on a selection', () => {
+    expect(labels(linkMenuItems(url, 'r/pics', 'Some text')))
+      .toEqual([
+        'Open in browser',
+        'Copy link',
+        'Copy link\'s text',
+        'Copy selection'
+      ])
   })
 
   it('adds Inspect last in dev mode', () => {
     tidder().isDev = true
-    const target = { type: 'link', url, text: 'r/pics' } as const
+    const target = {
+      type: 'link',
+      url,
+      linkText: 'r/pics',
+      selection: 'Some text'
+    } as const
 
     expect(labels(targetMenuItems(target, 10, 20))).toEqual([
-      'Open in browser', 'Copy link', 'Copy text', 'Inspect'
+      'Open in browser',
+      'Copy link',
+      'Copy link\'s text',
+      'Copy selection',
+      'Inspect'
     ])
   })
 
@@ -130,13 +150,25 @@ describe('link menu', () => {
     expect(success).toHaveBeenCalledWith('Link copied')
   })
 
-  it('copies the text', () => {
+  it('copies the link\'s text', () => {
     const success = vi.spyOn(toast, 'success')
 
-    item('Copy text').action()
+    item('Copy link\'s text').action()
 
     expect(tidder().contextMenu.writeText)
       .toHaveBeenCalledWith('r/pics')
+    expect(success).toHaveBeenCalledWith('Text copied')
+  })
+
+  it('copies the selection', () => {
+    const success = vi.spyOn(toast, 'success')
+
+    linkMenuItems(url, 'r/pics', 'Some text')
+      .find((entry) => entry.label === 'Copy selection')!
+      .action()
+
+    expect(tidder().contextMenu.writeText)
+      .toHaveBeenCalledWith('Some text')
     expect(success).toHaveBeenCalledWith('Text copied')
   })
 })

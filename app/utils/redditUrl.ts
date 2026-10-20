@@ -6,6 +6,8 @@ const REDDIT = 'https://www.reddit.com'
 // the app's page at `page`:
 //
 // - another site (https://…, mailto:…) stays as it is
+// - a protocol-relative link (//example.com) is on https, not
+//   on the app page's file: or http:
 // - an in-app route (#/r/pics) is the matching reddit.com page
 // - a path (/r/pics), which Reddit's HTML uses for its own
 //   pages, is resolved against reddit.com
@@ -17,7 +19,15 @@ export function redditUrl(
 ): string | null {
   try {
     const app = new URL(page)
-    const url = new URL(href, app)
+    const url = new URL(
+      href.startsWith('//') ? `https:${href}` : href,
+      app
+    )
+
+    // Electron resolves //example.com against the packaged
+    // app's page as file://example.com
+    if (url.protocol === 'file:' && url.host)
+      url.protocol = 'https:'
 
     // file: URLs all have a 'null' origin
     if (url.protocol !== app.protocol || url.host !== app.host)

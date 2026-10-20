@@ -39,33 +39,49 @@ describe('pickTarget', () => {
     expect(pickTarget({ params, onSelection: false })).toEqual({
       type: 'link',
       url: 'https://www.reddit.com/r/pics',
-      text: 'r/pics'
+      linkText: 'r/pics'
     })
   })
 
-  it('prefers a link to the selection it\'s in', () => {
+  it('prefers a link to the selection it\'s in, and keeps both',
+    () => {
+      const params = contextMenuParams({
+        linkURL: 'https://example.com/',
+        linkText: 'a link',
+        selectionText: 'Text with a link in it'
+      })
+
+      expect(pickTarget({ params, onSelection: true })).toEqual({
+        type: 'link',
+        url: 'https://example.com/',
+        linkText: 'a link',
+        selection: 'Text with a link in it'
+      })
+    })
+
+  it('keeps the link\'s own text for part of it selected', () => {
     const params = contextMenuParams({
       linkURL: 'https://example.com/',
       linkText: 'a link',
-      selectionText: 'Text with a link in it'
+      selectionText: 'lin'
     })
 
-    expect(pickTarget({ params, onSelection: true })).toEqual({
-      type: 'link',
-      url: 'https://example.com/',
-      text: 'Text with a link in it'
-    })
+    expect(pickTarget({ params, onSelection: true }))
+      .toMatchObject({ linkText: 'a link', selection: 'lin' })
   })
 
-  it('copies a link\'s own text off the selection', () => {
+  it('leaves out a selection the right-click is off', () => {
     const params = contextMenuParams({
       linkURL: 'https://example.com/',
       linkText: 'a link',
       selectionText: 'Other text'
     })
 
-    expect(pickTarget({ params, onSelection: false }))
-      .toMatchObject({ type: 'link', text: 'a link' })
+    expect(pickTarget({ params, onSelection: false })).toEqual({
+      type: 'link',
+      url: 'https://example.com/',
+      linkText: 'a link'
+    })
   })
 
   // Like the post title, which opens its link on click
