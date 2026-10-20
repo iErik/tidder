@@ -70,10 +70,12 @@ async function send(
   first: Write
 ): Promise<void> {
   const key = `${name} ${field}`
-  let write = first
+  let write: Write | undefined = first
+  let accepted = true
+  let next: Write | undefined
 
-  while (true) {
-    let accepted = true
+  while (write) {
+    accepted = true
 
     try {
       await write.request()
@@ -91,23 +93,19 @@ async function send(
     if (accepted) entry.confirmed = write.value
     settle(write, accepted)
 
-    const next = entry.waiting
+    next = entry.waiting
     entry.waiting = undefined
 
-    // A newer write that would change what Reddit has is sent
-    // next
-    if (next && next.value !== entry.confirmed) {
-      write = next
-      continue
-    }
-
-    pending.delete(key)
-    // The newer write asks for what Reddit already has
-    if (next) settle(next, true)
-    // Nothing newer, and Reddit rejected this one: undo it
-    else if (!accepted) update(name, { [field]: entry.confirmed })
-    return
+    // A newer write is sent next only if it would change what
+    // Reddit has
+    write = next?.value !== entry.confirmed ? next : undefined
   }
+
+  pending.delete(key)
+  // The newer write asks for what Reddit already has
+  if (next) settle(next, true)
+  // Nothing newer, and Reddit rejected the last one: undo it
+  else if (!accepted) update(name, { [field]: entry.confirmed })
 }
 
 // Shows `value` right away and sends the request in turn with the
