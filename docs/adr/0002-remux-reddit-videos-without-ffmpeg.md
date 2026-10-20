@@ -22,4 +22,6 @@ with no dependencies or install script.
 Remuxing copies tracks and never transcodes. If Reddit ever serves
 codecs that can't share an MP4 container, this decision has to be
 revisited. Playback needs none of this: Chromium plays the HLS
-stream, sound included, natively.
+stream, sound included, natively. Chromium's native HLS doesn't play
+when the page is served from `http://localhost`, so under
+`pnpm run dev` Reddit videos play silently from `fallback_url`.

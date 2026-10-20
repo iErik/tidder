@@ -25,12 +25,11 @@ export interface PreviewImage {
 }
 
 // A Reddit video's streams. fallback_url is the picture only;
-// the HLS and DASH manifests carry the sound too, if it has any.
+// the HLS stream carries the sound too, if it has any.
 export interface RedditVideo {
   fallback_url: string
   // Missing on some old posts
   hls_url?: string
-  dash_url: string
   has_audio: boolean
 }
 

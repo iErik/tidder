@@ -24,7 +24,11 @@ import { timeAgo } from 'utils/timeAgo'
 import { abbreviate } from 'utils/utils'
 
 import styles from './PostCard.module.scss'
-import { videoFileUrl, videoSource } from './videoSource'
+import {
+  failSource,
+  videoFileUrl,
+  videoSource
+} from './videoSource'
 
 const cx = bindStyles(styles)
 
@@ -79,6 +83,8 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
   const post = useThing(rawPost)
   const { user } = useAuth()
   const [isCollapsed, setCollapsed] = useState(false)
+  // The HLS stream that failed to play, if any (see failSource)
+  const [failedVideo, setFailedVideo] = useState<string | null>(null)
   const showContent = hasContent(post)
 
   return (
@@ -228,7 +234,10 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
                     controls={post.is_video}
                     loop={!post.is_video}
                     muted={!post.is_video}
-                    src={videoSource(post)}
+                    src={videoSource(post, failedVideo)}
+                    onError={() => setFailedVideo(
+                      (failed) => failSource(post, failed)
+                    )}
                     onContextMenu={(ev) => openMenu(
                       ev,
                       mediaMenuItems(
