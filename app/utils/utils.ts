@@ -17,25 +17,47 @@ export function capitalizeFirstLetter(string: string): string {
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
+const units: [string, number][] = [
+  ['T', 1e12],
+  ['B', 1e9],
+  ['M', 1e6],
+  ['K', 1e3]
+]
+
 export function abbreviate(
   num: number | string,
   maxPlaces: number | false = false,
   forcePlaces: number | false = false,
   forceLetter: string | false = false
 ): string {
-  let abbr = ''
   const value = Number(num)
+
+  // Units and padding are picked by magnitude, so a negative
+  // number reads like its positive counterpart, with the sign
+  if (value < 0) {
+    return '-' + abbreviate(
+      -value, maxPlaces, forcePlaces, forceLetter
+    )
+  }
 
   if (forceLetter !== false) {
     return annotate(value, maxPlaces, forcePlaces, forceLetter)
   }
 
-  if (value >= 1e12) abbr = 'T'
-  else if (value >= 1e9) abbr = 'B'
-  else if (value >= 1e6) abbr = 'M'
-  else if (value >= 1e3) abbr = 'K'
+  const unit = units.find(([, size]) => value >= size)
+  const [abbr, size] = unit ?? ['', 1]
+  const result = annotate(value, maxPlaces, forcePlaces, abbr)
 
-  return annotate(value, maxPlaces, forcePlaces, abbr)
+  // Rounding to maxPlaces can carry the value to 1000 of its
+  // unit (999,950 to 1000.0K): abbreviate what it rounded to
+  // instead, which moves it to the next unit. T is the last
+  const scaled = parseFloat(result)
+
+  if (abbr !== 'T' && scaled >= 1e3) {
+    return abbreviate(scaled * size, maxPlaces, forcePlaces)
+  }
+
+  return result
 }
 
 function annotate(
