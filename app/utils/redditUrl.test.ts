@@ -5,8 +5,24 @@ import { redditUrl } from './redditUrl'
 // The packaged app's page, and the dev server's
 const packaged = 'file:///opt/Tidder/dist/renderer/browser/index.html'
 const dev = 'http://localhost:4200/'
+const windows = 'file:///C:/Program%20Files/Tidder/resources/' +
+  'app.asar/dist/renderer/browser/index.html'
 
 describe('redditUrl', () => {
+  // Root paths there resolve under the drive: file:///C:/r/pics
+  it('resolves Reddit paths on a Windows page', () => {
+    expect(redditUrl('/r/pics', windows))
+      .toBe('https://www.reddit.com/r/pics')
+    expect(redditUrl('file:///C:/r/pics?a=1', windows))
+      .toBe('https://www.reddit.com/r/pics?a=1')
+    expect(redditUrl('r/pics', windows))
+      .toBe('https://www.reddit.com/r/pics')
+    expect(redditUrl('#/r/pics', windows))
+      .toBe('https://www.reddit.com/r/pics')
+    expect(redditUrl('//example.com/a', windows))
+      .toBe('https://example.com/a')
+  })
+
   it('keeps a link to another site as it is', () => {
     expect(redditUrl('https://example.com/a?b=1#c', packaged))
       .toBe('https://example.com/a?b=1#c')

@@ -4,16 +4,18 @@ import { redditUrl } from 'utils/redditUrl'
 // menu it opens. Menus are never merged: the most specific
 // target wins.
 
+// A link, at its absolute URL (see redditUrl), with its own
+// text, and the selected text when the right-click is on the
+// selection
+export interface LinkTarget {
+  type: 'link'
+  url: string
+  linkText: string
+  selection?: string
+}
+
 export type MenuTarget =
-  // A link, at its absolute URL (see redditUrl), with its own
-  // text, and the selected text when the right-click is on
-  // the selection
-  | {
-    type: 'link'
-    url: string
-    linkText: string
-    selection?: string
-  }
+  | LinkTarget
   // Selected text, right-clicked on the selection itself
   | { type: 'selection'; text: string }
   // Anything else: an image, video, embed or post, or

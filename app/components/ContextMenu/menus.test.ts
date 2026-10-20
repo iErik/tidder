@@ -25,6 +25,7 @@ import {
   targetMenuItems,
   withInspect
 } from './menus'
+import type { LinkTarget } from './target'
 
 const save = { label: 'Save', action: () => { } }
 
@@ -95,35 +96,36 @@ describe('link menu', () => {
   })
 
   const url = 'https://www.reddit.com/r/pics'
-  const item = (label: string) => linkMenuItems(url, 'r/pics')
-    .find((entry) => entry.label === label)!
+
+  // The link r/pics, right-clicked on `selection` if given
+  function link(selection?: string): LinkTarget {
+    return { type: 'link', url, linkText: 'r/pics', selection }
+  }
+
+  function item(label: string, selection?: string) {
+    return linkMenuItems(link(selection))
+      .find((entry) => entry.label === label)!
+  }
 
   it('lists the link menu', () => {
-    expect(labels(linkMenuItems(url, 'r/pics'))).toEqual([
+    expect(labels(linkMenuItems(link()))).toEqual([
       'Open in browser', 'Copy link', 'Copy link\'s text'
     ])
   })
 
   it('adds Copy selection on a selection', () => {
-    expect(labels(linkMenuItems(url, 'r/pics', 'Some text')))
-      .toEqual([
-        'Open in browser',
-        'Copy link',
-        'Copy link\'s text',
-        'Copy selection'
-      ])
+    expect(labels(linkMenuItems(link('Some text')))).toEqual([
+      'Open in browser',
+      'Copy link',
+      'Copy link\'s text',
+      'Copy selection'
+    ])
   })
 
   it('adds Inspect last in dev mode', () => {
     tidder().isDev = true
-    const target = {
-      type: 'link',
-      url,
-      linkText: 'r/pics',
-      selection: 'Some text'
-    } as const
 
-    expect(labels(targetMenuItems(target, 10, 20))).toEqual([
+    expect(labels(targetMenuItems(link('Some text'), 10, 20))).toEqual([
       'Open in browser',
       'Copy link',
       'Copy link\'s text',
@@ -163,9 +165,7 @@ describe('link menu', () => {
   it('copies the selection', () => {
     const success = vi.spyOn(toast, 'success')
 
-    linkMenuItems(url, 'r/pics', 'Some text')
-      .find((entry) => entry.label === 'Copy selection')!
-      .action()
+    item('Copy selection', 'Some text').action()
 
     expect(tidder().contextMenu.writeText)
       .toHaveBeenCalledWith('Some text')

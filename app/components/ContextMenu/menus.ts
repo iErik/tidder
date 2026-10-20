@@ -9,7 +9,7 @@ import { toast } from 'core/toasts'
 import type { FeedAction } from 'pages/FeedPage/FeedPage'
 import { downloadName } from 'utils/downloadName'
 
-import type { MenuTarget } from './target'
+import type { LinkTarget, MenuTarget } from './target'
 
 // The items each menu shows. Plain functions of what was
 // right-clicked, so they can be tested without rendering.
@@ -44,9 +44,7 @@ export function selectionMenuItems(text: string): ContextMenuItem[] {
 // A link, at its absolute URL, with Copy selection when the
 // right-click is on selected text
 export function linkMenuItems(
-  url: string,
-  linkText: string,
-  selection?: string
+  { url, linkText, selection }: LinkTarget
 ): ContextMenuItem[] {
   const items: ContextMenuItem[] = [
     {
@@ -78,7 +76,7 @@ export function targetMenuItems(
   y: number
 ): ContextMenuItem[] {
   const items = target.type === 'link'
-    ? linkMenuItems(target.url, target.linkText, target.selection)
+    ? linkMenuItems(target)
     : selectionMenuItems(target.text)
 
   return withInspect(items, x, y)

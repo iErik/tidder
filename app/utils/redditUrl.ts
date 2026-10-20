@@ -39,10 +39,14 @@ export function redditUrl(
     }
 
     // A relative path (r/pics) resolves under the page's
-    // directory, which isn't part of the Reddit path
+    // directory, and on Windows a root path (/r/pics) under
+    // its drive (file:///C:/r/pics). Neither is part of the
+    // Reddit path.
     const dir = app.pathname.replace(/[^/]*$/, '')
-    const path = url.pathname.startsWith(dir)
-      ? url.pathname.slice(dir.length - 1)
+    const root = /^\/[A-Za-z]:\//.exec(app.pathname)?.[0] ?? '/'
+    const prefix = url.pathname.startsWith(dir) ? dir : root
+    const path = url.pathname.startsWith(prefix)
+      ? url.pathname.slice(prefix.length - 1)
       : url.pathname
 
     return REDDIT + path + url.search + url.hash
