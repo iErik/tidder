@@ -25,7 +25,11 @@ import { timeAgo } from 'utils/timeAgo'
 import { abbreviate } from 'utils/utils'
 
 import styles from './PostCard.module.scss'
-import { videoFileUrl, videoSource } from './videoSource'
+import {
+  videoDashUrl,
+  videoFileUrl,
+  videoSource
+} from './videoSource'
 
 const cx = bindStyles(styles)
 
@@ -110,7 +114,11 @@ function PostVideo({ post }: { post: Post }) {
       onError={onError}
       onContextMenu={(ev) => openMenu(
         ev,
-        mediaMenuItems({ url: file!, title: post.title })
+        mediaMenuItems({
+          url: file!,
+          title: post.title,
+          dashUrl: videoDashUrl(post)
+        })
       )}
     >
     </video>

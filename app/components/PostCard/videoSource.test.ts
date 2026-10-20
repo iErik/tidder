@@ -6,10 +6,15 @@ import {
 
 import type { Post, RedditVideo } from 'api/types'
 
-import { videoFileUrl, videoSource } from './videoSource'
+import {
+  videoDashUrl,
+  videoFileUrl,
+  videoSource
+} from './videoSource'
 
 const BASE = 'https://v.redd.it/abc123'
 const HLS = `${BASE}/HLSPlaylist.m3u8`
+const DASH = `${BASE}/DASHPlaylist.mpd?a=1`
 const FALLBACK = `${BASE}/CMAF_720.mp4?source=fallback`
 const PREVIEW_MP4 = 'https://preview.redd.it/cat.gif?format=mp4&s=x'
 
@@ -21,6 +26,7 @@ function videoPost(video: Partial<RedditVideo> = {}) {
       reddit_video: {
         fallback_url: FALLBACK,
         hls_url: HLS,
+        dash_url: DASH,
         has_audio: true,
         ...video
       }
@@ -69,5 +75,19 @@ describe('videoFileUrl', () => {
 
   it('gives a video preview\'s mp4', () => {
     expect(videoFileUrl(previewPost)).toBe(PREVIEW_MP4)
+  })
+})
+
+describe('videoDashUrl', () => {
+  it('gives a Reddit video with sound\'s DASH manifest', () => {
+    expect(videoDashUrl(videoPost())).toBe(DASH)
+  })
+
+  it('gives nothing for a Reddit video without sound', () => {
+    expect(videoDashUrl(videoPost({ has_audio: false }))).toBeUndefined()
+  })
+
+  it('gives nothing for a video preview', () => {
+    expect(videoDashUrl(previewPost)).toBeUndefined()
   })
 })
