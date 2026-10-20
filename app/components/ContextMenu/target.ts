@@ -45,14 +45,18 @@ export function pickTarget(
   { params, onSelection, field }: RightClick
 ): MenuTarget {
   // Electron reports a read-only field as not editable, but
-  // it still gets the field's menu, without Cut and Paste
+  // it still gets the field's menu: without Cut and Paste, and
+  // without Select all when it's empty
   if (field && isReadOnly(field)) {
+    const { canSelectAll } = params.editFlags
+
     return {
       type: 'field',
       editFlags: {
         ...params.editFlags,
         canCut: false,
-        canPaste: false
+        canPaste: false,
+        canSelectAll: canSelectAll && field.value !== ''
       }
     }
   }
@@ -84,7 +88,9 @@ const TEXT_INPUTS = new Set([
 ])
 
 // The text field the element is in, if any: an input that
-// takes text, a textarea or another editable
+// takes text, a textarea or another editable. A disabled one
+// isn't: it can't take the focus, so a field menu would act
+// on nothing.
 export function fieldAt(
   element: EventTarget | null
 ): HTMLElement | null {
@@ -94,20 +100,26 @@ export function fieldAt(
     'input, textarea, [contenteditable]'
   )
 
-  if (field instanceof HTMLInputElement)
-    return TEXT_INPUTS.has(field.type) ? field : null
+  if (field instanceof HTMLInputElement) {
+    return TEXT_INPUTS.has(field.type) && !field.disabled
+      ? field
+      : null
+  }
 
-  if (field instanceof HTMLTextAreaElement) return field
+  if (field instanceof HTMLTextAreaElement)
+    return field.disabled ? null : field
 
   return field instanceof HTMLElement && field.isContentEditable
     ? field
     : null
 }
 
-function isReadOnly(field: HTMLElement): boolean {
+function isReadOnly(
+  field: HTMLElement
+): field is HTMLInputElement | HTMLTextAreaElement {
   return (field instanceof HTMLInputElement
     || field instanceof HTMLTextAreaElement)
-    && (field.readOnly || field.disabled)
+    && field.readOnly
 }
 
 // Whether the point, in CSS pixels, is on the selected text

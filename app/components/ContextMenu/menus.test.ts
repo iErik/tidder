@@ -213,17 +213,26 @@ describe('text field menu', () => {
 
   // Electron reports these from the field and the clipboard
   it.each([
-    ['nothing is selected', { canCopy: false, canCut: false },
-      ['Copy', 'Cut']],
-    ['the field is read-only', { canCut: false, canPaste: false },
-      ['Paste', 'Cut']],
+    [
+      'nothing is selected',
+      { canCopy: false, canCut: false },
+      ['Copy', 'Cut']
+    ],
+    [
+      'the field is read-only',
+      { canCut: false, canPaste: false },
+      ['Paste', 'Cut']
+    ],
     ['the clipboard has no text', { canPaste: false }, ['Paste']],
     ['the field is empty', { canSelectAll: false }, ['Select all']]
-  ])('disables what doesn\'t apply when %s', (_, flags, expected) => {
-    const items = fieldMenuItems({ ...allowed, ...flags })
+  ])(
+    'disables what doesn\'t apply when %s',
+    (_, flags, expected) => {
+      const items = fieldMenuItems({ ...allowed, ...flags })
 
-    expect(disabled(items)).toEqual(expected)
-  })
+      expect(disabled(items)).toEqual(expected)
+    }
+  )
 
   it('runs each command on the focused field, quietly', () => {
     const success = vi.spyOn(toast, 'success')

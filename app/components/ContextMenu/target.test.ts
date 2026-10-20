@@ -163,32 +163,42 @@ describe('pickTarget', () => {
       .toBe('field')
   })
 
-  // Electron reports a read-only or disabled field as not
-  // editable
-  it.each(['readOnly', 'disabled'] as const)(
-    'picks a %s field, without Cut and Paste',
-    (attribute) => {
-      const input = document.createElement('input')
-      input[attribute] = true
-      const params = contextMenuParams({
-        editFlags: {
-          ...contextMenuParams().editFlags,
-          canCopy: true,
-          canCut: true,
-          canPaste: true
-        }
-      })
-
-      expect(pick(params, false, input)).toEqual({
-        type: 'field',
-        editFlags: {
-          ...params.editFlags,
-          canCut: false,
-          canPaste: false
-        }
-      })
+  // What Electron reports for a read-only field: not
+  // editable, with every edit flag it allows
+  const readOnlyParams = contextMenuParams({
+    editFlags: {
+      ...contextMenuParams().editFlags,
+      canCopy: true,
+      canCut: true,
+      canPaste: true,
+      canSelectAll: true
     }
-  )
+  })
+
+  it('picks a read-only field, without Cut and Paste', () => {
+    const input = document.createElement('input')
+    input.readOnly = true
+    input.value = 'Some text'
+
+    expect(pick(readOnlyParams, false, input)).toEqual({
+      type: 'field',
+      editFlags: {
+        ...readOnlyParams.editFlags,
+        canCut: false,
+        canPaste: false
+      }
+    })
+  })
+
+  it('leaves out Select all in an empty read-only field', () => {
+    const textarea = document.createElement('textarea')
+    textarea.readOnly = true
+
+    expect(pick(readOnlyParams, false, textarea)).toMatchObject({
+      type: 'field',
+      editFlags: { canSelectAll: false }
+    })
+  })
 
   it('picks a field Electron reports as not editable', () => {
     const params = contextMenuParams()
@@ -228,6 +238,8 @@ describe('fieldAt', () => {
 
   it.each([
     ['a checkbox', '<input type="checkbox" data-at>'],
+    ['a disabled input', '<input disabled data-at>'],
+    ['a disabled textarea', '<textarea disabled data-at></textarea>'],
     ['a button', '<button data-at></button>'],
     ['plain text', '<p data-at></p>']
   ])('finds no field in %s', (_, html) => {

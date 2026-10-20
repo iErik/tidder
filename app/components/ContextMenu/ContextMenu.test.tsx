@@ -592,20 +592,29 @@ describe('ContextMenu text fields', () => {
   })
 
   // Electron reports one as not editable
-  it.each(['readOnly', 'disabled'] as const)(
-    'opens a %s field\'s menu, without Paste and Cut',
-    async (attribute) => {
-      await renderMenu()
-      const input = appended(document.createElement('input'))
-      input[attribute] = true
+  it('opens a read-only field\'s menu', async () => {
+    await renderMenu()
+    const input = appended(document.createElement('input'))
+    input.readOnly = true
+    input.value = 'Some text'
 
-      rightClickField(input, { ...fieldParams, isEditable: false })
+    rightClickField(input, { ...fieldParams, isEditable: false })
 
-      expect(labels())
-        .toEqual(['Copy', 'Paste', 'Cut', 'Select all'])
-      expect(disabledLabels()).toEqual(['Paste', 'Cut'])
-    }
-  )
+    expect(labels()).toEqual(['Copy', 'Paste', 'Cut', 'Select all'])
+    expect(disabledLabels()).toEqual(['Paste', 'Cut'])
+  })
+
+  // It can't take the focus, so a field menu would act on
+  // another field, or on nothing
+  it('opens no field menu on a disabled field', async () => {
+    await renderMenu()
+    const input = appended(document.createElement('input'))
+    input.disabled = true
+
+    rightClickField(input, { ...fieldParams, isEditable: false })
+
+    expect(labels()).not.toContain('Copy')
+  })
 
   it('prefers the field\'s menu to a post card\'s', async () => {
     const { openContextMenu } = await renderMenu()
