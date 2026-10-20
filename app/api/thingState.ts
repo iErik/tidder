@@ -61,40 +61,53 @@ function settle(write: Write, accepted: boolean): void {
   write.resolvers.forEach((resolve) => resolve(accepted))
 }
 
+// Sends the field's writes one at a time: `first`, then the
+// write waiting when it settles, and so on until none is left.
 async function send(
   name: string,
   field: Field,
   entry: Pending,
-  write: Write
+  first: Write
 ): Promise<void> {
-  let accepted = true
-
-  try {
-    await write.request()
-  } catch (err) {
-    console.error(err)
-    accepted = false
-  }
-
   const key = `${name} ${field}`
-  // Logged out meanwhile: leave the cleared store alone
-  if (pending.get(key) !== entry) return settle(write, accepted)
+  let write = first
 
-  if (accepted) entry.confirmed = write.value
-  settle(write, accepted)
+  while (true) {
+    let accepted = true
 
-  const next = entry.waiting
-  entry.waiting = undefined
+    try {
+      await write.request()
+    } catch (err) {
+      console.error(err)
+      accepted = false
+    }
 
-  // Nothing newer to send, or nothing it would change
-  if (!next || next.value === entry.confirmed) {
+    // clearThingChanges() replaces `pending` on logout, so if
+    // this entry isn't in it any more, the user logged out while
+    // the request was in flight. The write still resolves, but
+    // nothing is written back to the store logout cleared.
+    if (pending.get(key) !== entry) return settle(write, accepted)
+
+    if (accepted) entry.confirmed = write.value
+    settle(write, accepted)
+
+    const next = entry.waiting
+    entry.waiting = undefined
+
+    // A newer write that would change what Reddit has is sent
+    // next
+    if (next && next.value !== entry.confirmed) {
+      write = next
+      continue
+    }
+
     pending.delete(key)
+    // The newer write asks for what Reddit already has
     if (next) settle(next, true)
+    // Nothing newer, and Reddit rejected this one: undo it
     else if (!accepted) update(name, { [field]: entry.confirmed })
     return
   }
-
-  return send(name, field, entry, next)
 }
 
 // Shows `value` right away and sends the request in turn with the
