@@ -61,50 +61,45 @@ function settle(write: Write, accepted: boolean): void {
   write.resolvers.forEach((resolve) => resolve(accepted))
 }
 
-// Sends the field's writes one at a time: `first`, then the
-// write waiting when it settles, and so on until none is left.
+// Sends `write`, then, once it settles, the write that waited
+// for it (by calling itself), until none is left.
 async function send(
   name: string,
   field: Field,
   entry: Pending,
-  first: Write
+  write: Write
 ): Promise<void> {
-  const key = `${name} ${field}`
-  let write: Write | undefined = first
   let accepted = true
-  let next: Write | undefined
 
-  while (write) {
-    accepted = true
-
-    try {
-      await write.request()
-    } catch (err) {
-      console.error(err)
-      accepted = false
-    }
-
-    // clearThingChanges() replaces `pending` on logout, so if
-    // this entry isn't in it any more, the user logged out while
-    // the request was in flight. The write still resolves, but
-    // nothing is written back to the store logout cleared.
-    if (pending.get(key) !== entry) return settle(write, accepted)
-
-    if (accepted) entry.confirmed = write.value
-    settle(write, accepted)
-
-    next = entry.waiting
-    entry.waiting = undefined
-
-    // A newer write is sent next only if it would change what
-    // Reddit has
-    write = next?.value !== entry.confirmed ? next : undefined
+  try {
+    await write.request()
+  } catch (err) {
+    console.error(err)
+    accepted = false
   }
+
+  const key = `${name} ${field}`
+  // clearThingChanges() replaces `pending` on logout, so if this
+  // entry isn't in it any more, the user logged out while the
+  // request was in flight. The write still resolves, but nothing
+  // is written back to the store logout cleared.
+  if (pending.get(key) !== entry) return settle(write, accepted)
+
+  if (accepted) entry.confirmed = write.value
+  settle(write, accepted)
+
+  const next = entry.waiting
+  entry.waiting = undefined
+
+  // A newer write is sent only if it would change what Reddit
+  // has
+  if (next && next.value !== entry.confirmed)
+    return send(name, field, entry, next)
 
   pending.delete(key)
   // The newer write asks for what Reddit already has
   if (next) settle(next, true)
-  // Nothing newer, and Reddit rejected the last one: undo it
+  // Nothing newer, and Reddit rejected this one: undo it
   else if (!accepted) update(name, { [field]: entry.confirmed })
 }
 
