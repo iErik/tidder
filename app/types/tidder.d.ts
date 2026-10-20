@@ -5,15 +5,17 @@ interface TidderAuthTokens {
   expiresIn: number
 }
 
-// A right-click the main process forwards to the renderer: one the page
-// couldn't handle itself, like a click inside an embed's iframe. A subset
-// of Electron's context-menu params, with x and y as Electron reports them.
+// A right-click the main process forwards to the renderer, with what it
+// landed on: one in the page, or inside an embed's iframe, which the page
+// never sees. A subset of Electron's context-menu params, with x and y as
+// Electron reports them.
 interface TidderContextMenuParams {
   x: number
   y: number
   isSubframe: boolean
   selectionText: string
   linkURL: string
+  linkText: string
   srcURL: string
   mediaType: string
   isEditable: boolean

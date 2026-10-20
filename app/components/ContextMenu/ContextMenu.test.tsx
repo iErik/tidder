@@ -14,7 +14,12 @@ import {
   vi
 } from 'vitest'
 
-import { tidder } from '../../test/fakeTidder'
+import type { ContextMenuItem } from 'core/contextMenu'
+
+import {
+  forwardRightClick,
+  tidder
+} from '../../test/fakeTidder'
 
 // The component and the store share the open menu at module
 // level, so each test loads fresh copies of both
@@ -34,8 +39,33 @@ const menu = () => screen.queryByRole('menu')
 const labels = () =>
   screen.queryAllByRole('menuitem').map((item) => item.textContent)
 
-function rightClick(target: Element = document.body) {
-  return fireEvent.contextMenu(target, { clientX: 10, clientY: 20 })
+// A right-click on the element, as in the app: the event,
+// then the main process forwarding what it landed on
+function rightClick(
+  target: Element = document.body,
+  params: Partial<TidderContextMenuParams> = { }
+) {
+  const shown = fireEvent.contextMenu(
+    target,
+    { clientX: 10, clientY: 20 }
+  )
+  vi.spyOn(document, 'elementFromPoint').mockReturnValue(target)
+  act(() => forwardRightClick(params))
+
+  return shown
+}
+
+// Text selected around (10, 20), or away from it
+function selectText(underCursor = true) {
+  const rect = underCursor
+    ? { left: 0, top: 0, right: 50, bottom: 30 }
+    : { left: 100, top: 100, right: 150, bottom: 130 }
+
+  vi.spyOn(window, 'getSelection').mockReturnValue({
+    isCollapsed: false,
+    rangeCount: 1,
+    getRangeAt: () => ({ getClientRects: () => [rect] })
+  } as unknown as Selection)
 }
 
 // An element in the page for the test, removed afterwards
@@ -46,21 +76,44 @@ function appended<T extends Element>(element: T): T {
   return document.body.appendChild(element)
 }
 
+// An element with a menu of its own, like a post card
+function withMenu(
+  openContextMenu: (
+    x: number,
+    y: number,
+    items: readonly ContextMenuItem[]
+  ) => void
+) {
+  const element = appended(document.createElement('div'))
+  element.addEventListener('contextmenu', () => {
+    openContextMenu(10, 20, [{ label: 'Save', action: vi.fn() }])
+  })
+
+  return element
+}
+
 afterEach(() => {
   cleanup()
+  vi.restoreAllMocks()
   added.splice(0).forEach((element) => element.remove())
 })
 
 describe('ContextMenu', () => {
-  it('opens nothing outside dev mode, without the native menu', async () => {
+  it('opens nothing outside dev mode', async () => {
     await renderMenu()
 
-    const shown = rightClick()
+    rightClick()
 
     expect(menu()).toBeNull()
-    // fireEvent returns false once preventDefault was called
-    expect(shown).toBe(false)
   })
+
+  it('leaves a right-click uncancelled, so Electron forwards it',
+    async () => {
+      await renderMenu()
+
+      // fireEvent returns false once preventDefault was called
+      expect(fireEvent.contextMenu(document.body)).toBe(true)
+    })
 
   it('opens Inspect anywhere in dev mode', async () => {
     tidder().isDev = true
@@ -74,23 +127,25 @@ describe('ContextMenu', () => {
   it('keeps the menu a component opened', async () => {
     tidder().isDev = true
     const { openContextMenu } = await renderMenu()
-    const target = appended(document.createElement('div'))
-    target.addEventListener('contextmenu', () => {
-      openContextMenu(10, 20, [{ label: 'Save', action: vi.fn() }])
-    })
 
-    act(() => { rightClick(target) })
+    rightClick(withMenu(openContextMenu))
 
     expect(labels()).toEqual(['Save'])
   })
 
-  it('stops the native menu even if a component stops the event',
+  it('shows a component the right-click once it\'s forwarded',
     async () => {
       await renderMenu()
       const target = appended(document.createElement('div'))
-      target.addEventListener('contextmenu', (e) => e.stopPropagation())
+      const seen = vi.fn()
+      target.addEventListener('contextmenu', seen)
 
-      expect(rightClick(target)).toBe(false)
+      fireEvent.contextMenu(target)
+      expect(seen).not.toHaveBeenCalled()
+
+      vi.spyOn(document, 'elementFromPoint').mockReturnValue(target)
+      act(() => forwardRightClick())
+      expect(seen).toHaveBeenCalledTimes(1)
     })
 
   it('keeps the focus and selection on a right mousedown', async () => {
@@ -120,9 +175,8 @@ describe('ContextMenu', () => {
   it('opens Inspect for a right-click inside an embed', async () => {
     tidder().isDev = true
     await renderMenu()
-    const [listener] = tidder().contextMenu.onForwarded.mock.calls[0]
 
-    act(() => listener(forwarded({ isSubframe: true })))
+    act(() => forwardRightClick({ isSubframe: true }))
 
     expect(labels()).toEqual(['Inspect'])
   })
@@ -139,23 +193,57 @@ describe('ContextMenu', () => {
     })
     const fromPoint = vi.spyOn(document, 'elementFromPoint')
       .mockReturnValue(iframe)
-    const [listener] = tidder().contextMenu.onForwarded.mock.calls[0]
 
-    act(() => listener(forwarded({ isSubframe: true })))
+    act(() => forwardRightClick({ isSubframe: true }))
 
     expect(fromPoint).toHaveBeenCalledWith(10, 20)
     expect(points).toEqual([[10, 20]])
     expect(labels()).toEqual(['Copy URL'])
   })
 
-  it('ignores forwarded right-clicks outside iframes', async () => {
+  it('opens Copy text for a right-click on the selection', async () => {
     tidder().isDev = true
     await renderMenu()
-    const [listener] = tidder().contextMenu.onForwarded.mock.calls[0]
+    selectText()
 
-    act(() => listener(forwarded({ isSubframe: false })))
+    rightClick(document.body, { selectionText: 'Some text' })
 
-    expect(menu()).toBeNull()
+    expect(labels()).toEqual(['Copy text', 'Inspect'])
+  })
+
+  it('prefers Copy text to a post card\'s menu', async () => {
+    const { openContextMenu } = await renderMenu()
+    selectText()
+
+    rightClick(
+      withMenu(openContextMenu),
+      { selectionText: 'Some text' }
+    )
+
+    expect(labels()).toEqual(['Copy text'])
+  })
+
+  it('ignores a selection the right-click is outside', async () => {
+    const { openContextMenu } = await renderMenu()
+    selectText(false)
+
+    rightClick(
+      withMenu(openContextMenu),
+      { selectionText: 'Some text' }
+    )
+
+    expect(labels()).toEqual(['Save'])
+  })
+
+  it('copies the selection', async () => {
+    await renderMenu()
+    selectText()
+
+    rightClick(document.body, { selectionText: 'Some text' })
+    fireEvent.click(screen.getByText('Copy text'))
+
+    expect(tidder().contextMenu.writeText)
+      .toHaveBeenCalledWith('Some text')
   })
 
   it('shows the items, disabled ones as such', async () => {
@@ -374,29 +462,3 @@ describe('ContextMenu focus', () => {
     expectUntouched(input)
   })
 })
-
-function forwarded(
-  params: Partial<TidderContextMenuParams>
-): TidderContextMenuParams {
-  return {
-    x: 10,
-    y: 20,
-    isSubframe: false,
-    selectionText: '',
-    linkURL: '',
-    srcURL: '',
-    mediaType: 'none',
-    isEditable: false,
-    editFlags: {
-      canUndo: false,
-      canRedo: false,
-      canCut: false,
-      canCopy: false,
-      canPaste: false,
-      canDelete: false,
-      canSelectAll: false,
-      canEditRichly: false
-    },
-    ...params
-  }
-}

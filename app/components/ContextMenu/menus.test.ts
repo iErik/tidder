@@ -19,6 +19,8 @@ import {
   embedMenuItems,
   mediaMenuItems,
   postMenuItems,
+  selectionMenuItems,
+  targetMenuItems,
   withInspect
 } from './menus'
 
@@ -57,6 +59,31 @@ describe('defaultMenuItems', () => {
 
     expect(defaultMenuItems(10, 20).map(({ label }) => label))
       .toEqual(['Inspect'])
+  })
+})
+
+describe('selection menu', () => {
+  it('lists only Copy text', () => {
+    expect(labels(selectionMenuItems('Some text')))
+      .toEqual(['Copy text'])
+  })
+
+  it('adds Inspect last in dev mode', () => {
+    tidder().isDev = true
+    const target = { type: 'selection', text: 'Some text' } as const
+
+    expect(labels(targetMenuItems(target, 10, 20)))
+      .toEqual(['Copy text', 'Inspect'])
+  })
+
+  it('copies the selection', () => {
+    const success = vi.spyOn(toast, 'success')
+
+    selectionMenuItems('Some text')[0].action()
+
+    expect(tidder().contextMenu.writeText)
+      .toHaveBeenCalledWith('Some text')
+    expect(success).toHaveBeenCalledWith('Text copied')
   })
 })
 

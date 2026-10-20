@@ -24,6 +24,9 @@ export type FakeTidder = Fake<TidderBridge>
 type Watcher = (value: unknown) => void
 type ContextMenuListener = (params: TidderContextMenuParams) => void
 
+// The latest fake's, for forwardRightClick()
+let contextMenuListeners = new Set<ContextMenuListener>()
+
 // Settings live in memory, seeded from the defaults like the
 // real store. As in the app, set() notifies the watchers
 export function createFakeTidder(
@@ -34,7 +37,7 @@ export function createFakeTidder(
     ...settings
   }))
   const watchers = new Map<string, Set<Watcher>>()
-  const contextMenuListeners = new Set<ContextMenuListener>()
+  contextMenuListeners = new Set<ContextMenuListener>()
 
   return {
     platform: 'linux',
@@ -126,4 +129,41 @@ export function installFakeTidder(
 // The fake installed for the current test
 export function tidder(): FakeTidder {
   return window.tidder as FakeTidder
+}
+
+// A right-click as the main process forwards it: in the page
+// at (10, 20), on nothing in particular, unless overridden
+export function contextMenuParams(
+  params: Partial<TidderContextMenuParams> = { }
+): TidderContextMenuParams {
+  return {
+    x: 10,
+    y: 20,
+    isSubframe: false,
+    selectionText: '',
+    linkURL: '',
+    linkText: '',
+    srcURL: '',
+    mediaType: 'none',
+    isEditable: false,
+    editFlags: {
+      canUndo: false,
+      canRedo: false,
+      canCut: false,
+      canCopy: false,
+      canPaste: false,
+      canDelete: false,
+      canSelectAll: false,
+      canEditRichly: false
+    },
+    ...params
+  }
+}
+
+// Sends a forwarded right-click to the onForwarded listeners
+export function forwardRightClick(
+  params: Partial<TidderContextMenuParams> = { }
+): void {
+  const forwarded = contextMenuParams(params)
+  contextMenuListeners.forEach((listener) => listener(forwarded))
 }
