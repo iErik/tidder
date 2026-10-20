@@ -24,6 +24,15 @@ export interface PreviewImage {
   variants: Record<string, { source: { url: string } }>
 }
 
+// A Reddit video's streams. fallback_url is the picture only;
+// the HLS stream carries the sound too, if it has any.
+export interface RedditVideo {
+  fallback_url: string
+  // Missing on some old posts
+  hls_url?: string
+  has_audio: boolean
+}
+
 export interface Post {
   id: string
   name: string
@@ -46,7 +55,7 @@ export interface Post {
   selftext_html: string | null
   thumbnail: string
   post_hint?: string
-  media: { reddit_video?: { fallback_url: string } } | null
+  media: { reddit_video?: RedditVideo } | null
   secure_media_embed: { content?: string }
   preview?: { images: PreviewImage[] }
 }

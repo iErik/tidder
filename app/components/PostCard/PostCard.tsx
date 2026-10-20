@@ -19,11 +19,13 @@ import ScoreButton from 'components/ScoreButton/ScoreButton'
 import type { FeedAction } from 'pages/FeedPage/FeedPage'
 
 import { useAuth } from 'core/auth'
+import { toast } from 'core/toasts'
 import { bindStyles } from 'utils/classNames'
 import { timeAgo } from 'utils/timeAgo'
 import { abbreviate } from 'utils/utils'
 
 import styles from './PostCard.module.scss'
+import { videoFileUrl, videoSource } from './videoSource'
 
 const cx = bindStyles(styles)
 
@@ -63,17 +65,56 @@ function imageSource(post: Post): string {
   return image.variants.gif ? image.variants.gif.source.url : image.source.url
 }
 
-function videoSource(post: Post): string | undefined {
-  if (post.is_video)
-    return post.media!.reddit_video!.fallback_url
-
-  return previewImage(post)?.variants['mp4']?.source.url
-}
-
 function openExternal(ev: MouseEvent, url: string): void {
   ev.preventDefault()
   ev.stopPropagation()
   window.tidder.openExternal(url)
+}
+
+// When the HLS stream fails, the video falls back to its file,
+// without sound, and a warning says so. Native HLS doesn't play
+// from http://localhost, so under `pnpm run dev` it always
+// falls back, and the warning is left out there. If the file
+// fails too, an error says nothing can play. PostViewer reuses
+// one PostCard for every post, so this is keyed by post: a
+// failure doesn't carry over to the next one.
+function PostVideo({ post }: { post: Post }) {
+  const stream = videoSource(post)
+  const file = videoFileUrl(post)
+  const [playing, setPlaying] = useState<
+    'stream' |
+    'file' |
+    'nothing'
+  >(stream === file ? 'file' : 'stream')
+
+  function onError() {
+    if (playing === 'stream') {
+      setPlaying('file')
+
+      if (!window.tidder.isDev)
+        toast.warning('Couldn\'t play this video\'s sound')
+    } else if (playing === 'file') {
+      setPlaying('nothing')
+      toast.error('Couldn\'t play the video')
+    }
+  }
+
+  return (
+    <video
+      className={cx('video')}
+      autoPlay={!post.is_video}
+      controls={post.is_video}
+      loop={!post.is_video}
+      muted={!post.is_video}
+      src={playing === 'stream' ? stream : file}
+      onError={onError}
+      onContextMenu={(ev) => openMenu(
+        ev,
+        mediaMenuItems({ url: file!, title: post.title })
+      )}
+    >
+    </video>
+  )
 }
 
 interface Props {
@@ -228,21 +269,7 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
 
               {isVideo(post) && (
                 <div className={cx('post-video')}>
-                  <video
-                    className={cx('video')}
-                    autoPlay={!post.is_video}
-                    controls={post.is_video}
-                    loop={!post.is_video}
-                    muted={!post.is_video}
-                    src={videoSource(post)}
-                    onContextMenu={(ev) => openMenu(
-                      ev,
-                      mediaMenuItems(
-                        { url: videoSource(post)!, title: post.title }
-                      )
-                    )}
-                  >
-                  </video>
+                  <PostVideo key={post.name} post={post} />
                 </div>
               )}
             </div>
