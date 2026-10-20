@@ -96,6 +96,8 @@ Linting is configured in `eslint.config.mjs` and `stylelint.config.mjs`, and eve
 
 `pnpm install` sets up a husky pre-commit hook (the `prepare` script) that runs `eslint --fix` on staged TS/JS files and Stylelint on staged SCSS through lint-staged, and blocks the commit if errors remain. The hook runs `pnpm`, so commit from inside the nix/direnv shell. `.git-blame-ignore-revs` lists formatting-only commits; enable it with `git config blame.ignoreRevsFile .git-blame-ignore-revs`.
 
+The repo is a bare clone with a worktree per branch, and it has no remote-tracking branches. So `gh pr create` can't tell which remote branch the worktree's branch is pushed to: after `git push -u origin <branch>`, pass it explicitly with `gh pr create --base master --head <branch>`.
+
 ## CI and releases
 
 GitHub Actions, in `.github/workflows/`. Neither uses the Nix flake: they set up Node 24 with `actions/setup-node` and pnpm with `pnpm/action-setup` (from `packageManager`), and cache the pnpm store.
