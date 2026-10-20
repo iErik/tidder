@@ -44,21 +44,49 @@ function post(patch: Partial<Post> = { }): Post {
   }
 }
 
-// A request that only answers when the test says so
-function pendingFetch() {
-  let resolve: (response: Response) => void = () => { }
-  const promise = new Promise<Response>((done) => {
-    resolve = done
-  })
-
-  vi.stubGlobal('fetch', vi.fn(() => promise))
-  return resolve
+interface PendingRequest {
+  path: string
+  body: URLSearchParams
+  answer: (response: Response) => void
 }
+
+// Requests that only answer when the test says so, in the
+// order they were sent
+function pendingFetch(): PendingRequest[] {
+  const requests: PendingRequest[] = []
+
+  vi.stubGlobal('fetch', vi.fn((url: URL, init?: RequestInit) =>
+    new Promise<Response>((answer) => {
+      requests.push({
+        path: url.pathname,
+        body: init?.body as URLSearchParams,
+        answer
+      })
+    })))
+  return requests
+}
+
+// Answers a request, and lets thingState handle the response
+// and send whatever comes next
+async function answer(request: PendingRequest, response: Response) {
+  request.answer(response)
+  await act(() => new Promise((done) => setTimeout(done, 0)))
+}
+
+const dirs = (requests: PendingRequest[]) =>
+  requests.map((request) => request.body.get('dir'))
 
 const failure = () => jsonResponse({ }, { status: 500 })
 
 function render(state: ThingState, thing: Post) {
   return renderHook(() => state.useThing(thing))
+}
+
+// Starts a write inside act(), since it updates the store
+function start<R>(write: () => Promise<R>): Promise<R> {
+  const promises: Promise<R>[] = []
+  act(() => { promises.push(write()) })
+  return promises[0]
 }
 
 beforeEach(() => {
@@ -73,14 +101,14 @@ afterEach(() => {
 describe('optimistic changes', () => {
   it('apply before Reddit answers', async () => {
     const state = await loadThingState()
-    const answer = pendingFetch()
+    const requests = pendingFetch()
     const { result } = render(state, post())
 
     let request: Promise<boolean> | undefined
     act(() => { request = state.voteThing(post(), 1) })
     expect(result.current.likes).toBe(true)
 
-    answer(jsonResponse({ }))
+    requests[0].answer(jsonResponse({ }))
     await act(() => request)
     expect(result.current.likes).toBe(true)
   })
@@ -136,14 +164,14 @@ describe('optimistic changes', () => {
 describe('hideThing', () => {
   it('hides the post before Reddit answers', async () => {
     const state = await loadThingState()
-    const answer = pendingFetch()
+    const requests = pendingFetch()
     const { result } = render(state, post())
 
     let request: Promise<boolean> | undefined
     act(() => { request = state.hideThing(post(), true) })
     expect(result.current.hidden).toBe(true)
 
-    answer(jsonResponse({ }))
+    requests[0].answer(jsonResponse({ }))
     expect(await act(() => request)).toBe(true)
     expect(result.current.hidden).toBe(true)
   })
@@ -213,14 +241,14 @@ describe('reportThing', () => {
 
   it('marks the thing only once Reddit accepts', async () => {
     const state = await loadThingState()
-    const answer = pendingFetch()
+    const requests = pendingFetch()
     const { result } = render(state, post())
 
     let request: Promise<void> | undefined
     act(() => { request = state.reportThing(post(), reason) })
     expect(result.current).not.toHaveProperty('reported')
 
-    answer(jsonResponse({ json: { errors: [] } }))
+    requests[0].answer(jsonResponse({ json: { errors: [] } }))
     await act(() => request)
     expect(result.current).toHaveProperty('reported', true)
   })
@@ -238,4 +266,185 @@ describe('reportThing', () => {
 
       expect(result.current).not.toHaveProperty('reported')
     })
+})
+
+describe('overlapping writes to a field', () => {
+  it('send one request at a time, in order', async () => {
+    const state = await loadThingState()
+    const requests = pendingFetch()
+    const { result } = render(state, post())
+
+    const up = start(() => state.voteThing(post(), 1))
+    const down = start(() => state.voteThing(post(), -1))
+    expect(result.current.likes).toBe(false)
+    expect(dirs(requests)).toEqual(['1'])
+
+    await answer(requests[0], jsonResponse({ }))
+    expect(dirs(requests)).toEqual(['1', '-1'])
+
+    await answer(requests[1], jsonResponse({ }))
+    expect(await up).toBe(true)
+    expect(await down).toBe(true)
+    expect(result.current.likes).toBe(false)
+  })
+
+  it('send only the latest of the waiting writes', async () => {
+    const state = await loadThingState()
+    const requests = pendingFetch()
+
+    void start(() => state.voteThing(post(), 1))
+    void start(() => state.voteThing(post(), -1))
+    void start(() => state.voteThing(post(), 0))
+
+    await answer(requests[0], jsonResponse({ }))
+    await answer(requests[1], jsonResponse({ }))
+    expect(dirs(requests)).toEqual(['1', '0'])
+  })
+
+  it('settle a replaced write with the write that replaced it',
+    async () => {
+      const state = await loadThingState()
+      const requests = pendingFetch()
+      const { result } = render(state, post())
+
+      const up = start(() => state.voteThing(post(), 1))
+      const down = start(() => state.voteThing(post(), -1))
+      const none = start(() => state.voteThing(post(), 0))
+
+      await answer(requests[0], jsonResponse({ }))
+      await answer(requests[1], failure())
+
+      expect(await up).toBe(true)
+      expect(await down).toBe(false)
+      expect(await none).toBe(false)
+      // Back to the upvote, which Reddit accepted
+      expect(result.current.likes).toBe(true)
+    })
+
+  it('keep showing a newer write when an earlier one fails',
+    async () => {
+      const state = await loadThingState()
+      const requests = pendingFetch()
+      const { result } = render(state, post())
+
+      const up = start(() => state.voteThing(post(), 1))
+      const down = start(() => state.voteThing(post(), -1))
+
+      await answer(requests[0], failure())
+      expect(result.current.likes).toBe(false)
+      expect(dirs(requests)).toEqual(['1', '-1'])
+      expect(console.error).toHaveBeenCalled()
+
+      await answer(requests[1], jsonResponse({ }))
+      expect(await up).toBe(false)
+      expect(await down).toBe(true)
+      expect(result.current.likes).toBe(false)
+    })
+
+  it('revert to Reddit\'s value when every write fails',
+    async () => {
+      const state = await loadThingState()
+      const requests = pendingFetch()
+      const thing = post({ saved: true })
+      const { result } = render(state, thing)
+
+      void start(() => state.saveThing(thing, false))
+      void start(() => state.saveThing(thing, true))
+      const last = start(() => state.saveThing(thing, false))
+
+      await answer(requests[0], failure())
+      expect(result.current.saved).toBe(false)
+
+      await answer(requests[1], failure())
+      expect(await last).toBe(false)
+      expect(result.current.saved).toBe(true)
+    })
+
+  it('skip a waiting write that matches Reddit\'s value',
+    async () => {
+      const state = await loadThingState()
+      const requests = pendingFetch()
+      const { result } = render(state, post())
+
+      const up = start(() => state.voteThing(post(), 1))
+      const none = start(() => state.voteThing(post(), 0))
+
+      await answer(requests[0], failure())
+
+      expect(await up).toBe(false)
+      expect(await none).toBe(true)
+      expect(requests).toHaveLength(1)
+      expect(result.current.likes).toBeNull()
+    })
+
+  it('don\'t hold up other fields or other things', async () => {
+    const state = await loadThingState()
+    const requests = pendingFetch()
+
+    void start(() => state.voteThing(post(), 1))
+    void start(() => state.saveThing(post(), true))
+    void start(() => state.voteThing(post({ name: 't3_def' }), 1))
+    void start(() => state.voteThing(post(), -1))
+
+    expect(requests.map((request) => [
+      request.path,
+      request.body.get('id')
+    ])).toEqual([
+      ['/api/vote', 't3_abc'],
+      ['/api/save', 't3_abc'],
+      ['/api/vote', 't3_def']
+    ])
+  })
+
+  it('invalidate the subscriptions once settled', async () => {
+    const state = await loadThingState()
+    const { queryClient } = await import('core/queryClient')
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
+    const requests = pendingFetch()
+    const sub = { name: 't5_abc', user_is_subscriber: false }
+
+    const subscribed = start(() => state.setSubscribed(sub, true))
+    expect(invalidate).not.toHaveBeenCalled()
+
+    await answer(requests[0], jsonResponse({ }))
+    await subscribed
+    expect(invalidate).toHaveBeenCalledWith({
+      queryKey: ['subscriptions']
+    })
+  })
+})
+
+describe('clearThingChanges', () => {
+  it('drops the waiting writes', async () => {
+    const state = await loadThingState()
+    const requests = pendingFetch()
+    const thing = post()
+    const { result } = render(state, thing)
+
+    const up = start(() => state.voteThing(thing, 1))
+    const down = start(() => state.voteThing(thing, -1))
+    act(() => state.clearThingChanges())
+
+    expect(await down).toBe(false)
+    expect(result.current).toBe(thing)
+
+    await answer(requests[0], jsonResponse({ }))
+    expect(await up).toBe(true)
+    expect(requests).toHaveLength(1)
+    expect(result.current).toBe(thing)
+  })
+
+  it('ignores a late failure', async () => {
+    const state = await loadThingState()
+    const requests = pendingFetch()
+    const thing = post()
+    const { result } = render(state, thing)
+
+    const up = start(() => state.voteThing(thing, 1))
+    act(() => state.clearThingChanges())
+
+    await answer(requests[0], failure())
+    expect(await up).toBe(false)
+    expect(result.current).toBe(thing)
+  })
 })
