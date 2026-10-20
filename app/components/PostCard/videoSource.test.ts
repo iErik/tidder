@@ -6,11 +6,7 @@ import {
 
 import type { Post, RedditVideo } from 'api/types'
 
-import {
-  failSource,
-  videoFileUrl,
-  videoSource
-} from './videoSource'
+import { videoFileUrl, videoSource } from './videoSource'
 
 const BASE = 'https://v.redd.it/abc123'
 const HLS = `${BASE}/HLSPlaylist.m3u8`
@@ -63,40 +59,6 @@ describe('videoSource', () => {
 
   it('plays a video preview from its mp4', () => {
     expect(videoSource(previewPost)).toBe(PREVIEW_MP4)
-  })
-
-  it('plays fallback_url once the HLS stream failed', () => {
-    expect(videoSource(videoPost(), HLS)).toBe(FALLBACK)
-  })
-
-  it('ignores a failure of another post\'s stream', () => {
-    const failed = 'https://v.redd.it/other/HLSPlaylist.m3u8'
-
-    expect(videoSource(videoPost(), failed)).toBe(HLS)
-  })
-})
-
-describe('failSource', () => {
-  it('marks a failed HLS stream, so fallback_url plays', () => {
-    const post = videoPost()
-    const failed = failSource(post, null)
-
-    expect(failed).toBe(HLS)
-    expect(videoSource(post, failed)).toBe(FALLBACK)
-  })
-
-  it('stays on fallback_url when that fails too', () => {
-    const post = videoPost()
-    const failed = failSource(post, failSource(post, null))
-
-    expect(failed).toBe(HLS)
-    expect(videoSource(post, failed)).toBe(FALLBACK)
-  })
-
-  it('changes nothing when a file fails', () => {
-    expect(failSource(videoPost({ has_audio: false }), null))
-      .toBeNull()
-    expect(failSource(previewPost, null)).toBeNull()
   })
 })
 

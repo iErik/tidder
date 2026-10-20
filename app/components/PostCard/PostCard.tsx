@@ -24,11 +24,7 @@ import { timeAgo } from 'utils/timeAgo'
 import { abbreviate } from 'utils/utils'
 
 import styles from './PostCard.module.scss'
-import {
-  failSource,
-  videoFileUrl,
-  videoSource
-} from './videoSource'
+import { videoFileUrl, videoSource } from './videoSource'
 
 const cx = bindStyles(styles)
 
@@ -74,6 +70,33 @@ function openExternal(ev: MouseEvent, url: string): void {
   window.tidder.openExternal(url)
 }
 
+// Native HLS doesn't play from http://localhost (as in
+// `pnpm run dev`), so when the HLS stream fails, the video
+// falls back to its file, without sound. PostViewer reuses
+// one PostCard for every post, so this is keyed by post: a
+// failure doesn't carry over to the next one.
+function PostVideo({ post }: { post: Post }) {
+  const [streamFailed, setStreamFailed] = useState(false)
+  const file = videoFileUrl(post)
+
+  return (
+    <video
+      className={cx('video')}
+      autoPlay={!post.is_video}
+      controls={post.is_video}
+      loop={!post.is_video}
+      muted={!post.is_video}
+      src={streamFailed ? file : videoSource(post)}
+      onError={() => setStreamFailed(true)}
+      onContextMenu={(ev) => openMenu(
+        ev,
+        mediaMenuItems({ url: file!, title: post.title })
+      )}
+    >
+    </video>
+  )
+}
+
 interface Props {
   post: Post
   onFeedAction: (action: FeedAction) => void
@@ -83,8 +106,6 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
   const post = useThing(rawPost)
   const { user } = useAuth()
   const [isCollapsed, setCollapsed] = useState(false)
-  // The HLS stream that failed to play, if any (see failSource)
-  const [failedVideo, setFailedVideo] = useState<string | null>(null)
   const showContent = hasContent(post)
 
   return (
@@ -228,24 +249,7 @@ export default function PostCard({ post: rawPost, onFeedAction }: Props) {
 
               {isVideo(post) && (
                 <div className={cx('post-video')}>
-                  <video
-                    className={cx('video')}
-                    autoPlay={!post.is_video}
-                    controls={post.is_video}
-                    loop={!post.is_video}
-                    muted={!post.is_video}
-                    src={videoSource(post, failedVideo)}
-                    onError={() => setFailedVideo(
-                      (failed) => failSource(post, failed)
-                    )}
-                    onContextMenu={(ev) => openMenu(
-                      ev,
-                      mediaMenuItems(
-                        { url: videoFileUrl(post)!, title: post.title }
-                      )
-                    )}
-                  >
-                  </video>
+                  <PostVideo key={post.name} post={post} />
                 </div>
               )}
             </div>
