@@ -1,0 +1,20 @@
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" mediaPresentationDuration="PT54S" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static">
+  <Period duration="PT54S" id="0">
+    <AdaptationSet contentType="video" id="0" segmentAlignment="true" startWithSAP="1">
+      <Representation bandwidth="725602" codecs="avc1.4d401e" height="522" id="3" mimeType="video/mp4" width="360">
+        <BaseURL>DASH_360.mp4</BaseURL>
+      </Representation>
+      <Representation bandwidth="1117688" codecs="avc1.4d401f" height="694" id="4" mimeType="video/mp4" width="480">
+        <BaseURL>DASH_480.mp4</BaseURL>
+      </Representation>
+    </AdaptationSet>
+    <AdaptationSet contentType="audio" id="1" segmentAlignment="true" startWithSAP="1">
+      <Representation audioSamplingRate="48000" bandwidth="133855" codecs="mp4a.40.2" id="7" mimeType="audio/mp4">
+        <BaseURL>DASH_AUDIO_128.mp4</BaseURL>
+      </Representation>
+      <Representation audioSamplingRate="48000" bandwidth="67887" codecs="mp4a.40.2" id="6" mimeType="audio/mp4">
+        <BaseURL>DASH_AUDIO_64.mp4</BaseURL>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>

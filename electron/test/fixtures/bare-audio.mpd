@@ -1,0 +1,17 @@
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" mediaPresentationDuration="PT11.796S" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static">
+    <Period duration="PT11.796S">
+        <AdaptationSet segmentAlignment="true" subsegmentAlignment="true" subsegmentStartsWithSAP="1">
+            <Representation bandwidth="1208727" codecs="avc1.4d401e" height="360" id="VIDEO-2" mimeType="video/mp4" width="198">
+                <BaseURL>DASH_1_2_M</BaseURL>
+            </Representation>
+            <Representation bandwidth="2416183" codecs="avc1.4d401f" height="480" id="VIDEO-1" mimeType="video/mp4" width="264">
+                <BaseURL>DASH_2_4_M</BaseURL>
+            </Representation>
+        </AdaptationSet>
+        <AdaptationSet>
+            <Representation audioSamplingRate="48000" bandwidth="131111" codecs="mp4a.40.2" id="AUDIO-1" mimeType="audio/mp4">
+                <BaseURL>audio</BaseURL>
+            </Representation>
+        </AdaptationSet>
+    </Period>
+</MPD>
