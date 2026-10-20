@@ -1,4 +1,5 @@
 import {
+  afterEach,
   describe,
   expect,
   it,
@@ -17,12 +18,14 @@ import { tidder } from '../../test/fakeTidder'
 import {
   defaultMenuItems,
   embedMenuItems,
+  linkMenuItems,
   mediaMenuItems,
   postMenuItems,
   selectionMenuItems,
   targetMenuItems,
   withInspect
 } from './menus'
+import type { LinkTarget } from './target'
 
 const save = { label: 'Save', action: () => { } }
 
@@ -80,6 +83,89 @@ describe('selection menu', () => {
     const success = vi.spyOn(toast, 'success')
 
     selectionMenuItems('Some text')[0].action()
+
+    expect(tidder().contextMenu.writeText)
+      .toHaveBeenCalledWith('Some text')
+    expect(success).toHaveBeenCalledWith('Text copied')
+  })
+})
+
+describe('link menu', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  const url = 'https://www.reddit.com/r/pics'
+
+  // The link r/pics, right-clicked on `selection` if given
+  function link(selection?: string): LinkTarget {
+    return { type: 'link', url, linkText: 'r/pics', selection }
+  }
+
+  function item(label: string, selection?: string) {
+    return linkMenuItems(link(selection))
+      .find((entry) => entry.label === label)!
+  }
+
+  it('lists the link menu', () => {
+    expect(labels(linkMenuItems(link()))).toEqual([
+      'Open in browser', 'Copy link', 'Copy link\'s text'
+    ])
+  })
+
+  it('adds Copy selection on a selection', () => {
+    expect(labels(linkMenuItems(link('Some text')))).toEqual([
+      'Open in browser',
+      'Copy link',
+      'Copy link\'s text',
+      'Copy selection'
+    ])
+  })
+
+  it('adds Inspect last in dev mode', () => {
+    tidder().isDev = true
+
+    expect(labels(targetMenuItems(link('Some text'), 10, 20))).toEqual([
+      'Open in browser',
+      'Copy link',
+      'Copy link\'s text',
+      'Copy selection',
+      'Inspect'
+    ])
+  })
+
+  it('opens the link in the browser, with no toast', () => {
+    const success = vi.spyOn(toast, 'success')
+
+    item('Open in browser').action()
+
+    expect(tidder().openExternal).toHaveBeenCalledWith(url)
+    expect(success).not.toHaveBeenCalled()
+  })
+
+  it('copies the link', () => {
+    const success = vi.spyOn(toast, 'success')
+
+    item('Copy link').action()
+
+    expect(tidder().contextMenu.writeText).toHaveBeenCalledWith(url)
+    expect(success).toHaveBeenCalledWith('Link copied')
+  })
+
+  it('copies the link\'s text', () => {
+    const success = vi.spyOn(toast, 'success')
+
+    item('Copy link\'s text').action()
+
+    expect(tidder().contextMenu.writeText)
+      .toHaveBeenCalledWith('r/pics')
+    expect(success).toHaveBeenCalledWith('Text copied')
+  })
+
+  it('copies the selection', () => {
+    const success = vi.spyOn(toast, 'success')
+
+    item('Copy selection', 'Some text').action()
 
     expect(tidder().contextMenu.writeText)
       .toHaveBeenCalledWith('Some text')

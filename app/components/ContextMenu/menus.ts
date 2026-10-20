@@ -9,7 +9,7 @@ import { toast } from 'core/toasts'
 import type { FeedAction } from 'pages/FeedPage/FeedPage'
 import { downloadName } from 'utils/downloadName'
 
-import type { MenuTarget } from './target'
+import type { LinkTarget, MenuTarget } from './target'
 
 // The items each menu shows. Plain functions of what was
 // right-clicked, so they can be tested without rendering.
@@ -41,6 +41,33 @@ export function selectionMenuItems(text: string): ContextMenuItem[] {
   return [{ label: 'Copy text', action: () => copyText(text) }]
 }
 
+// A link, at its absolute URL, with Copy selection when the
+// right-click is on selected text
+export function linkMenuItems(
+  { url, linkText, selection }: LinkTarget
+): ContextMenuItem[] {
+  const items: ContextMenuItem[] = [
+    {
+      label: 'Open in browser',
+      action: () => window.tidder.openExternal(url)
+    },
+    { label: 'Copy link', action: () => copyLink(url) },
+    {
+      label: 'Copy link\'s text',
+      action: () => copyText(linkText)
+    }
+  ]
+
+  if (selection) {
+    items.push({
+      label: 'Copy selection',
+      action: () => copyText(selection)
+    })
+  }
+
+  return items
+}
+
 // A target no component in the page opens the menu for (see
 // pickTarget), with Inspect in dev mode
 export function targetMenuItems(
@@ -48,7 +75,11 @@ export function targetMenuItems(
   x: number,
   y: number
 ): ContextMenuItem[] {
-  return withInspect(selectionMenuItems(target.text), x, y)
+  const items = target.type === 'link'
+    ? linkMenuItems(target)
+    : selectionMenuItems(target.text)
+
+  return withInspect(items, x, y)
 }
 
 // Opens a component's menu at the right-click, with Inspect

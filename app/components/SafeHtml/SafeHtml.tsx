@@ -1,6 +1,8 @@
 import { useMemo, type MouseEvent } from 'react'
 import DOMPurify from 'dompurify'
 
+import { redditUrl } from 'utils/redditUrl'
+
 // Reddit's HTML for posts, comments and subreddit descriptions. Requests
 // use raw_json=1, so it arrives as real HTML (no entity decoding needed),
 // and it's sanitized before being shown.
@@ -16,8 +18,9 @@ const EMBED_CONFIG = {
   ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling']
 }
 
-// Links open in the system browser. Reddit writes links to its own pages
-// as paths (/r/..., /u/...), which are resolved against reddit.com.
+// Links open in the system browser, at the address redditUrl
+// gives: Reddit writes links to its own pages as paths
+// (/r/..., /u/...), which are resolved against reddit.com.
 function openLink(ev: MouseEvent<HTMLElement>): void {
   const link = (ev.target as Element).closest('a')
   const href = link?.getAttribute('href')
@@ -27,11 +30,9 @@ function openLink(ev: MouseEvent<HTMLElement>): void {
   ev.preventDefault()
   ev.stopPropagation()
 
-  try {
-    window.tidder.openExternal(new URL(href, 'https://www.reddit.com').href)
-  } catch {
-    // Not a usable URL; ignore the click.
-  }
+  // Not a usable URL: the click is ignored
+  const url = redditUrl(href)
+  if (url) window.tidder.openExternal(url)
 }
 
 interface Props {
