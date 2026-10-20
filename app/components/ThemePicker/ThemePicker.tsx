@@ -13,6 +13,11 @@ import styles from './ThemePicker.module.scss'
 const cx = bindStyles(styles)
 const themes = Object.keys(themesConfig.appThemes || { })
 
+function reducedMotion(): boolean {
+  return window.matchMedia('(prefers-reduced-motion: reduce)')
+    .matches
+}
+
 function titleCase(text: string): string {
   return text.replace(/\w\S*/g, (word) =>
     word[0].toUpperCase() + word.slice(1).toLowerCase())
@@ -26,17 +31,22 @@ export default function ThemePicker() {
     'closing'
   >('closed')
 
+  // With reduced motion there's no fade-out to wait for
+  const close = () =>
+    setMenu(reducedMotion() ? 'closed' : 'closing')
+
   // The whole picker counts as inside, so a mousedown on the
   // trigger leaves the toggling to its click
   const ref = useRef<HTMLDivElement>(null)
-  useDismiss(ref, () => setMenu('closing'), menu === 'open')
+  useDismiss(ref, close, menu === 'open')
 
-  const toggleMenu = () => setMenu(menu === 'open'
-    ? 'closing'
-    : 'open')
+  const toggleMenu = () => {
+    if (menu === 'open') close()
+    else setMenu('open')
+  }
 
   const changeTheme = (theme: string) => {
-    setMenu('closing')
+    close()
     setSetting('appTheme', theme)
   }
 

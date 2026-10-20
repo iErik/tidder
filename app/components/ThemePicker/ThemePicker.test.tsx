@@ -5,9 +5,11 @@ import {
 } from '@testing-library/react'
 
 import {
+  afterEach,
   describe,
   expect,
-  it
+  it,
+  vi
 } from 'vitest'
 
 import { tidder } from '../../test/fakeTidder'
@@ -91,5 +93,59 @@ describe('ThemePicker', () => {
 
     fireEvent.animationEnd(open)
     expect(menu()).toBeNull()
+  })
+})
+
+// happy-dom plays no CSS animations, so the tests above end
+// them by hand (see "ThemePicker styles" below)
+describe('ThemePicker with reduced motion', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('closes at once, with no fade-out to wait for', () => {
+    vi.spyOn(window, 'matchMedia').mockReturnValue(
+      { matches: true } as MediaQueryList
+    )
+    const { trigger, menu } = setup()
+
+    click(trigger)
+    click(screen.getByText('Elsewhere'))
+
+    expect(menu()).toBeNull()
+  })
+})
+
+// The menu unmounts when its fade-out ends, which happy-dom
+// can't play, so this checks the stylesheet gives it one that
+// can end. Vitest leaves stylesheets empty, so it reads the
+// source.
+describe('ThemePicker styles', () => {
+  async function source() {
+    const fs = await vi.importActual<{
+      readFileSync(path: string, encoding: 'utf8'): string
+    }>('node:fs')
+
+    return fs.readFileSync(
+      'app/components/ThemePicker/ThemePicker.module.scss',
+      'utf8'
+    )
+  }
+
+  // The keyframes a variant's animation plays
+  function keyframes(scss: string, variant: string) {
+    const rule = new RegExp(
+      `&\\.${variant}\\s*\\{\\s*animation:\\s*([\\w-]+)`
+    )
+    return scss.match(rule)?.[1]
+  }
+
+  // Chromium doesn't restart an animation when only its
+  // direction changes, so a reversed fade-in never ends
+  it('fades out with keyframes of its own', async () => {
+    const scss = await source()
+
+    expect(keyframes(scss, '-entering')).toBe('fade-in')
+    expect(keyframes(scss, '-leaving')).toBe('fade-out')
   })
 })
