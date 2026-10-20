@@ -10,10 +10,11 @@ interface Handlers {
 // The open menu's keyboard: the arrows move between enabled
 // items, Enter chooses the active one (or closes the menu
 // with none, as a native menu does) and Escape closes. It
-// listens on the document instead of taking focus, so a text
-// field keeps its focus and selection while the menu is open,
-// and never sees these keys. Returns the active item's index
-// (null for none), which the pointer sets too.
+// never takes focus: it listens on the window, in the capture
+// phase, so it gets these keys before anything in the page.
+// A text field keeps its focus, caret and selection while the
+// menu is open, and never sees them. Returns the active item's
+// index (null for none), which the pointer sets too.
 export function useMenuKeyboard(
   items: readonly ContextMenuItem[],
   { onChoose, onClose }: Handlers
@@ -44,9 +45,9 @@ export function useMenuKeyboard(
       event.stopPropagation()
     }
 
-    document.addEventListener('keydown', onKeyDown, true)
+    window.addEventListener('keydown', onKeyDown, true)
     return () => {
-      document.removeEventListener('keydown', onKeyDown, true)
+      window.removeEventListener('keydown', onKeyDown, true)
     }
   }, [items, active, onChoose, onClose])
 

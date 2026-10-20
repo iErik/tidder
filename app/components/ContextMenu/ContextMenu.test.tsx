@@ -224,6 +224,39 @@ describe('ContextMenu', () => {
     expect(menu()).toBeNull()
   })
 
+  it('gives each item an id of its own, none active at first',
+    async () => {
+      const { openContextMenu } = await renderMenu()
+
+      act(() => openContextMenu(10, 20, [
+        { label: 'Save', action: vi.fn() },
+        { label: 'Hide', action: vi.fn() }
+      ]))
+
+      const ids = screen.getAllByRole('menuitem').map((item) => item.id)
+      expect(ids.every(Boolean)).toBe(true)
+      expect(new Set(ids).size).toBe(2)
+      expect(menu()!.hasAttribute('aria-activedescendant')).toBe(false)
+    })
+
+  it('marks the item under the pointer as active, if enabled',
+    async () => {
+      const { openContextMenu } = await renderMenu()
+
+      act(() => openContextMenu(10, 20, [
+        { label: 'Save', action: vi.fn() },
+        { label: 'Report', disabled: true, action: vi.fn() }
+      ]))
+      const active = () => menu()!.getAttribute('aria-activedescendant')
+
+      fireEvent.mouseEnter(screen.getByText('Save'))
+      expect(active()).toBe(screen.getByText('Save').id)
+      fireEvent.mouseLeave(screen.getByText('Save'))
+      expect(active()).toBeNull()
+      fireEvent.mouseEnter(screen.getByText('Report'))
+      expect(active()).toBeNull()
+    })
+
   it('stays open on a click inside it', async () => {
     const { openContextMenu } = await renderMenu()
 
@@ -233,6 +266,112 @@ describe('ContextMenu', () => {
     fireEvent.mouseDown(screen.getByText('Save'))
 
     expect(menu()).not.toBeNull()
+  })
+})
+
+// A focused text field with "me te" selected
+function focusedField() {
+  const input = appended(document.createElement('input'))
+  input.value = 'some text'
+  input.focus()
+  input.setSelectionRange(2, 7)
+  return input
+}
+
+function expectUntouched(input: HTMLInputElement) {
+  expect(document.activeElement).toBe(input)
+  expect([input.selectionStart, input.selectionEnd]).toEqual([2, 7])
+}
+
+describe('ContextMenu focus', () => {
+  it('keeps the field\'s focus and selection through a right-click',
+    async () => {
+      tidder().isDev = true
+      await renderMenu()
+      const input = focusedField()
+
+      act(() => {
+        fireEvent.mouseDown(input, { button: 2 })
+        rightClick(input)
+      })
+
+      expect(labels()).toEqual(['Inspect'])
+      expectUntouched(input)
+    })
+
+  it('can\'t be focused itself', async () => {
+    const { openContextMenu } = await renderMenu()
+
+    act(() => openContextMenu(10, 20, [
+      { label: 'Save', action: vi.fn() }
+    ]))
+
+    expect(menu()!.hasAttribute('tabindex')).toBe(false)
+    expect(screen.getByText('Save').hasAttribute('tabindex'))
+      .toBe(false)
+  })
+
+  it('keeps the field\'s focus and selection on a click',
+    async () => {
+      const { openContextMenu } = await renderMenu()
+      const input = focusedField()
+      const action = vi.fn()
+
+      act(() => openContextMenu(10, 20, [{ label: 'Save', action }]))
+      const save = screen.getByText('Save')
+      fireEvent.mouseEnter(save)
+      // fireEvent returns false once preventDefault was called
+      expect(fireEvent.mouseDown(save)).toBe(false)
+      fireEvent.click(save)
+
+      expect(action).toHaveBeenCalled()
+      expect(menu()).toBeNull()
+      expectUntouched(input)
+    })
+
+  it('chooses with the arrows and Enter, out of the field\'s reach',
+    async () => {
+      const { openContextMenu } = await renderMenu()
+      const input = focusedField()
+      const onFieldKey = vi.fn()
+      input.addEventListener('keydown', onFieldKey)
+      const save = vi.fn()
+      const hide = vi.fn()
+
+      act(() => openContextMenu(10, 20, [
+        { label: 'Save', action: save },
+        { label: 'Hide', action: hide }
+      ]))
+      fireEvent.keyDown(input, { key: 'ArrowDown' })
+      fireEvent.keyDown(input, { key: 'ArrowDown' })
+
+      expect(menu()!.getAttribute('aria-activedescendant'))
+        .toBe(screen.getByText('Hide').id)
+      expectUntouched(input)
+
+      fireEvent.keyDown(input, { key: 'Enter' })
+
+      expect(hide).toHaveBeenCalled()
+      expect(save).not.toHaveBeenCalled()
+      expect(menu()).toBeNull()
+      expect(onFieldKey).not.toHaveBeenCalled()
+      expectUntouched(input)
+    })
+
+  it('closes on Escape, leaving the focus in the field', async () => {
+    const { openContextMenu } = await renderMenu()
+    const input = focusedField()
+    const onFieldKey = vi.fn()
+    input.addEventListener('keydown', onFieldKey)
+
+    act(() => openContextMenu(10, 20, [
+      { label: 'Save', action: vi.fn() }
+    ]))
+    fireEvent.keyDown(input, { key: 'Escape' })
+
+    expect(menu()).toBeNull()
+    expect(onFieldKey).not.toHaveBeenCalled()
+    expectUntouched(input)
   })
 })
 
