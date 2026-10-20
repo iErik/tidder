@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import Icon from 'components/Icon/Icon'
 
 import themesConfig from 'config/themes.json'
 
 import { setSetting } from 'core/useSetting'
+import { useDismiss } from 'hooks/useDismiss'
 import { bindStyles } from 'utils/classNames'
 
 import styles from './ThemePicker.module.scss'
@@ -25,6 +26,11 @@ export default function ThemePicker() {
     'closing'
   >('closed')
 
+  // The whole picker counts as inside, so a mousedown on the
+  // trigger leaves the toggling to its click
+  const ref = useRef<HTMLDivElement>(null)
+  useDismiss(ref, () => setMenu('closing'), menu === 'open')
+
   const toggleMenu = () => setMenu(menu === 'open'
     ? 'closing'
     : 'open')
@@ -35,7 +41,10 @@ export default function ThemePicker() {
   }
 
   return (
-    <div className={cx('theme-picker')}>
+    <div
+      ref={ref}
+      className={cx('theme-picker')}
+    >
       <div className={cx('layout')}>
         <div className={cx('toggle')}>
           <button
