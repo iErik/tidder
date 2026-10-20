@@ -1,9 +1,3 @@
-# Archived
-
-Since Reddit has made the decision to severely limit its
-public API, this app is no longer functional, so I'm (sadly)
-archiving it.
-
 ## Tidder
 Tidder (reddit backwards) is an open-source Reddit client built entirely with
 web technologies, the project is currently under beta development phase and
