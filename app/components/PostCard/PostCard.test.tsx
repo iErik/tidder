@@ -6,6 +6,8 @@ import {
 import { MemoryRouter } from 'react-router'
 
 import {
+  afterEach,
+  beforeEach,
   describe,
   expect,
   it,
@@ -14,10 +16,15 @@ import {
 
 import type { Post } from 'api/types'
 
+import { toast } from 'core/toasts'
+
+import { tidder } from '../../test/fakeTidder'
+
 import PostCard from './PostCard'
 
-// A Reddit video post with sound, named after `id`
-function videoPost(id: string): Post {
+// A Reddit video post named after `id`, with sound unless
+// `hasAudio` is false
+function videoPost(id: string, hasAudio = true): Post {
   const base = `https://v.redd.it/${id}`
 
   return {
@@ -44,7 +51,7 @@ function videoPost(id: string): Post {
       reddit_video: {
         fallback_url: `${base}/CMAF_720.mp4?source=fallback`,
         hls_url: `${base}/HLSPlaylist.m3u8`,
-        has_audio: true
+        has_audio: hasAudio
       }
     },
     secure_media_embed: { }
@@ -70,6 +77,15 @@ function rerenderCard(result: RenderResult, post: Post) {
 function video(result: RenderResult): HTMLVideoElement {
   return result.container.querySelector('video')!
 }
+
+beforeEach(() => {
+  vi.spyOn(toast, 'warning')
+  vi.spyOn(toast, 'error')
+})
+
+afterEach(() => {
+  vi.restoreAllMocks()
+})
 
 describe('PostCard video', () => {
   it('plays the HLS stream of a video with sound', () => {
@@ -106,5 +122,60 @@ describe('PostCard video', () => {
 
     expect(video(result).getAttribute('src'))
       .toBe('https://v.redd.it/def/HLSPlaylist.m3u8')
+  })
+})
+
+describe('PostCard video toasts', () => {
+  it('warn once when the stream falls back to the file', () => {
+    const result = renderCard(videoPost('abc'))
+
+    fireEvent.error(video(result))
+
+    expect(toast.warning).toHaveBeenCalledOnce()
+    expect(toast.warning)
+      .toHaveBeenCalledWith('Couldn\'t play this video\'s sound')
+    expect(toast.error).not.toHaveBeenCalled()
+  })
+
+  it('leave the warning out in dev, where HLS always fails', () => {
+    tidder().isDev = true
+    const result = renderCard(videoPost('abc'))
+
+    fireEvent.error(video(result))
+
+    expect(toast.warning).not.toHaveBeenCalled()
+  })
+
+  it('report an error once when the file fails too', () => {
+    const result = renderCard(videoPost('abc'))
+
+    fireEvent.error(video(result))
+    fireEvent.error(video(result))
+    fireEvent.error(video(result))
+
+    expect(toast.warning).toHaveBeenCalledOnce()
+    expect(toast.error).toHaveBeenCalledOnce()
+    expect(toast.error)
+      .toHaveBeenCalledWith('Couldn\'t play the video')
+  })
+
+  it('report an error, not a warning, for a video without sound',
+    () => {
+      const result = renderCard(videoPost('abc', false))
+
+      fireEvent.error(video(result))
+
+      expect(toast.warning).not.toHaveBeenCalled()
+      expect(toast.error).toHaveBeenCalledOnce()
+    })
+
+  it('report the file failing in dev too', () => {
+    tidder().isDev = true
+    const result = renderCard(videoPost('abc'))
+
+    fireEvent.error(video(result))
+    fireEvent.error(video(result))
+
+    expect(toast.error).toHaveBeenCalledOnce()
   })
 })
