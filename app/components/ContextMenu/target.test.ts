@@ -30,6 +30,55 @@ describe('pickTarget', () => {
       .toEqual({ type: 'page' })
   })
 
+  it('picks a link, at its reddit.com URL', () => {
+    const params = contextMenuParams({
+      linkURL: `${window.location.href}#/r/pics`,
+      linkText: 'r/pics'
+    })
+
+    expect(pickTarget({ params, onSelection: false })).toEqual({
+      type: 'link',
+      url: 'https://www.reddit.com/r/pics',
+      text: 'r/pics'
+    })
+  })
+
+  it('prefers a link to the selection it\'s in', () => {
+    const params = contextMenuParams({
+      linkURL: 'https://example.com/',
+      linkText: 'a link',
+      selectionText: 'Text with a link in it'
+    })
+
+    expect(pickTarget({ params, onSelection: true })).toEqual({
+      type: 'link',
+      url: 'https://example.com/',
+      text: 'Text with a link in it'
+    })
+  })
+
+  it('copies a link\'s own text off the selection', () => {
+    const params = contextMenuParams({
+      linkURL: 'https://example.com/',
+      linkText: 'a link',
+      selectionText: 'Other text'
+    })
+
+    expect(pickTarget({ params, onSelection: false }))
+      .toMatchObject({ type: 'link', text: 'a link' })
+  })
+
+  // Like the post title, which opens its link on click
+  it('leaves a link to the app\'s page to the page', () => {
+    const params = contextMenuParams({
+      linkURL: `${window.location.href}#`,
+      linkText: 'A post title'
+    })
+
+    expect(pickTarget({ params, onSelection: false }))
+      .toEqual({ type: 'page' })
+  })
+
   // A post card, image or embed under the cursor doesn't
   // show in the params: the page decides those
   it('leaves everything else to the page', () => {

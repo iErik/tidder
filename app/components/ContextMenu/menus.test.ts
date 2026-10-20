@@ -1,4 +1,5 @@
 import {
+  afterEach,
   describe,
   expect,
   it,
@@ -17,6 +18,7 @@ import { tidder } from '../../test/fakeTidder'
 import {
   defaultMenuItems,
   embedMenuItems,
+  linkMenuItems,
   mediaMenuItems,
   postMenuItems,
   selectionMenuItems,
@@ -83,6 +85,58 @@ describe('selection menu', () => {
 
     expect(tidder().contextMenu.writeText)
       .toHaveBeenCalledWith('Some text')
+    expect(success).toHaveBeenCalledWith('Text copied')
+  })
+})
+
+describe('link menu', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  const url = 'https://www.reddit.com/r/pics'
+  const item = (label: string) => linkMenuItems(url, 'r/pics')
+    .find((entry) => entry.label === label)!
+
+  it('lists the link menu', () => {
+    expect(labels(linkMenuItems(url, 'r/pics')))
+      .toEqual(['Open in browser', 'Copy link', 'Copy text'])
+  })
+
+  it('adds Inspect last in dev mode', () => {
+    tidder().isDev = true
+    const target = { type: 'link', url, text: 'r/pics' } as const
+
+    expect(labels(targetMenuItems(target, 10, 20))).toEqual([
+      'Open in browser', 'Copy link', 'Copy text', 'Inspect'
+    ])
+  })
+
+  it('opens the link in the browser, with no toast', () => {
+    const success = vi.spyOn(toast, 'success')
+
+    item('Open in browser').action()
+
+    expect(tidder().openExternal).toHaveBeenCalledWith(url)
+    expect(success).not.toHaveBeenCalled()
+  })
+
+  it('copies the link', () => {
+    const success = vi.spyOn(toast, 'success')
+
+    item('Copy link').action()
+
+    expect(tidder().contextMenu.writeText).toHaveBeenCalledWith(url)
+    expect(success).toHaveBeenCalledWith('Link copied')
+  })
+
+  it('copies the text', () => {
+    const success = vi.spyOn(toast, 'success')
+
+    item('Copy text').action()
+
+    expect(tidder().contextMenu.writeText)
+      .toHaveBeenCalledWith('r/pics')
     expect(success).toHaveBeenCalledWith('Text copied')
   })
 })

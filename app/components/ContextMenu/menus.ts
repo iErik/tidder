@@ -41,6 +41,22 @@ export function selectionMenuItems(text: string): ContextMenuItem[] {
   return [{ label: 'Copy text', action: () => copyText(text) }]
 }
 
+// A link, at its absolute URL. `text` is the link's, or the
+// selection it's in.
+export function linkMenuItems(
+  url: string,
+  text: string
+): ContextMenuItem[] {
+  return [
+    {
+      label: 'Open in browser',
+      action: () => window.tidder.openExternal(url)
+    },
+    { label: 'Copy link', action: () => copyLink(url) },
+    { label: 'Copy text', action: () => copyText(text) }
+  ]
+}
+
 // A target no component in the page opens the menu for (see
 // pickTarget), with Inspect in dev mode
 export function targetMenuItems(
@@ -48,7 +64,11 @@ export function targetMenuItems(
   x: number,
   y: number
 ): ContextMenuItem[] {
-  return withInspect(selectionMenuItems(target.text), x, y)
+  const items = target.type === 'link'
+    ? linkMenuItems(target.url, target.text)
+    : selectionMenuItems(target.text)
+
+  return withInspect(items, x, y)
 }
 
 // Opens a component's menu at the right-click, with Inspect

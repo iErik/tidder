@@ -1,8 +1,14 @@
+import { redditUrl } from 'utils/redditUrl'
+
 // What a right-click in the page landed on, which picks the
 // menu it opens. Menus are never merged: the most specific
 // target wins.
 
 export type MenuTarget =
+  // A link, at its absolute URL (see redditUrl). `text` is
+  // the link's, or the whole selection when the right-click
+  // is on one.
+  | { type: 'link'; url: string; text: string }
   // Selected text, right-clicked on the selection itself
   | { type: 'selection'; text: string }
   // Anything else: an image, video, embed or post, or
@@ -23,8 +29,14 @@ export interface RightClick {
 export function pickTarget(
   { params, onSelection }: RightClick
 ): MenuTarget {
-  if (onSelection && params.selectionText)
-    return { type: 'selection', text: params.selectionText }
+  const selection = onSelection ? params.selectionText : ''
+
+  // A link to the app's own page (href="#") is a button
+  const url = params.linkURL && redditUrl(params.linkURL)
+  if (url)
+    return { type: 'link', url, text: selection || params.linkText }
+
+  if (selection) return { type: 'selection', text: selection }
 
   return { type: 'page' }
 }

@@ -246,6 +246,68 @@ describe('ContextMenu', () => {
       .toHaveBeenCalledWith('Some text')
   })
 
+  it('opens the link menu for a right-click on a link', async () => {
+    tidder().isDev = true
+    await renderMenu()
+
+    rightClick(document.body, { linkURL: 'https://example.com/' })
+
+    expect(labels()).toEqual([
+      'Open in browser', 'Copy link', 'Copy text', 'Inspect'
+    ])
+  })
+
+  it('prefers the link menu to a post card\'s', async () => {
+    const { openContextMenu } = await renderMenu()
+
+    rightClick(
+      withMenu(openContextMenu),
+      { linkURL: 'https://example.com/' }
+    )
+
+    expect(labels()).toEqual([
+      'Open in browser', 'Copy link', 'Copy text'
+    ])
+  })
+
+  it('copies an in-app link\'s reddit.com URL', async () => {
+    await renderMenu()
+
+    rightClick(document.body, {
+      linkURL: `${window.location.href}#/r/pics`
+    })
+    fireEvent.click(screen.getByText('Copy link'))
+
+    expect(tidder().contextMenu.writeText)
+      .toHaveBeenCalledWith('https://www.reddit.com/r/pics')
+  })
+
+  it('copies the selection a link is in', async () => {
+    await renderMenu()
+    selectText()
+
+    rightClick(document.body, {
+      linkURL: 'https://example.com/',
+      linkText: 'a link',
+      selectionText: 'Text with a link in it'
+    })
+    fireEvent.click(screen.getByText('Copy text'))
+
+    expect(tidder().contextMenu.writeText)
+      .toHaveBeenCalledWith('Text with a link in it')
+  })
+
+  it('keeps a post card\'s menu on an href="#" link', async () => {
+    const { openContextMenu } = await renderMenu()
+
+    rightClick(
+      withMenu(openContextMenu),
+      { linkURL: `${window.location.href}#` }
+    )
+
+    expect(labels()).toEqual(['Save'])
+  })
+
   it('shows the items, disabled ones as such', async () => {
     const { openContextMenu } = await renderMenu()
 
