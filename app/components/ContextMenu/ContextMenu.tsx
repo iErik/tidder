@@ -21,7 +21,11 @@ import { bindStyles } from 'utils/classNames'
 
 import { defaultMenuItems, targetMenuItems } from './menus'
 import { placeMenu } from './placeMenu'
-import { isOnSelection, pickTarget } from './target'
+import {
+  fieldAt,
+  isOnSelection,
+  pickTarget
+} from './target'
 import type { MenuTarget } from './target'
 import { useMenuKeyboard } from './useMenuKeyboard'
 
@@ -73,32 +77,14 @@ function onForwarded(params: TidderContextMenuParams) {
   const { x, y } = params
   const target: MenuTarget = params.isSubframe
     ? { type: 'page' }
-    : pickTarget({ params, onSelection: isOnSelection(x, y) })
+    : pickTarget({
+      params,
+      onSelection: isOnSelection(x, y),
+      field: fieldAt(document.elementFromPoint(x, y))
+    })
 
   if (target.type === 'page') replayRightClick(x, y)
   else openContextMenu(x, y, targetMenuItems(target, x, y))
-}
-
-// The input types that take text
-const TEXT_INPUTS = new Set([
-  'text', 'search', 'url', 'tel', 'email', 'password', 'number'
-])
-
-// The text field the element is in, if any: an input that
-// takes text, a textarea or another editable
-function fieldAt(element: EventTarget | null): HTMLElement | null {
-  if (!(element instanceof Element)) return null
-
-  const field = element.closest('input, textarea, [contenteditable]')
-
-  if (field instanceof HTMLInputElement)
-    return TEXT_INPUTS.has(field.type) ? field : null
-
-  if (field instanceof HTMLTextAreaElement) return field
-
-  return field instanceof HTMLElement && field.isContentEditable
-    ? field
-    : null
 }
 
 // The right button's mousedown is cancelled, so it doesn't

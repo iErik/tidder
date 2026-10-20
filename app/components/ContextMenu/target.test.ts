@@ -8,25 +8,39 @@ import {
 
 import { contextMenuParams } from '../../test/fakeTidder'
 
-import { isOnSelection, pickTarget } from './target'
+import {
+  fieldAt,
+  isOnSelection,
+  pickTarget
+} from './target'
 
 const selected = contextMenuParams({ selectionText: 'Some text' })
 
+// The target of a right-click with these params, on the
+// selection or not, and on `field` if given
+function pick(
+  params: TidderContextMenuParams,
+  onSelection: boolean,
+  field: HTMLElement | null = null
+) {
+  return pickTarget({ params, onSelection, field })
+}
+
 describe('pickTarget', () => {
   it('picks the selection when the right-click is on it', () => {
-    expect(pickTarget({ params: selected, onSelection: true }))
+    expect(pick(selected, true))
       .toEqual({ type: 'selection', text: 'Some text' })
   })
 
   it('ignores a selection the right-click is outside', () => {
-    expect(pickTarget({ params: selected, onSelection: false }))
+    expect(pick(selected, false))
       .toEqual({ type: 'page' })
   })
 
   it('leaves a right-click with no selection to the page', () => {
     const params = contextMenuParams()
 
-    expect(pickTarget({ params, onSelection: true }))
+    expect(pick(params, true))
       .toEqual({ type: 'page' })
   })
 
@@ -36,7 +50,7 @@ describe('pickTarget', () => {
       linkText: 'r/pics'
     })
 
-    expect(pickTarget({ params, onSelection: false })).toEqual({
+    expect(pick(params, false)).toEqual({
       type: 'link',
       url: 'https://www.reddit.com/r/pics',
       linkText: 'r/pics'
@@ -51,7 +65,7 @@ describe('pickTarget', () => {
         selectionText: 'Text with a link in it'
       })
 
-      expect(pickTarget({ params, onSelection: true })).toEqual({
+      expect(pick(params, true)).toEqual({
         type: 'link',
         url: 'https://example.com/',
         linkText: 'a link',
@@ -66,7 +80,7 @@ describe('pickTarget', () => {
       selectionText: 'lin'
     })
 
-    expect(pickTarget({ params, onSelection: true }))
+    expect(pick(params, true))
       .toMatchObject({ linkText: 'a link', selection: 'lin' })
   })
 
@@ -77,7 +91,7 @@ describe('pickTarget', () => {
       selectionText: 'Other text'
     })
 
-    expect(pickTarget({ params, onSelection: false })).toEqual({
+    expect(pick(params, false)).toEqual({
       type: 'link',
       url: 'https://example.com/',
       linkText: 'a link'
@@ -91,7 +105,7 @@ describe('pickTarget', () => {
       linkText: 'A post title'
     })
 
-    expect(pickTarget({ params, onSelection: false }))
+    expect(pick(params, false))
       .toEqual({ type: 'page' })
   })
 
@@ -103,14 +117,14 @@ describe('pickTarget', () => {
       mediaType: 'image'
     })
 
-    expect(pickTarget({ params, onSelection: false }))
+    expect(pick(params, false))
       .toEqual({ type: 'page' })
   })
 
   it('picks a text field, with its edit flags', () => {
     const params = contextMenuParams({ isEditable: true })
 
-    expect(pickTarget({ params, onSelection: false })).toEqual({
+    expect(pick(params, false)).toEqual({
       type: 'field',
       editFlags: params.editFlags
     })
@@ -122,7 +136,7 @@ describe('pickTarget', () => {
       selectionText: 'Some text'
     })
 
-    expect(pickTarget({ params, onSelection: true }).type)
+    expect(pick(params, true).type)
       .toBe('field')
   })
 
@@ -133,7 +147,7 @@ describe('pickTarget', () => {
       mediaType: 'image'
     })
 
-    expect(pickTarget({ params, onSelection: false }).type)
+    expect(pick(params, false).type)
       .toBe('field')
   })
 
@@ -145,8 +159,79 @@ describe('pickTarget', () => {
       linkText: 'a link'
     })
 
-    expect(pickTarget({ params, onSelection: false }).type)
+    expect(pick(params, false).type)
       .toBe('field')
+  })
+
+  // Electron reports a read-only or disabled field as not
+  // editable
+  it.each(['readOnly', 'disabled'] as const)(
+    'picks a %s field, without Cut and Paste',
+    (attribute) => {
+      const input = document.createElement('input')
+      input[attribute] = true
+      const params = contextMenuParams({
+        editFlags: {
+          ...contextMenuParams().editFlags,
+          canCopy: true,
+          canCut: true,
+          canPaste: true
+        }
+      })
+
+      expect(pick(params, false, input)).toEqual({
+        type: 'field',
+        editFlags: {
+          ...params.editFlags,
+          canCut: false,
+          canPaste: false
+        }
+      })
+    }
+  )
+
+  it('picks a field Electron reports as not editable', () => {
+    const params = contextMenuParams()
+    const textarea = document.createElement('textarea')
+
+    expect(pick(params, false, textarea)).toEqual({
+      type: 'field',
+      editFlags: params.editFlags
+    })
+  })
+})
+
+describe('fieldAt', () => {
+  afterEach(() => {
+    document.body.replaceChildren()
+  })
+
+  // The element marked data-at in the markup, in the document,
+  // where an editable's children are editable too
+  function element(html: string) {
+    document.body.innerHTML = html
+    return document.querySelector('[data-at]')
+  }
+
+  it.each([
+    ['a text input', '<input data-at>'],
+    ['a search input', '<input type="search" data-at>'],
+    ['a textarea', '<textarea data-at></textarea>'],
+    ['a read-only input', '<input readonly data-at>'],
+    [
+      'inside an editable',
+      '<div contenteditable="true"><b data-at></b></div>'
+    ]
+  ])('finds %s', (_, html) => {
+    expect(fieldAt(element(html))).not.toBeNull()
+  })
+
+  it.each([
+    ['a checkbox', '<input type="checkbox" data-at>'],
+    ['a button', '<button data-at></button>'],
+    ['plain text', '<p data-at></p>']
+  ])('finds no field in %s', (_, html) => {
+    expect(fieldAt(element(html))).toBeNull()
   })
 })
 

@@ -247,7 +247,8 @@ describe('forward', { concurrent: false }, () => {
   it.each([
     ['empty', '', false],
     ['holding text', 'Some text', true]
-  ])('lets a field take a paste with the clipboard %s',
+  ])(
+    'lets a field take a paste with the clipboard %s',
     (_, text, canPaste) => {
       electron().clipboard.readText.mockReturnValue(text)
       const webContents = fakeWebContents()
@@ -261,7 +262,8 @@ describe('forward', { concurrent: false }, () => {
 
       expect(webContents.send.mock.calls[0][1].editFlags)
         .toEqual({ canCopy: false, canPaste })
-    })
+    }
+  )
 
   it('never lets a read-only field take a paste', () => {
     electron().clipboard.readText.mockReturnValue('Some text')

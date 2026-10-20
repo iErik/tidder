@@ -34,14 +34,30 @@ export interface RightClick {
 
   // Whether it landed on the selected text (isOnSelection)
   onSelection: boolean
+
+  // The text field it landed on (fieldAt), if any
+  field: HTMLElement | null
 }
 
 // The target, from the most specific down. A text field and
 // a link rank above the selection.
 export function pickTarget(
-  { params, onSelection }: RightClick
+  { params, onSelection, field }: RightClick
 ): MenuTarget {
-  if (params.isEditable)
+  // Electron reports a read-only field as not editable, but
+  // it still gets the field's menu, without Cut and Paste
+  if (field && isReadOnly(field)) {
+    return {
+      type: 'field',
+      editFlags: {
+        ...params.editFlags,
+        canCut: false,
+        canPaste: false
+      }
+    }
+  }
+
+  if (field || params.isEditable)
     return { type: 'field', editFlags: params.editFlags }
 
   const selectedText = onSelection ? params.selectionText : ''
@@ -60,6 +76,38 @@ export function pickTarget(
   if (selectedText) return { type: 'selection', text: selectedText }
 
   return { type: 'page' }
+}
+
+// The input types that take text
+const TEXT_INPUTS = new Set([
+  'text', 'search', 'url', 'tel', 'email', 'password', 'number'
+])
+
+// The text field the element is in, if any: an input that
+// takes text, a textarea or another editable
+export function fieldAt(
+  element: EventTarget | null
+): HTMLElement | null {
+  if (!(element instanceof Element)) return null
+
+  const field = element.closest(
+    'input, textarea, [contenteditable]'
+  )
+
+  if (field instanceof HTMLInputElement)
+    return TEXT_INPUTS.has(field.type) ? field : null
+
+  if (field instanceof HTMLTextAreaElement) return field
+
+  return field instanceof HTMLElement && field.isContentEditable
+    ? field
+    : null
+}
+
+function isReadOnly(field: HTMLElement): boolean {
+  return (field instanceof HTMLInputElement
+    || field instanceof HTMLTextAreaElement)
+    && (field.readOnly || field.disabled)
 }
 
 // Whether the point, in CSS pixels, is on the selected text

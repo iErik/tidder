@@ -74,7 +74,9 @@ export function linkMenuItems(
 
 // A text field, which has the focus (see ContextMenu). Each
 // item acts on it, and is disabled where it can't.
-export function fieldMenuItems(flags: EditFlags): ContextMenuItem[] {
+export function fieldMenuItems(
+  flags: EditFlags
+): ContextMenuItem[] {
   const item = (
     label: string,
     command: TidderEditCommand,
@@ -93,9 +95,13 @@ export function fieldMenuItems(flags: EditFlags): ContextMenuItem[] {
   ]
 }
 
-type OwnTarget = Exclude<MenuTarget, { type: 'page' }>
+// Every target but the page, whose menus the page's own
+// components open
+type NonPageTarget = Exclude<MenuTarget, { type: 'page' }>
 
-function ownTargetItems(target: OwnTarget): ContextMenuItem[] {
+function nonPageItems(
+  target: NonPageTarget
+): ContextMenuItem[] {
   switch (target.type) {
     case 'field': return fieldMenuItems(target.editFlags)
     case 'link': return linkMenuItems(target)
@@ -106,11 +112,11 @@ function ownTargetItems(target: OwnTarget): ContextMenuItem[] {
 // A target no component in the page opens the menu for (see
 // pickTarget), with Inspect in dev mode
 export function targetMenuItems(
-  target: OwnTarget,
+  target: NonPageTarget,
   x: number,
   y: number
 ): ContextMenuItem[] {
-  return withInspect(ownTargetItems(target), x, y)
+  return withInspect(nonPageItems(target), x, y)
 }
 
 // Opens a component's menu at the right-click, with Inspect

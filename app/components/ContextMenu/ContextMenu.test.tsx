@@ -446,7 +446,9 @@ describe('ContextMenu focus', () => {
         rightClick(input)
       })
 
-      expect(labels()).toEqual(['Inspect'])
+      expect(labels()).toEqual(
+        ['Copy', 'Paste', 'Cut', 'Select all', 'Inspect']
+      )
       expectUntouched(input)
     })
 
@@ -539,17 +541,33 @@ const fieldParams = contextMenuParams({
   }
 })
 
+// The same, on a field with only a caret: nothing to copy or
+// cut
+const caretParams = {
+  ...fieldParams,
+  editFlags: {
+    ...fieldParams.editFlags,
+    canCopy: false,
+    canCut: false
+  }
+}
+
 // A right-click on a text field, as in the app: the right
-// button's mousedown, then the right-click
+// button's mousedown, then the right-click. Gives whether the
+// mousedown was let through, which lets the focus move.
 function rightClickField(
   field: Element,
   params: Partial<TidderContextMenuParams> = fieldParams
 ) {
-  const shown = fireEvent.mouseDown(field, { button: 2 })
+  const focusAllowed = fireEvent.mouseDown(field, { button: 2 })
   rightClick(field, params)
 
-  return shown
+  return focusAllowed
 }
+
+const disabledLabels = () => screen.queryAllByRole('menuitem')
+  .filter((item) => item.getAttribute('aria-disabled'))
+  .map((item) => item.textContent)
 
 describe('ContextMenu text fields', () => {
   it('opens Copy, Paste, Cut and Select all', async () => {
@@ -562,25 +580,32 @@ describe('ContextMenu text fields', () => {
       .toEqual(['Copy', 'Paste', 'Cut', 'Select all', 'Inspect'])
   })
 
-  it('disables the items the field\'s edit flags rule out',
-    async () => {
+  it('disables what the edit flags rule out', async () => {
+    await renderMenu()
+
+    rightClickField(
+      appended(document.createElement('input')),
+      caretParams
+    )
+
+    expect(disabledLabels()).toEqual(['Copy', 'Cut'])
+  })
+
+  // Electron reports one as not editable
+  it.each(['readOnly', 'disabled'] as const)(
+    'opens a %s field\'s menu, without Paste and Cut',
+    async (attribute) => {
       await renderMenu()
-      const editFlags = {
-        ...fieldParams.editFlags,
-        canCut: false,
-        canPaste: false
-      }
+      const input = appended(document.createElement('input'))
+      input[attribute] = true
 
-      rightClickField(
-        appended(document.createElement('input')),
-        { ...fieldParams, editFlags }
-      )
+      rightClickField(input, { ...fieldParams, isEditable: false })
 
-      const disabled = screen.getAllByRole('menuitem')
-        .filter((item) => item.getAttribute('aria-disabled'))
-        .map((item) => item.textContent)
-      expect(disabled).toEqual(['Paste', 'Cut'])
-    })
+      expect(labels())
+        .toEqual(['Copy', 'Paste', 'Cut', 'Select all'])
+      expect(disabledLabels()).toEqual(['Paste', 'Cut'])
+    }
+  )
 
   it('prefers the field\'s menu to a post card\'s', async () => {
     const { openContextMenu } = await renderMenu()
@@ -605,11 +630,17 @@ describe('ContextMenu text fields', () => {
 
     // fireEvent returns false once preventDefault was called,
     // which would stop the caret moving to the click
-    expect(rightClickField(b)).toBe(true)
+    expect(rightClickField(b, caretParams)).toBe(true)
     expect(document.activeElement).toBe(b)
 
+    // Electron reports the edit flags of the focused field,
+    // now B. B has only a caret, so Copy and Cut are off,
+    // though A has text selected.
+    expect(disabledLabels()).toEqual(['Copy', 'Cut'])
+
+    b.setSelectionRange(0, 5)
     for (const label of ['Copy', 'Paste', 'Cut', 'Select all']) {
-      if (label !== 'Copy') rightClickField(b)
+      rightClickField(b)
       fireEvent.click(screen.getByText(label))
     }
 
@@ -640,15 +671,14 @@ describe('ContextMenu text fields', () => {
     expectUntouched(a)
   })
 
-  it('keeps the selection of the field that has focus',
-    async () => {
-      await renderMenu()
-      const input = focusedField()
+  it('keeps the focused field\'s selection', async () => {
+    await renderMenu()
+    const input = focusedField()
 
-      expect(rightClickField(input)).toBe(false)
-      expectUntouched(input)
-      expect(labels()).toEqual(['Copy', 'Paste', 'Cut', 'Select all'])
-    })
+    expect(rightClickField(input)).toBe(false)
+    expectUntouched(input)
+    expect(labels()).toEqual(['Copy', 'Paste', 'Cut', 'Select all'])
+  })
 
   it('keeps the field\'s focus when an item is chosen', async () => {
     await renderMenu()
