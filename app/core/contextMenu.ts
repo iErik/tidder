@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react'
+import { createStore } from 'core/createStore'
 
 // The context menu: at most one open at a time, at the point
 // that was right-clicked. A module-level store, like the
@@ -20,28 +20,16 @@ export interface ContextMenu {
   items: readonly ContextMenuItem[]
 }
 
-let menu: ContextMenu | null = null
+const menu = createStore<ContextMenu | null>(null)
 let nextId = 1
 
-const listeners = new Set<() => void>()
-
-function setMenu(next: ContextMenu | null): void {
-  menu = next
-  listeners.forEach((listener) => listener())
-}
-
-function subscribe(listener: () => void): () => void {
-  listeners.add(listener)
-  return () => listeners.delete(listener)
-}
-
 export function useContextMenu(): ContextMenu | null {
-  return useSyncExternalStore(subscribe, getContextMenu)
+  return menu.useStore()
 }
 
 // The open menu, outside React
 export function getContextMenu(): ContextMenu | null {
-  return menu
+  return menu.get()
 }
 
 // Replaces any menu already open. With no items, nothing
@@ -51,9 +39,9 @@ export function openContextMenu(
   y: number,
   items: readonly ContextMenuItem[]
 ): void {
-  setMenu(items.length ? { id: nextId++, x, y, items } : null)
+  menu.set(items.length ? { id: nextId++, x, y, items } : null)
 }
 
 export function closeContextMenu(): void {
-  if (menu) setMenu(null)
+  if (menu.get()) menu.set(null)
 }

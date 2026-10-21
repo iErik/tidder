@@ -1,5 +1,4 @@
-import { useSyncExternalStore } from 'react'
-
+import { createStore } from 'core/createStore'
 import { queryClient } from 'core/queryClient'
 
 import * as posts from 'api/posts'
@@ -22,21 +21,13 @@ export interface ThingChanges {
   user_is_subscriber?: boolean
 }
 
-let changes: Record<string, ThingChanges> = { }
-const listeners = new Set<() => void>()
-
-function subscribe(listener: () => void): () => void {
-  listeners.add(listener)
-  return () => listeners.delete(listener)
-}
+const changes = createStore<Record<string, ThingChanges>>({ })
 
 function update(name: string, patch: ThingChanges): void {
-  changes = {
-    ...changes,
-    [name]: { ...changes[name], ...patch }
-  }
-
-  listeners.forEach((listener) => listener())
+  changes.set((all) => ({
+    ...all,
+    [name]: { ...all[name], ...patch }
+  }))
 }
 
 // The fields optimistic() writes. Each thing's field has at
@@ -129,7 +120,7 @@ function optimistic<T extends { name: string }>(
   request: () => Promise<unknown>
 ): Promise<boolean> {
   const key = mkFieldKey(thing.name, field)
-  const stored = changes[thing.name]
+  const stored = changes.get()[thing.name]
   const entry = pending.get(key)
 
   update(thing.name, { [field]: value })
@@ -164,8 +155,9 @@ function optimistic<T extends { name: string }>(
 export function useThing<T extends { name: string }>(
   thing: T
 ): T {
-  const thingChanges = useSyncExternalStore(subscribe,
-    () => changes[thing.name])
+  const thingChanges = changes.useStore(
+    (all) => all[thing.name]
+  )
 
   return thingChanges
     ? { ...thing, ...thingChanges }
@@ -235,6 +227,5 @@ export function clearThingChanges(): void {
     if (entry.waiting) settle(entry.waiting, false)
   })
 
-  changes = { }
-  listeners.forEach((listener) => listener())
+  changes.set({ })
 }
