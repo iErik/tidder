@@ -59,6 +59,8 @@ export default function ThemePicker() {
         <div className={cx('toggle')}>
           <button
             type="button"
+            aria-label="Choose theme"
+            aria-expanded={menu === 'open'}
             className={cx('trigger')}
             onClick={toggleMenu}
           >

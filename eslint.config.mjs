@@ -8,6 +8,7 @@ import { defineConfig } from 'eslint/config'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
+import iconButtonLabel from './eslint-rules/icon-button-label.mjs'
 import importLength from './eslint-rules/import-length.mjs'
 
 // Raises every 'warn' rule in a config object to 'error'
@@ -76,7 +77,12 @@ export default defineConfig(
     files: ['**/*.{ts,tsx,mts,js,mjs,cjs}'],
     plugins: {
       '@stylistic': stylistic,
-      local: { rules: { 'import-length': importLength } }
+      local: {
+        rules: {
+          'icon-button-label': iconButtonLabel,
+          'import-length': importLength
+        }
+      }
     },
     rules: {
       '@stylistic/semi': ['error', 'never'],
@@ -142,7 +148,10 @@ export default defineConfig(
       // handler's promise is the handler's own business
       '@typescript-eslint/no-misused-promises': ['error', {
         checksVoidReturn: { attributes: false }
-      }]
+      }],
+      // Icons are aria-hidden, so a button showing only icons
+      // needs a label of its own
+      'local/icon-button-label': 'error'
     }
   },
   errorsOnly({

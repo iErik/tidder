@@ -43,7 +43,8 @@ export default defineConfig({
           environment: 'node',
           include: [
             'electron/**/*.test.js',
-            'scripts/**/*.test.mjs'
+            'scripts/**/*.test.mjs',
+            'eslint-rules/**/*.test.mjs'
           ],
           setupFiles: ['electron/test/setup.js']
         }
