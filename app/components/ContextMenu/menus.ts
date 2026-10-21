@@ -214,7 +214,9 @@ export function embedMenuItems(post: Post): ContextMenuItem[] {
   ]
 }
 
-async function save({ url, title, dashUrl }: Media) {
+async function startDownload(
+  { url, title, dashUrl }: Media
+) {
   const { contextMenu } = window.tidder
 
   if (!dashUrl)
@@ -222,12 +224,15 @@ async function save({ url, title, dashUrl }: Media) {
 
   // Named as an .mp4, which the download is, not after the
   // manifest's .mpd
-  const mp4 = new URL('video.mp4', dashUrl).href
-  return contextMenu.downloadVideo(dashUrl, downloadName(title, mp4))
+  const mp4Url = new URL('video.mp4', dashUrl).href
+  return contextMenu.downloadVideo(
+    dashUrl,
+    downloadName(title, mp4Url)
+  )
 }
 
 async function download(media: Media) {
-  const result = await save(media)
+  const result = await startDownload(media)
     .catch(() => ({ status: 'failed' }) as const)
 
   if (result.status === 'saved')

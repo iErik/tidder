@@ -47,10 +47,10 @@ async function chooseFile(win, suggestedName) {
   return canceled || !filePath ? null : filePath
 }
 
-// Asks where to save url, then saves it there. Resolves to
-// { status: 'saved', fileName }, { status: 'cancelled' } or
-// { status: 'failed' }
-async function download(win, url, suggestedName) {
+// Checks url, asks where to save it, then has write save it at
+// the chosen path. Resolves to { status: 'saved', fileName },
+// { status: 'cancelled' } or { status: 'failed' }
+async function saveAs(win, url, suggestedName, write) {
   if (!isWebUrl(url))
     return { status: 'failed' }
 
@@ -58,6 +58,27 @@ async function download(win, url, suggestedName) {
   if (!filePath)
     return { status: 'cancelled' }
 
+  return write(filePath)
+}
+
+// Asks where to save url, then saves it there (see saveAs)
+function download(win, url, suggestedName) {
+  return saveAs(
+    win, url, suggestedName,
+    (filePath) => saveFile(url, filePath)
+  )
+}
+
+// Like download, for a Reddit video with sound (see saveVideo)
+function downloadVideo(win, dashUrl, suggestedName) {
+  return saveAs(
+    win, dashUrl, suggestedName,
+    (filePath) => saveVideo(dashUrl, filePath)
+  )
+}
+
+// Saves the file at url to filePath
+async function saveFile(url, filePath) {
   // Only a file this download opened is removed on failure,
   // never one it couldn't open, like a read-only file the
   // user chose to replace
@@ -84,19 +105,12 @@ async function download(win, url, suggestedName) {
   }
 }
 
-// Like download, for a Reddit video with sound: reads its DASH
-// manifest, then combines the best video and audio files it lists
-// into the chosen file. Fails rather than save a silent video
-async function downloadVideo(win, dashUrl, suggestedName) {
-  if (!isWebUrl(dashUrl))
-    return { status: 'failed' }
-
-  const filePath = await chooseFile(win, suggestedName)
-  if (!filePath)
-    return { status: 'cancelled' }
-
+// Reads a Reddit video's DASH manifest, then combines the best
+// video and audio files it lists into filePath. Fails rather than
+// save a silent video
+async function saveVideo(dashUrl, filePath) {
   // Set once the file is open, so only then is it removed on
-  // failure (see download)
+  // failure (see saveFile)
   let handle = null
 
   try {

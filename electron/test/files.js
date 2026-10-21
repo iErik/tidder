@@ -41,13 +41,17 @@ export function serveFiles(files) {
       ? Math.min(Number(range[2]), body.length - 1)
       : body.length - 1
 
-    return Promise.resolve(new Response(body.subarray(start, end + 1), {
-      status: 206,
-      headers: {
-        'content-range': `bytes ${start}-${end}/${body.length}`,
-        'content-length': String(end - start + 1)
+    const res = new Response(
+      body.subarray(start, end + 1),
+      {
+        status: 206,
+        headers: {
+          'content-range': `bytes ${start}-${end}/${body.length}`,
+          'content-length': String(end - start + 1)
+        }
       }
-    }))
+    )
+    return Promise.resolve(res)
   }
 }
 
