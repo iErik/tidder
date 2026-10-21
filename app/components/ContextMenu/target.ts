@@ -4,6 +4,9 @@ import { redditUrl } from 'utils/redditUrl'
 // menu it opens. Menus are never merged: the most specific
 // target wins.
 
+// What a text field's edit commands can do there
+export type EditFlags = TidderContextMenuParams['editFlags']
+
 // A link, at its absolute URL (see redditUrl), with its own
 // text, and the selected text when the right-click is on the
 // selection
@@ -15,6 +18,8 @@ export interface LinkTarget {
 }
 
 export type MenuTarget =
+  // A text field (input, textarea or other editable)
+  | { type: 'field'; editFlags: EditFlags }
   | LinkTarget
   // Selected text, right-clicked on the selection itself
   | { type: 'selection'; text: string }
@@ -29,13 +34,36 @@ export interface RightClick {
 
   // Whether it landed on the selected text (isOnSelection)
   onSelection: boolean
+
+  // The text field it landed on (fieldAt), if any
+  field: HTMLElement | null
 }
 
 // The target, from the most specific down. A text field and
 // a link rank above the selection.
 export function pickTarget(
-  { params, onSelection }: RightClick
+  { params, onSelection, field }: RightClick
 ): MenuTarget {
+  // Electron reports a read-only field as not editable, but
+  // it still gets the field's menu: without Cut and Paste, and
+  // without Select all when it's empty
+  if (field && isReadOnly(field)) {
+    const { canSelectAll } = params.editFlags
+
+    return {
+      type: 'field',
+      editFlags: {
+        ...params.editFlags,
+        canCut: false,
+        canPaste: false,
+        canSelectAll: canSelectAll && field.value !== ''
+      }
+    }
+  }
+
+  if (field || params.isEditable)
+    return { type: 'field', editFlags: params.editFlags }
+
   const selectedText = onSelection ? params.selectionText : ''
 
   // A link to the app's own page (href="#") is a button
@@ -52,6 +80,46 @@ export function pickTarget(
   if (selectedText) return { type: 'selection', text: selectedText }
 
   return { type: 'page' }
+}
+
+// The input types that take text
+const TEXT_INPUTS = new Set([
+  'text', 'search', 'url', 'tel', 'email', 'password', 'number'
+])
+
+// The text field the element is in, if any: an input that
+// takes text, a textarea or another editable. A disabled one
+// isn't: it can't take the focus, so a field menu would act
+// on nothing.
+export function fieldAt(
+  element: EventTarget | null
+): HTMLElement | null {
+  if (!(element instanceof Element)) return null
+
+  const field = element.closest(
+    'input, textarea, [contenteditable]'
+  )
+
+  if (field instanceof HTMLInputElement) {
+    return TEXT_INPUTS.has(field.type) && !field.disabled
+      ? field
+      : null
+  }
+
+  if (field instanceof HTMLTextAreaElement)
+    return field.disabled ? null : field
+
+  return field instanceof HTMLElement && field.isContentEditable
+    ? field
+    : null
+}
+
+function isReadOnly(
+  field: HTMLElement
+): field is HTMLInputElement | HTMLTextAreaElement {
+  return (field instanceof HTMLInputElement
+    || field instanceof HTMLTextAreaElement)
+    && field.readOnly
 }
 
 // Whether the point, in CSS pixels, is on the selected text

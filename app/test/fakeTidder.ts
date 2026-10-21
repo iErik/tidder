@@ -57,6 +57,7 @@ export function createFakeTidder(
       inspect: vi.fn(),
       copyImage: vi.fn(() => Promise.resolve()),
       writeText: vi.fn(),
+      edit: vi.fn(),
       download: vi.fn(() => Promise.resolve<TidderDownloadResult>({
         status: 'cancelled'
       })),

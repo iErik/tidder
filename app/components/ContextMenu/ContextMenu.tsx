@@ -21,7 +21,11 @@ import { bindStyles } from 'utils/classNames'
 
 import { defaultMenuItems, targetMenuItems } from './menus'
 import { placeMenu } from './placeMenu'
-import { isOnSelection, pickTarget } from './target'
+import {
+  fieldAt,
+  isOnSelection,
+  pickTarget
+} from './target'
 import type { MenuTarget } from './target'
 import { useMenuKeyboard } from './useMenuKeyboard'
 
@@ -73,18 +77,38 @@ function onForwarded(params: TidderContextMenuParams) {
   const { x, y } = params
   const target: MenuTarget = params.isSubframe
     ? { type: 'page' }
-    : pickTarget({ params, onSelection: isOnSelection(x, y) })
+    : pickTarget({
+      params,
+      onSelection: isOnSelection(x, y),
+      field: fieldAt(document.elementFromPoint(x, y))
+    })
 
   if (target.type === 'page') replayRightClick(x, y)
   else openContextMenu(x, y, targetMenuItems(target, x, y))
 }
 
+// The right button's mousedown is cancelled, so it doesn't
+// move the focus, caret or selection. Except on a text field
+// without focus: it takes the focus, and the caret goes where
+// the right-click landed, as with a native menu. The field's
+// edit flags, and the edit commands, which act on the focused
+// field, then apply to the one right-clicked.
+function onRightMouseDown(event: MouseEvent) {
+  const field = fieldAt(event.target)
+
+  if (field && field !== document.activeElement) {
+    field.focus()
+    if (field === document.activeElement) return
+  }
+
+  event.preventDefault()
+}
+
 // A right-click opens no menu until the main process reports
 // what it landed on (see onForwarded). Until then, it's
 // stopped before any component sees it, but not cancelled, or
-// Electron wouldn't report it. The right button's mousedown
-// is cancelled, so it doesn't move the focus, caret or
-// selection.
+// Electron wouldn't report it. Its mousedown comes first (see
+// onRightMouseDown).
 //
 // A component opens its own menu from onContextMenu, when the
 // right-click is replayed on it. A replayed right-click that
@@ -95,7 +119,7 @@ function useDefaultMenu() {
     let before: Menu | null = null
 
     function onMouseDown(event: MouseEvent) {
-      if (event.button === 2) event.preventDefault()
+      if (event.button === 2) onRightMouseDown(event)
     }
 
     function hold(event: MouseEvent) {
