@@ -12,8 +12,9 @@ const ENTITIES = {
 }
 
 function unescapeXml(text) {
-  return text.replace(/&(amp|lt|gt|quot|apos);/g, (entity) =>
-    ENTITIES[entity])
+  return text.replace(
+    /&(amp|lt|gt|quot|apos);/g, (entity) => ENTITIES[entity]
+  )
 }
 
 // The attributes of an opening tag's text, by name
@@ -64,7 +65,7 @@ function representations(xml, manifestUrl) {
   return found
 }
 
-function best(reps, type) {
+function highestBandwidthUrl(reps, type) {
   const ofType = reps.filter(rep => rep.type === type)
   if (!ofType.length) return null
 
@@ -79,12 +80,12 @@ function best(reps, type) {
 // here. Throws when the manifest has no video
 function parseDashManifest(xml, manifestUrl) {
   const reps = representations(xml, manifestUrl)
-  const video = best(reps, 'video')
+  const video = highestBandwidthUrl(reps, 'video')
 
   if (!video)
     throw new Error('The DASH manifest has no video')
 
-  return { video, audio: best(reps, 'audio') }
+  return { video, audio: highestBandwidthUrl(reps, 'audio') }
 }
 
 module.exports = {
