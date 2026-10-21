@@ -1,6 +1,6 @@
-import { useSyncExternalStore } from 'react'
-
 import type { IconName } from 'components/Icon/Icon'
+
+import { createStore } from 'core/createStore'
 
 // Toasts: short messages shown in the corner of the window to
 // report the outcome of something the user did. A module-level
@@ -63,23 +63,12 @@ let config: Required<ToastConfig> = {
 }
 
 // Oldest first.
-let toasts: readonly Toast[] = []
+const toasts = createStore<readonly Toast[]>([])
 let nextId = 1
 
 // Kept apart from the Toasts, since they never affect what's
 // rendered. A Toast that never closes on its own has none.
 const timers = new Map<ToastId, Timer>()
-const listeners = new Set<() => void>()
-
-function setToasts(next: readonly Toast[]): void {
-  toasts = next
-  listeners.forEach((listener) => listener())
-}
-
-function subscribe(listener: () => void): () => void {
-  listeners.add(listener)
-  return () => listeners.delete(listener)
-}
 
 function startTimer(id: ToastId, timer: Timer): void {
   timer.startedAt = Date.now()
@@ -88,7 +77,7 @@ function startTimer(id: ToastId, timer: Timer): void {
 }
 
 export function useToasts(): readonly Toast[] {
-  return useSyncExternalStore(subscribe, () => toasts)
+  return toasts.useStore()
 }
 
 export function getToastConfig(): Readonly<Required<ToastConfig>> {
@@ -113,10 +102,13 @@ export function toast(input: ToastInput): ToastId {
     : input.duration
 
   // The oldest open Toast makes room for this one.
-  const open = toasts.filter((item) => !item.closing)
+  const open = toasts.get().filter((item) => !item.closing)
   if (open.length >= MAX_TOASTS) dismissToast(open[0].id)
 
-  setToasts([...toasts, { id, type, message, icon, closing: false }])
+  toasts.set((prev) => [
+    ...prev,
+    { id, type, message, icon, closing: false }
+  ])
 
   if (duration) startTimer(id, { remaining: duration, startedAt: 0 })
 
@@ -134,17 +126,17 @@ toast.success = typed('success')
 
 // Closes the Toast with the usual fade-out.
 export function dismissToast(id: ToastId): void {
-  const target = toasts.find((item) => item.id === id)
+  const target = toasts.get().find((item) => item.id === id)
   if (!target || target.closing) return
 
   clearTimeout(timers.get(id)?.handle)
   timers.delete(id)
 
-  setToasts(toasts.map((item) =>
+  toasts.set((prev) => prev.map((item) =>
     item.id === id ? { ...item, closing: true } : item))
 
   setTimeout(() => {
-    setToasts(toasts.filter((item) => item.id !== id))
+    toasts.set((prev) => prev.filter((item) => item.id !== id))
   }, FADE_DURATION)
 }
 

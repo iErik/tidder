@@ -1,5 +1,3 @@
-import { useSyncExternalStore } from 'react'
-
 import {
   onUnauthorized,
   redditFetch,
@@ -8,6 +6,7 @@ import {
 import { clearThingChanges } from 'api/thingState'
 import type { Identity } from 'api/types'
 
+import { createStore } from 'core/createStore'
 import { queryClient } from 'core/queryClient'
 import {
   clearTokens,
@@ -40,14 +39,13 @@ export interface AuthState {
   user: Identity | null
 }
 
-let state: AuthState = {
+const auth = createStore<AuthState>({
   updating: true,
   loggedIn: false,
   loginStatus: { state: 'idle' },
   user: null
-}
+})
 
-const listeners = new Set<() => void>()
 let refreshTimer: ReturnType<typeof setTimeout> | undefined
 let pendingRefresh: Promise<void> | null = null
 
@@ -56,21 +54,15 @@ let pendingRefresh: Promise<void> | null = null
 let sessionId = 0
 
 function setState(patch: Partial<AuthState>): void {
-  state = { ...state, ...patch }
-  listeners.forEach((listener) => listener())
-}
-
-function subscribe(listener: () => void): () => void {
-  listeners.add(listener)
-  return () => listeners.delete(listener)
+  auth.set((state) => ({ ...state, ...patch }))
 }
 
 export function useAuth(): AuthState {
-  return useSyncExternalStore(subscribe, () => state)
+  return auth.useStore()
 }
 
 export function getAuthState(): AuthState {
-  return state
+  return auth.get()
 }
 
 // Restores the session on startup. Called once, from main.tsx.
@@ -131,7 +123,7 @@ async function getIdentity(): Promise<void> {
 // Opens Reddit's login page in the system browser. The main process
 // (see electron/auth/browser-login.js) waits for Reddit to redirect back.
 export function login(): void {
-  if (state.loginStatus.state === 'waiting') {
+  if (auth.get().loginStatus.state === 'waiting') {
     // Already waiting: this just opens the login page in the browser again.
     void window.tidder.auth.login()
     return
@@ -189,7 +181,7 @@ function scheduleRefresh(delay?: number): void {
 // Also called when Reddit rejects the access token mid-session. Concurrent
 // callers share one refresh.
 function refreshSession(): Promise<void> {
-  if (!state.loggedIn) return Promise.resolve()
+  if (!auth.get().loggedIn) return Promise.resolve()
 
   if (!pendingRefresh) {
     const session = sessionId
