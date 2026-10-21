@@ -18,6 +18,8 @@ export default function ScoreButton({ score, likes, onVote }: Props) {
   return (
     <div className={cx('score-button')}>
       <button
+        aria-label="Upvote"
+        aria-pressed={likes === true}
         onClick={() => onVote(likes ? 0 : 1)}
         className={cx('btn-vote upvote', { 'is-active': likes === true })}
       >
@@ -29,6 +31,8 @@ export default function ScoreButton({ score, likes, onVote }: Props) {
       </div>
 
       <button
+        aria-label="Downvote"
+        aria-pressed={likes === false}
         onClick={() => onVote(likes === false ? 0 : -1)}
         className={cx('btn-vote downvote', { 'is-active': likes === false })}
       >

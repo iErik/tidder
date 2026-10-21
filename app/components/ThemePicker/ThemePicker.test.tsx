@@ -94,6 +94,22 @@ describe('ThemePicker', () => {
     fireEvent.animationEnd(open)
     expect(menu()).toBeNull()
   })
+
+  it('names its trigger and says whether the menu is open', () => {
+    const { trigger } = setup()
+    const expanded = () => trigger.getAttribute('aria-expanded')
+
+    expect(screen.getByRole('button', { name: 'Choose theme' }))
+      .toBe(trigger)
+    expect(expanded()).toBe('false')
+
+    click(trigger)
+    expect(expanded()).toBe('true')
+
+    // Already closed while it fades out
+    click(trigger)
+    expect(expanded()).toBe('false')
+  })
 })
 
 // happy-dom plays no CSS animations, so the tests above end

@@ -26,6 +26,7 @@ export default function RootLayout() {
     >
       <div className="full-size inner container">
         <Topbar
+          sidebarShown={showSidebar}
           onSidebarToggle={() => setShowSidebar(!showSidebar)}
         />
 

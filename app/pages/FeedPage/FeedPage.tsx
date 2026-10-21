@@ -96,6 +96,7 @@ function FeedPageContents() {
           <div className="overlay-container">
             <button
               type="button"
+              aria-label="Close"
               className="btn-close"
               onClick={closeOverlay}
             >

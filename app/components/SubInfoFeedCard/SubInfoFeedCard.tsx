@@ -63,6 +63,8 @@ export default function SubInfoFeedCard({ subInfo: rawSubInfo }: Props) {
       <div className={cx('card-actions')}>
         <div className={cx('card-action')}>
           <button
+            aria-label="Subscribe"
+            aria-pressed={subscribed}
             onClick={() => setSubscribed(subInfo,
               !subInfo.user_is_subscriber)}
             className={cx('btn-action',

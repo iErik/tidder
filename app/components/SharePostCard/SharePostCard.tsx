@@ -54,6 +54,7 @@ export default function SharePostCard({ post }: Props) {
       <div className={cx('social-icons')}>
         <div className={cx('social-icon')}>
           <button
+            aria-label="Share on Facebook"
             className={cx('btn-social facebook')}
             onClick={() => shareOnFacebook(postLink)}
           >
@@ -62,6 +63,7 @@ export default function SharePostCard({ post }: Props) {
         </div>
         <div className={cx('social-icon')}>
           <button
+            aria-label="Share on Twitter"
             className={cx('btn-social twitter')}
             onClick={() => shareOnTwitter(postLink, post.title)}
           >
@@ -70,6 +72,7 @@ export default function SharePostCard({ post }: Props) {
         </div>
         <div className={cx('social-icon')}>
           <button
+            aria-label="Share on Tumblr"
             className={cx('btn-social tumblr')}
             onClick={() => shareOnTumblr(postLink, post.title)}
           >

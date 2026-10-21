@@ -29,7 +29,10 @@ export default function SearchBar({
           { 'is-active': searchQuery.trim() }
         )}
       />
-      <button className={cx('btn-unstyle btn-trigger')}>
+      <button
+        aria-label="Search"
+        className={cx('btn-unstyle btn-trigger')}
+      >
         <Icon name="search" />
       </button>
     </div>

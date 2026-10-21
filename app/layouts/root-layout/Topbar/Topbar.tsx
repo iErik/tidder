@@ -27,10 +27,14 @@ function pageLabel(pathname: string): string {
 }
 
 interface Props {
+  sidebarShown: boolean
   onSidebarToggle: () => void
 }
 
-export default function Topbar({ onSidebarToggle }: Props) {
+export default function Topbar({
+  sidebarShown,
+  onSidebarToggle
+}: Props) {
   const { loggedIn, user } = useAuth()
   const { pathname } = useLocation()
 
@@ -41,6 +45,8 @@ export default function Topbar({ onSidebarToggle }: Props) {
           <div className={cx('topbar-control')}>
             <button
               type="button"
+              aria-label="Toggle sidebar"
+              aria-expanded={sidebarShown}
               className={cx('btn-trigger')}
               onClick={onSidebarToggle}
             >

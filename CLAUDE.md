@@ -53,7 +53,7 @@ pnpm test:coverage         # run once with a v8 coverage report in coverage/ (no
 Tests run on Vitest, configured in `vitest.config.mts` with two projects:
 
 - `renderer`: `app/**/*.test.{ts,tsx}` in happy-dom. It merges `vite.config.mts`, so import aliases, the React plugin and Sass work as in the app. SCSS modules are compiled (that's why the scripts generate the theme SCSS first), so a test sees the classes a module really defines.
-- `main`: `electron/**/*.test.js` and `scripts/**/*.test.mjs` in Node. Script tests get the same fake `electron` setup, and simply don't use it.
+- `main`: `electron/**/*.test.js`, `scripts/**/*.test.mjs` and `eslint-rules/**/*.test.mjs` in Node. Script and rule tests get the same fake `electron` setup, and simply don't use it. Rule tests use ESLint's `RuleTester`, wired to Vitest's `describe` and `it`.
 
 Conventions:
 
@@ -76,7 +76,7 @@ Linting is configured in `eslint.config.mjs` and `stylelint.config.mjs`, and eve
   - function parameters and imported names either all share one line, or each gets its own line (`exp-list-style`);
   - an import longer than 60 characters gets one imported name per line (`local/import-length`, a local rule in `eslint-rules/`);
   - once a JSX tag's attributes wrap, each attribute gets its own line, the first one included, and the closing `>` or `/>` goes on a line of its own, aligned with the tag (`jsx-max-props-per-line`, `jsx-first-prop-new-line`, `jsx-closing-bracket-location`).
-- `app/`: `typescript-eslint` `recommendedTypeChecked` and `react-hooks` `recommended`, with React Compiler rules. `no-misused-promises` doesn't check JSX attributes, so async event handlers need no `void`.
+- `app/`: `typescript-eslint` `recommendedTypeChecked` and `react-hooks` `recommended`, with React Compiler rules. `no-misused-promises` doesn't check JSX attributes, so async event handlers need no `void`. `local/icon-button-label` (in `eslint-rules/`) requires an `aria-label` or `aria-labelledby` on a `<button>` or `<a>` whose only content is `<Icon>`s, since icons are `aria-hidden` unless they have a `title`.
 - `electron/` (CommonJS), and `scripts/` and `eslint-rules/` (ESM): `@eslint/js` recommended with Node globals.
 - A finding that can't be fixed without a refactor gets `// eslint-disable-next-line <rule>`, with the reason in a comment on the lines above it.
 - SCSS is linted by Stylelint (`customSyntax` `postcss-scss`). There is no column limit. The only rules are:
