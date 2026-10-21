@@ -39,10 +39,11 @@ describe('Topbar', () => {
 
   it('marks the toggle expanded while it is shown', () => {
     renderTopbar(true)
+    const toggle = screen.getByRole(
+      'button',
+      { name: 'Toggle sidebar' }
+    )
 
-    expect(
-      screen.getByRole('button', { name: 'Toggle sidebar' })
-        .getAttribute('aria-expanded')
-    ).toBe('true')
+    expect(toggle.getAttribute('aria-expanded')).toBe('true')
   })
 })

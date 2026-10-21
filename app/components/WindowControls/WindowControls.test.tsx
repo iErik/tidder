@@ -44,8 +44,9 @@ describe('WindowControls', () => {
   it('keeps the traffic-light icons on darwin', async () => {
     await renderControls('darwin')
 
-    expect(
-      button('Close window').querySelector('.icon-close-darwin')
-    ).not.toBeNull()
+    const icon = button('Close window')
+      .querySelector('.icon-close-darwin')
+
+    expect(icon).not.toBeNull()
   })
 })

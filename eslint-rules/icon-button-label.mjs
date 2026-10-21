@@ -2,7 +2,6 @@
 // elements and that has no aria-label or aria-labelledby:
 // icons are aria-hidden, so screen readers would announce
 // it as just "button". An <Icon> with a title names itself.
-// A spread attribute might carry the label, so it's trusted.
 
 // What a piece of content gives the element: nothing
 // (whitespace, comments), only icons, or a name of some
@@ -19,10 +18,12 @@ function elementName(node) {
     : null
 }
 
+// Whether it sets one of the attributes by name. A spread
+// doesn't count: the rule can't see what it holds
 function hasAttribute(node, names) {
   return node.openingElement.attributes.some(attr =>
-    attr.type === 'JSXSpreadAttribute'
-      || names.includes(attr.name.name))
+    attr.type === 'JSXAttribute'
+      && names.includes(attr.name.name))
 }
 
 // The strongest of the parts: a name anywhere wins
@@ -49,6 +50,18 @@ function expression(node) {
         expression(node.consequent),
         expression(node.alternate)
       ])
+    // null, false, true, undefined and '' render nothing
+    case 'Literal':
+      return node.value === null || node.value === ''
+        || typeof node.value === 'boolean'
+        ? NOTHING
+        : NAME
+    case 'Identifier':
+      return node.name === 'undefined' ? NOTHING : NAME
+    case 'ArrayExpression':
+      return combine(
+        node.elements.filter(Boolean).map(expression)
+      )
     default:
       return NAME
   }

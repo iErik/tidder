@@ -6,13 +6,16 @@ import {
 } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 
-import { describe, expect, it } from 'vitest'
+import {
+  describe,
+  expect,
+  it,
+  vi
+} from 'vitest'
 
 import type { Subreddit } from 'api/types'
 
 import { jsonResponse, stubFetch } from '../../test/fetch'
-
-import SubInfoFeedCard from './SubInfoFeedCard'
 
 const subreddit: Subreddit = {
   name: 't5_pics',
@@ -30,6 +33,12 @@ const subreddit: Subreddit = {
 
 describe('SubInfoFeedCard', () => {
   it('presses Subscribe once subscribed', async () => {
+    // Subscribing writes thingState, so each test loads a
+    // fresh copy
+    vi.resetModules()
+    const { default: SubInfoFeedCard } =
+      await import('components/SubInfoFeedCard/SubInfoFeedCard')
+
     const fetch = stubFetch(jsonResponse({ }))
     render(
       <MemoryRouter>

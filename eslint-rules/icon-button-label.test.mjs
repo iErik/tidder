@@ -27,7 +27,7 @@ tester.run('icon-button-label', rule, {
     '<button><Icon name="comment" /> Comments</button>',
     '<button><Icon name="up" /><span>3</span></button>',
     '<button>{count}<Icon name="up" /></button>',
-    '<button {...props}><Icon name="up" /></button>',
+    '<button>{on ? <Icon name="up" /> : \'Save\'}</button>',
     '<a href="#" aria-label="Share"><Icon name="share" /></a>',
     '<div><Icon name="up" /></div>',
     '<button>Save</button>'
@@ -50,6 +50,23 @@ tester.run('icon-button-label', rule, {
     {
       code: '<button>{on ? <Icon name="check" />'
         + ' : <Icon name="plus" />}</button>',
+      errors: missing('button')
+    },
+    {
+      code: '<button>{on ? <Icon name="check" /> : null}'
+        + '</button>',
+      errors: missing('button')
+    },
+    {
+      code: '<button>{[<Icon name="up" />]}</button>',
+      errors: missing('button')
+    },
+    {
+      code: '<button {...props}><Icon name="up" /></button>',
+      errors: missing('button')
+    },
+    {
+      code: '<button><Icon name="up" {...props} /></button>',
       errors: missing('button')
     },
     {
