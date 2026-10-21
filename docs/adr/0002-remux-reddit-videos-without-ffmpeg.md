@@ -4,7 +4,9 @@ Reddit serves a Reddit video's picture and sound as separate MP4
 files, so downloading one with sound means combining the two. We do
 that in the main process with mediabunny, which copies the tracks
 into one MP4 without re-encoding. It's pure JavaScript (MPL-2.0),
-with no dependencies or install script.
+with no native code or install script. Its only dependencies are two
+packages of TypeScript types (`@types/dom-webcodecs` and
+`@types/dom-mediacapture-transform`), which add no runtime code.
 
 ## Considered options
 

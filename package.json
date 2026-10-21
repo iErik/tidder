@@ -78,6 +78,9 @@
       "artifactName": "${productName}-${version}-win-${arch}-setup.${ext}"
     }
   },
+  "dependencies": {
+    "mediabunny": "1.61.6"
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@stylistic/eslint-plugin": "^5.10.0",
