@@ -110,7 +110,7 @@ importers:
   .:
     dependencies:
       mediabunny:
-        specifier: ^1.61.6
+        specifier: 1.61.6
         version: 1.61.6
     devDependencies:
       '@eslint/js':

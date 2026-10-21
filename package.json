@@ -79,7 +79,7 @@
     }
   },
   "dependencies": {
-    "mediabunny": "^1.61.6"
+    "mediabunny": "1.61.6"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
