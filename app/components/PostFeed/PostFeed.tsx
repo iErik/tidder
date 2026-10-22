@@ -11,6 +11,7 @@ import type { FeedAction } from 'pages/FeedPage/FeedPage'
 import { useFeedState } from 'pages/FeedPage/FeedContext'
 
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll'
+import { useScrolled } from 'hooks/useScrolled'
 import {
   useSettledFeedParams
 } from 'hooks/useSettledFeedParams'
@@ -70,6 +71,8 @@ export default function PostFeed({ onFeedAction }: Props) {
       disabled: !feed.hasNextPage || feed.isFetchingNextPage
     })
 
+  const { scrolled, onScroll } = useScrolled(feed.isPending)
+
   useEffect(() => {
     if (feed.error)
       console.error('Loading the feed failed:', feed.error)
@@ -86,7 +89,10 @@ export default function PostFeed({ onFeedAction }: Props) {
     <div className={cx('post-feed')}>
       {/* Sort and search don't apply to the Hidden feed */}
       {feedSource !== 'hidden' && (
-        <PostFeedFilters onFeedAction={onFeedAction} />
+        <PostFeedFilters
+          scrolled={scrolled}
+          onFeedAction={onFeedAction}
+        />
       )}
 
       {feed.isPending ? (
@@ -104,6 +110,7 @@ export default function PostFeed({ onFeedAction }: Props) {
           className={cx('feed-list')}
           style={{ height: '100%' }}
           ref={listRef}
+          onScroll={onScroll}
         >
           {posts.length > 0 && (
             <ul className={cx('feed-entries')}>
