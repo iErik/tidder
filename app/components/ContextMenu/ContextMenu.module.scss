@@ -7,16 +7,15 @@
 // 9.33px (4/3, as the Toaster's is). The frame grows past its
 // 107px when a label needs the room; the insets, rows, radius
 // and border stay as drawn.
-$menu-min-width: 107px;
+$menu-min-width: 140px;
 $menu-radius: 6px;
-$item-height: 20px;
 $item-radius: 4px;
-$item-gap: 1px;
+$item-gap: 2px;
 // From the frame's edge, with its border: 2px to an item, and
 // 14px to the label
-$item-inset: 1px;
+$item-inset: 2px;
 $label-inset: 12px;
-$font-size: 9.33px;
+$font-size: 10px;
 $disabled-opacity: .47;
 
 //  Object Structure
@@ -58,8 +57,7 @@ $disabled-opacity: .47;
   display: flex;
   align-items: center;
 
-  height: $item-height;
-  padding: 0 $label-inset;
+  padding: 8px $label-inset;
 
   border-radius: $item-radius;
 
@@ -72,10 +70,11 @@ $disabled-opacity: .47;
 .context-menu {
   @include themify('local') {
     border-color: border-color();
-    background-color: background-color('dark');
+    //background-color: background-color('dark');
+    background-color: background-color();
     color: foreground-color();
     box-shadow: 0 2px 5px context-menu-color('shadow');
 
-    .is-active { background-color: background-color(); }
+    .is-active { background-color: border-color(); }
   }
 }

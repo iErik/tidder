@@ -26,7 +26,7 @@ $btn-downvote-color: #F53334;
     margin: auto;
 
     .score {
-      position: absolute;
+      //position: absolute;
       align-self: center;
 
       font-size: 1em;
@@ -48,8 +48,8 @@ $btn-downvote-color: #F53334;
     display: flex;
     justify-content: center;
 
-    &:first-child { margin-bottom: 1.2em; }
-    &:last-child { margin-top: 1.25em; }
+    &:first-child { margin-bottom: 0.6em; }
+    &:last-child { margin-top: 0.6em; }
 
     @include themify {
       @include icon {

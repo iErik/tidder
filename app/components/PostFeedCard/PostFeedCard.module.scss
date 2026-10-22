@@ -15,17 +15,25 @@ $post-card-height: 80px;
   display: flex;
 
   //height: $post-card-height;
-  width:  100%;
+  width:  calc(100% - 6px);
 
   min-width: $post-card-min-width;
   max-width: $post-card-max-width;
 
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 13px 25px;
+  margin: 0 3px;
+
+  transition: background-color 0.1s ease-in-out;
+
   @include themify { background-color: background-color(); }
+  &:hover { background-color: rgba(217, 217, 217, 0.07); }
 
   .post-score {
     font-size: .625rem;
 
-    margin: 0px 20px 0px 0px;
+    //margin: 0px 20px 0px 0px;
     padding-top: 10px;
   }
 
@@ -36,7 +44,7 @@ $post-card-height: 80px;
     flex-grow: 1;
     min-width: 0;
 
-    margin: 0 10px 0 5px;;
+    margin: 0 10px 0 20px;;
 
     .post-sub {
       display: flex;
@@ -60,6 +68,7 @@ $post-card-height: 80px;
 
       .link {
         display: -webkit-box;
+        line-clamp: 3;
         -webkit-line-clamp: 3;
         /* autoprefixer: off */
         -webkit-box-orient: vertical;
