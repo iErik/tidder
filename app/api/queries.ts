@@ -61,6 +61,10 @@ function fetchListing(
   const sr = source.startsWith('r/') ? source.slice(2) : ''
   const isMulti = MULTI_PATH.test(source)
 
+  // Search doesn't apply to the Hidden feed
+  if (source === 'hidden')
+    return getHiddenPosts(userName, after, signal)
+
   if (query.trim()) {
     if (source.startsWith('sr:'))
       return searchSubs(query, sort, after, signal)
@@ -72,8 +76,6 @@ function fetchListing(
 
   if (source === 'saved')
     return getSavedPosts(userName, after, signal)
-  if (source === 'hidden')
-    return getHiddenPosts(userName, after, signal)
   if (isMulti)
     return getMultiFeed(source, sort, after, signal)
 

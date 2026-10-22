@@ -49,7 +49,8 @@ export async function getHiddenPosts(
 ) {
   const res = await redditFetch<ListingResponse<PostThing>>(
     `/user/${userName}/hidden`,
-    { params: { after, limit: PAGE_SIZE }, signal })
+    { params: { after, limit: PAGE_SIZE }, signal }
+  )
 
   return res.data
 }

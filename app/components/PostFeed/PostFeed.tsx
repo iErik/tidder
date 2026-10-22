@@ -84,7 +84,10 @@ export default function PostFeed({ onFeedAction }: Props) {
 
   return (
     <div className={cx('post-feed')}>
-      <PostFeedFilters onFeedAction={onFeedAction} />
+      {/* Sort and search don't apply to the Hidden feed */}
+      {feedSource !== 'hidden' && (
+        <PostFeedFilters onFeedAction={onFeedAction} />
+      )}
 
       {feed.isPending ? (
         <div className={cx('wrapper-feed-spinner')}>

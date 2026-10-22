@@ -185,13 +185,12 @@ describe('hideThing', () => {
     expect(result.current.hidden).toBe(false)
   })
 
-  it('keeps Reddit\'s hidden field until the user changes it',
-    async () => {
-      const state = await loadThingState()
-      const { result } = render(state, post({ hidden: true }))
+  it('keeps Reddit\'s hidden field until changed', async () => {
+    const state = await loadThingState()
+    const { result } = render(state, post({ hidden: true }))
 
-      expect(result.current.hidden).toBe(true)
-    })
+    expect(result.current.hidden).toBe(true)
+  })
 
   it('unhides a post Reddit sent as hidden', async () => {
     const state = await loadThingState()
@@ -205,20 +204,17 @@ describe('hideThing', () => {
     expect(result.current.hidden).toBe(false)
   })
 
-  it('hides the post again when Reddit refuses to unhide it',
-    async () => {
-      const state = await loadThingState()
-      stubFetch(failure())
-      const thing = post({ hidden: true })
-      const { result } = render(state, thing)
+  it('hides it again when Reddit refuses to unhide', async () => {
+    const state = await loadThingState()
+    stubFetch(failure())
+    const thing = post({ hidden: true })
+    const { result } = render(state, thing)
 
-      const accepted = await act(
-        () => state.hideThing(thing, false)
-      )
+    const accepted = await act(() => state.hideThing(thing, false))
 
-      expect(accepted).toBe(false)
-      expect(result.current.hidden).toBe(true)
-    })
+    expect(accepted).toBe(false)
+    expect(result.current.hidden).toBe(true)
+  })
 
   it('sends the hide and unhide requests', async () => {
     const state = await loadThingState()
