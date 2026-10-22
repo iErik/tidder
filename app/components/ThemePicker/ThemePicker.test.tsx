@@ -156,6 +156,14 @@ describe('ThemePicker styles', () => {
     return scss.match(rule)?.[1]
   }
 
+  // The words of a variant's animation shorthand
+  function animation(scss: string, variant: string) {
+    const rule = new RegExp(
+      `&\\.${variant}\\s*\\{\\s*animation:\\s*([^;]+);`
+    )
+    return scss.match(rule)?.[1].trim().split(/\s+/)
+  }
+
   // Chromium doesn't restart an animation when only its
   // direction changes, so a reversed fade-in never ends
   it('fades out with keyframes of its own', async () => {
@@ -163,5 +171,14 @@ describe('ThemePicker styles', () => {
 
     expect(keyframes(scss, '-entering')).toBe('fade-in')
     expect(keyframes(scss, '-leaving')).toBe('fade-out')
+  })
+
+  // The menu unmounts a frame or more after the fade-out
+  // ends, and without forwards it flashes back to opacity 1
+  // in between
+  it('stays faded out until it unmounts', async () => {
+    const scss = await source()
+
+    expect(animation(scss, '-leaving')).toContain('forwards')
   })
 })
