@@ -64,6 +64,7 @@
         @include icon { color: rgba(0, 0, 0, 0.7); }
 
         @include icon('maximize-darwin') { font-size: 6.3px; }
+        @include icon('unmaximize-darwin') { font-size: 6.3px; }
         @include icon('minimize-darwin') { font-size: 8px; }
         @include icon('close-darwin') {
           font-size: 6.4px;
