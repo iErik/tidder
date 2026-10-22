@@ -195,9 +195,11 @@
     // Each needs keyframes of its own: Chromium doesn't restart
     // an animation whose direction is all that changed, so a
     // reversed fade-in never ends, and the menu, which waits
-    // for it to end, stays open
+    // for it to end, stays open. The fade-out holds its last
+    // frame (forwards): the menu unmounts a frame or more
+    // after it ends, and would flash back to full opacity
     &.-entering { animation: fade-in 200ms; }
-    &.-leaving { animation: fade-out 200ms; }
+    &.-leaving { animation: fade-out 200ms forwards; }
 
     // ThemePicker closes at once then, without waiting
     @media (prefers-reduced-motion: reduce) {
