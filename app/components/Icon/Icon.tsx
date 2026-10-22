@@ -25,6 +25,7 @@ import Spoiler from './icons/spoiler.svg?react'
 import Tumblr from './icons/tumblr.svg?react'
 import Twitter from './icons/twitter.svg?react'
 import UnmaximizeDarwin from './icons/unmaximize-darwin.svg?react'
+import Unmaximize from './icons/unmaximize.svg?react'
 import Verify from './icons/verify.svg?react'
 
 // Every icon, by name. To add one, drop its SVG in icons/
@@ -58,6 +59,7 @@ const icons = {
   'tumblr': Tumblr,
   'twitter': Twitter,
   'unmaximize-darwin': UnmaximizeDarwin,
+  'unmaximize': Unmaximize,
   'verify': Verify
 }
 

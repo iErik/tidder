@@ -16,6 +16,13 @@ ipcRenderer.on('context-menu:forwarded', (ev, params) => {
   contextMenuListeners.forEach(listener => listener(params))
 })
 
+// The window's maximized state, whenever it changes (see maximize.js)
+const maximizedListeners = new Set()
+
+ipcRenderer.on('window:maximized-changed', (ev, maximized) => {
+  maximizedListeners.forEach(listener => listener(maximized))
+})
+
 ipcRenderer.on('settings:changed', (ev, key, value) => {
   settingsCache[key] = value
 
@@ -31,7 +38,13 @@ contextBridge.exposeInMainWorld('tidder', {
   window: {
     close: () => ipcRenderer.send('window:close'),
     minimize: () => ipcRenderer.send('window:minimize'),
-    maximize: () => ipcRenderer.send('window:maximize')
+    toggleMaximize: () => ipcRenderer.send('window:toggle-maximize'),
+    isMaximized: () => ipcRenderer.invoke('window:is-maximized'),
+
+    onMaximizedChange: (listener) => {
+      maximizedListeners.add(listener)
+      return { dispose: () => maximizedListeners.delete(listener) }
+    }
   },
 
   openExternal: (url) => ipcRenderer.send('shell:open-external', url),

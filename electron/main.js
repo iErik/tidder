@@ -9,6 +9,7 @@ const {
 
 const auth = require('./auth')
 const contextMenu = require('./contextMenu')
+const maximize = require('./maximize')
 const settings = require('./settings')
 
 const devServerUrl = process.env.TIDDER_DEV_URL
@@ -80,13 +81,17 @@ function openMainWindow() {
 
   // The renderer draws the context menu (see contextMenu.js)
   contextMenu.forward(mainWindow.webContents)
+
+  // The maximize control follows the window's state (see maximize.js)
+  maximize.forward(mainWindow)
 }
 
 // Window controls (the main window is frameless)
 
 ipcMain.on('window:close', () => mainWindow && mainWindow.close())
 ipcMain.on('window:minimize', () => mainWindow && mainWindow.minimize())
-ipcMain.on('window:maximize', () => mainWindow && mainWindow.maximize())
+
+maximize.register()
 
 // Whether the app runs under the dev server, for the renderer
 

@@ -48,7 +48,16 @@ interface TidderBridge {
   window: {
     close(): void
     minimize(): void
-    maximize(): void
+
+    // Restores the window if it's maximized, maximizes it
+    // otherwise (see electron/maximize.js)
+    toggleMaximize(): void
+    isMaximized(): Promise<boolean>
+
+    // Every change of the maximized state, whatever made it
+    onMaximizedChange(
+      listener: (maximized: boolean) => void
+    ): { dispose(): void }
   }
 
   openExternal(url: string): void

@@ -1,5 +1,8 @@
 import Icon, { type IconName } from 'components/Icon/Icon'
 
+import {
+  useWindowMaximized
+} from 'hooks/useWindowMaximized'
 import { bindStyles } from 'utils/classNames'
 
 import styles from './WindowControls.module.scss'
@@ -7,7 +10,8 @@ import styles from './WindowControls.module.scss'
 const cx = bindStyles(styles)
 const platform = window.tidder.platform
 
-type Control = 'maximize' | 'minimize' | 'close'
+// Maximize turns into restore while the window is maximized
+type Control = 'maximize' | 'unmaximize' | 'minimize' | 'close'
 
 // macOS has its own icons, drawn inside the traffic lights.
 function controlIcon(control: Control): IconName {
@@ -17,20 +21,24 @@ function controlIcon(control: Control): IconName {
 // The action each control's button announces
 const labels: Record<Control, string> = {
   maximize: 'Maximize window',
+  unmaximize: 'Restore window',
   minimize: 'Minimize window',
   close: 'Close window'
 }
 
 export default function WindowControls() {
+  const maximized = useWindowMaximized()
+  const resize = maximized ? 'unmaximize' : 'maximize'
+
   return (
     <div className={cx('window-controls')}>
       <div className={cx('window-controls-inner', platform)}>
         <button
-          aria-label={labels.maximize}
+          aria-label={labels[resize]}
           className={cx('btn btn-maximize')}
-          onClick={() => window.tidder.window.maximize()}
+          onClick={() => window.tidder.window.toggleMaximize()}
         >
-          <Icon name={controlIcon('maximize')} />
+          <Icon name={controlIcon(resize)} />
         </button>
         <button
           aria-label={labels.minimize}

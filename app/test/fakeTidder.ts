@@ -23,9 +23,13 @@ export type FakeTidder = Fake<TidderBridge>
 
 type Watcher = (value: unknown) => void
 type ContextMenuListener = (params: TidderContextMenuParams) => void
+type MaximizedListener = (maximized: boolean) => void
 
 // The latest fake's, for forwardRightClick()
 let contextMenuListeners = new Set<ContextMenuListener>()
+
+// The latest fake's, for changeMaximized()
+let maximizedListeners = new Set<MaximizedListener>()
 
 // Settings live in memory, seeded from the defaults like the
 // real store. As in the app, set() notifies the watchers
@@ -38,15 +42,23 @@ export function createFakeTidder(
   }))
   const watchers = new Map<string, Set<Watcher>>()
   contextMenuListeners = new Set<ContextMenuListener>()
+  maximizedListeners = new Set<MaximizedListener>()
 
   return {
     platform: 'linux',
     isDev: false,
 
+    // A restored window, unless a test stubs isMaximized
     window: {
       close: vi.fn(),
       minimize: vi.fn(),
-      maximize: vi.fn()
+      toggleMaximize: vi.fn(),
+      isMaximized: vi.fn(() => Promise.resolve(false)),
+
+      onMaximizedChange: vi.fn((listener: MaximizedListener) => {
+        maximizedListeners.add(listener)
+        return { dispose: () => maximizedListeners.delete(listener) }
+      })
     },
 
     openExternal: vi.fn(),
@@ -170,4 +182,10 @@ export function forwardRightClick(
 ): void {
   const forwarded = contextMenuParams(params)
   contextMenuListeners.forEach((listener) => listener(forwarded))
+}
+
+// Sends a change of the window's maximized state to the
+// onMaximizedChange listeners, as the main process does
+export function changeMaximized(maximized: boolean): void {
+  maximizedListeners.forEach((listener) => listener(maximized))
 }
