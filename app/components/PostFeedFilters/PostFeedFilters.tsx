@@ -24,10 +24,13 @@ const SEARCH_SORTS = [
 ]
 
 interface Props {
+  // Whether the feed below is scrolled down from its top
+  scrolled: boolean
   onFeedAction: (action: FeedAction) => void
 }
 
 export default function PostFeedFilters({
+  scrolled,
   onFeedAction
 }: Props) {
   const {
@@ -86,7 +89,7 @@ export default function PostFeedFilters({
         </div>
       </div>
 
-      <div className={cx('box-shadow')}></div>
+      <div className={cx('box-shadow', { '-shown': scrolled })}></div>
     </div>
   )
 }

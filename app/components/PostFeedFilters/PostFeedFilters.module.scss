@@ -55,14 +55,21 @@ $display-shadow: true;
     @include themify {
       display: if(map-get($theme, 'postFeedShadow'), block, none);
 
+      // Transparent until the feed is scrolled, so the
+      // transition fades it in and out
       @if (map-get($theme, 'isDark')) {
-        box-shadow: 0px 4px 17px 0px rgba(0, 0, 0, 0.5);
+        box-shadow: 0px 4px 17px 0px rgba(0, 0, 0, 0);
+        &.-shown { box-shadow: 0px 4px 17px 0px rgba(0, 0, 0, 0.5); }
       } @else {
-        box-shadow: 0px 3px 17px 0px rgba(0, 0, 0, 0.14);
+        box-shadow: 0px 3px 17px 0px rgba(0, 0, 0, 0);
+        &.-shown { box-shadow: 0px 3px 17px 0px rgba(0, 0, 0, 0.14); }
       }
     }
 
     transition: box-shadow 350ms ease-in-out;
+
+    // It shows and hides at once then
+    @media (prefers-reduced-motion: reduce) { transition: none; }
   }
 
   .post-feed-actions {
