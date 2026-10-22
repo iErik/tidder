@@ -18,6 +18,9 @@ const {
   net
 } = require('electron')
 
+const { parseDashManifest } = require('./dashManifest')
+const { remux, urlSource } = require('./remux')
+
 function isWebUrl(url) {
   try {
     const { protocol } = new URL(url)
@@ -27,13 +30,9 @@ function isWebUrl(url) {
   }
 }
 
-// Asks where to save url, starting in Downloads with the suggested
-// name, then saves it there. Resolves to { status: 'saved', fileName },
-// { status: 'cancelled' } or { status: 'failed' }
-async function download(win, url, suggestedName) {
-  if (!isWebUrl(url))
-    return { status: 'failed' }
-
+// Asks where to save a download, starting in Downloads with the
+// suggested name. Resolves to the chosen path, or null if cancelled
+async function chooseFile(win, suggestedName) {
   // Only the name, so the dialog always starts in Downloads
   const options = {
     defaultPath: path.join(
@@ -45,9 +44,41 @@ async function download(win, url, suggestedName) {
     ? await dialog.showSaveDialog(win, options)
     : await dialog.showSaveDialog(options)
 
-  if (canceled || !filePath)
+  return canceled || !filePath ? null : filePath
+}
+
+// Checks url, asks where to save it, then has write save it at
+// the chosen path. Resolves to { status: 'saved', fileName },
+// { status: 'cancelled' } or { status: 'failed' }
+async function saveAs(win, url, suggestedName, write) {
+  if (!isWebUrl(url))
+    return { status: 'failed' }
+
+  const filePath = await chooseFile(win, suggestedName)
+  if (!filePath)
     return { status: 'cancelled' }
 
+  return write(filePath)
+}
+
+// Asks where to save url, then saves it there (see saveAs)
+function download(win, url, suggestedName) {
+  return saveAs(
+    win, url, suggestedName,
+    (filePath) => saveFile(url, filePath)
+  )
+}
+
+// Like download, for a Reddit video with sound (see saveVideo)
+function downloadVideo(win, dashUrl, suggestedName) {
+  return saveAs(
+    win, dashUrl, suggestedName,
+    (filePath) => saveVideo(dashUrl, filePath)
+  )
+}
+
+// Saves the file at url to filePath
+async function saveFile(url, filePath) {
   // Only a file this download opened is removed on failure,
   // never one it couldn't open, like a read-only file the
   // user chose to replace
@@ -69,6 +100,48 @@ async function download(win, url, suggestedName) {
 
     if (opened)
       removePartial(filePath)
+
+    return { status: 'failed' }
+  }
+}
+
+// Reads a Reddit video's DASH manifest, then combines the best
+// video and audio files it lists into filePath. Fails rather than
+// save a silent video
+async function saveVideo(dashUrl, filePath) {
+  // Set once the file is open, so only then is it removed on
+  // failure (see saveFile)
+  let handle = null
+
+  try {
+    const res = await net.fetch(dashUrl)
+
+    if (!res.ok)
+      throw new Error(`${res.status} ${res.statusText} (${dashUrl})`)
+
+    const { video, audio } =
+      parseDashManifest(await res.text(), res.url || dashUrl)
+
+    if (!audio)
+      throw new Error(`The DASH manifest has no audio (${dashUrl})`)
+
+    const fetchFn = (input, init) => net.fetch(input, init)
+    handle = await fs.promises.open(filePath, 'w')
+    await remux(
+      urlSource(video, fetchFn),
+      urlSource(audio, fetchFn),
+      handle
+    )
+    await handle.close()
+
+    return { status: 'saved', fileName: path.basename(filePath) }
+  } catch (err) {
+    console.error('Video download failed:', err)
+
+    if (handle) {
+      await handle.close().catch(() => { })
+      removePartial(filePath)
+    }
 
     return { status: 'failed' }
   }
@@ -135,6 +208,15 @@ function register({ isDev }) {
   ipcMain.handle('context-menu:download', (ev, url, suggestedName) =>
     download(BrowserWindow.fromWebContents(ev.sender), url, suggestedName))
 
+  ipcMain.handle(
+    'context-menu:download-video',
+    (ev, dashUrl, suggestedName) => downloadVideo(
+      BrowserWindow.fromWebContents(ev.sender),
+      dashUrl,
+      suggestedName
+    )
+  )
+
   ipcMain.handle('context-menu:copy-image', (ev, x, y) =>
     ev.sender.copyImageAt(x, y))
 
@@ -156,6 +238,7 @@ function register({ isDev }) {
 
 module.exports = {
   download,
+  downloadVideo,
   forward,
   register
 }

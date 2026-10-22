@@ -15,6 +15,11 @@ import {
   electron,
   ipcHandler
 } from './test/electron.js'
+import {
+  fixture,
+  serveFiles,
+  trackTypes
+} from './test/files.js'
 
 const require = createRequire(import.meta.url)
 
@@ -170,6 +175,130 @@ describe('download', { concurrent: false }, () => {
   it('only downloads web URLs', async () => {
     const result = await loadContextMenu()
       .download(null, 'file:///etc/passwd', 'passwd')
+
+    expect(result).toEqual({ status: 'failed' })
+    expect(electron().dialog.showSaveDialog).not.toHaveBeenCalled()
+  })
+})
+
+const DASH_URL = 'https://v.redd.it/abc123/DASHPlaylist.mpd?a=1'
+const VIDEO_URL = 'https://v.redd.it/abc123/CMAF_480.mp4'
+const AUDIO_URL = 'https://v.redd.it/abc123/CMAF_AUDIO_128.mp4'
+
+// v.redd.it, answering with the manifest and both files, minus
+// the ones `missing` names
+function serveVideo(...missing) {
+  const files = {
+    [DASH_URL]: fixture('cmaf.mpd').toString(),
+    [VIDEO_URL]: fixture('video.mp4'),
+    [AUDIO_URL]: fixture('audio.mp4')
+  }
+  missing.forEach(url => delete files[url])
+
+  electron().net.fetch.mockImplementation(serveFiles(files))
+}
+
+describe('downloadVideo', { concurrent: false }, () => {
+  beforeEach(() => {
+    // A failed download is logged
+    vi.spyOn(console, 'error').mockImplementation(() => { })
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('saves one MP4 with the video and its sound', async () => {
+    const file = downloads('picked.mp4')
+    chooseFile(file)
+    serveVideo()
+
+    const result = await loadContextMenu()
+      .downloadVideo(null, DASH_URL, 'A clip.mp4')
+
+    expect(result).toEqual({ status: 'saved', fileName: 'picked.mp4' })
+    expect(await trackTypes(file)).toEqual(['audio', 'video'])
+  })
+
+  it('suggests the name in Downloads', async () => {
+    await loadContextMenu().downloadVideo(null, DASH_URL, 'A clip.mp4')
+
+    const [options] = electron().dialog.showSaveDialog.mock.calls[0]
+    expect(options.defaultPath).toBe(downloads('A clip.mp4'))
+  })
+
+  it("doesn't fetch anything when cancelled", async () => {
+    const result = await loadContextMenu()
+      .downloadVideo(null, DASH_URL, 'a.mp4')
+
+    expect(result).toEqual({ status: 'cancelled' })
+    expect(electron().net.fetch).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    ['the manifest', DASH_URL],
+    ['the video file', VIDEO_URL],
+    ['the audio file', AUDIO_URL]
+  ])('fails without a file when %s fails', async (_, url) => {
+    const file = downloads('a.mp4')
+    chooseFile(file)
+    serveVideo(url)
+
+    const result = await loadContextMenu()
+      .downloadVideo(null, DASH_URL, 'a.mp4')
+
+    expect(result).toEqual({ status: 'failed' })
+    expect(fs.existsSync(file)).toBe(false)
+  })
+
+  it('fails rather than save a video without sound', async () => {
+    const file = downloads('a.mp4')
+    chooseFile(file)
+    electron().net.fetch.mockImplementation(serveFiles({
+      [DASH_URL]: fixture('no-audio.mpd').toString()
+    }))
+
+    const result = await loadContextMenu()
+      .downloadVideo(null, DASH_URL, 'a.mp4')
+
+    expect(result).toEqual({ status: 'failed' })
+    expect(fs.existsSync(file)).toBe(false)
+  })
+
+  it('fails without a file when the remux fails', async () => {
+    const file = downloads('a.mp4')
+    chooseFile(file)
+    electron().net.fetch.mockImplementation(serveFiles({
+      [DASH_URL]: fixture('cmaf.mpd').toString(),
+      [VIDEO_URL]: fixture('video.mp4'),
+      // Not an MP4
+      [AUDIO_URL]: Buffer.from('not a video')
+    }))
+
+    const result = await loadContextMenu()
+      .downloadVideo(null, DASH_URL, 'a.mp4')
+
+    expect(result).toEqual({ status: 'failed' })
+    expect(fs.existsSync(file)).toBe(false)
+  })
+
+  it('leaves a file it couldn\'t open alone', async () => {
+    const file = downloads('read-only.mp4')
+    fs.writeFileSync(file, 'keep me')
+    fs.chmodSync(file, 0o444)
+    chooseFile(file)
+    serveVideo()
+
+    const result = await loadContextMenu()
+      .downloadVideo(null, DASH_URL, 'read-only.mp4')
+
+    expect(result).toEqual({ status: 'failed' })
+    expect(fs.readFileSync(file, 'utf8')).toBe('keep me')
+  })
+
+  it('only downloads web URLs', async () => {
+    const result = await loadContextMenu()
+      .downloadVideo(null, 'file:///etc/passwd', 'passwd')
 
     expect(result).toEqual({ status: 'failed' })
     expect(electron().dialog.showSaveDialog).not.toHaveBeenCalled()

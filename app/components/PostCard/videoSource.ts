@@ -22,3 +22,12 @@ export function videoSource(post: VideoPost): string | undefined {
 
   return videoFileUrl(post)
 }
+
+// The DASH manifest a download of a Reddit video with sound
+// reads its video and audio files from. Everything else
+// downloads its file.
+export function videoDashUrl(post: VideoPost): string | undefined {
+  const video = post.is_video ? post.media?.reddit_video : undefined
+
+  return video?.has_audio ? video.dash_url : undefined
+}

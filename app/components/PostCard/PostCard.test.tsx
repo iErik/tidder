@@ -51,6 +51,7 @@ function videoPost(id: string, hasAudio = true): Post {
       reddit_video: {
         fallback_url: `${base}/CMAF_720.mp4?source=fallback`,
         hls_url: `${base}/HLSPlaylist.m3u8`,
+        dash_url: `${base}/DASHPlaylist.mpd`,
         has_audio: hasAudio
       }
     },

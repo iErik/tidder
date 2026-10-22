@@ -371,6 +371,8 @@ describe('postMenuItems', () => {
 
 const IMAGE = { url: 'https://i.redd.it/abc.jpg', title: 'A cat' }
 const VIDEO = { url: 'https://v.redd.it/abc/DASH_720.mp4', title: 'A clip' }
+const DASH = 'https://v.redd.it/abc/DASHPlaylist.mpd?a=1'
+const SOUND_VIDEO = { ...VIDEO, dashUrl: DASH }
 
 const find = (items: ContextMenuItem[], label: string) =>
   items.find((entry) => entry.label === label)!
@@ -428,6 +430,36 @@ describe('media menus', () => {
 
     expect(success).not.toHaveBeenCalled()
     expect(error).not.toHaveBeenCalled()
+  })
+
+  it('downloads a video with sound from its manifest, as .mp4', () => {
+    const { download, downloadVideo } = tidder().contextMenu
+
+    find(mediaMenuItems(SOUND_VIDEO), 'Download').action()
+
+    expect(downloadVideo).toHaveBeenCalledWith(DASH, 'A clip.mp4')
+    expect(download).not.toHaveBeenCalled()
+  })
+
+  it('downloads a video without sound as its file', () => {
+    const { download, downloadVideo } = tidder().contextMenu
+
+    find(mediaMenuItems(VIDEO), 'Download').action()
+
+    expect(download).toHaveBeenCalledWith(VIDEO.url, 'A clip.mp4')
+    expect(downloadVideo).not.toHaveBeenCalled()
+  })
+
+  it('shows the same Toasts for a video with sound', async () => {
+    tidder().contextMenu.downloadVideo
+      .mockResolvedValue({ status: 'failed' })
+    const error = vi.spyOn(toast, 'error')
+
+    find(mediaMenuItems(SOUND_VIDEO), 'Download').action()
+
+    await vi.waitFor(() => {
+      expect(error).toHaveBeenCalledWith('Download failed')
+    })
   })
 
   it('copies the image at the point', async () => {

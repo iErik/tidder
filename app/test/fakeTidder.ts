@@ -52,13 +52,16 @@ export function createFakeTidder(
     openExternal: vi.fn(),
     openPopup: vi.fn(),
 
-    // A download the user cancels, unless a test stubs it
+    // Downloads the user cancels, unless a test stubs them
     contextMenu: {
       inspect: vi.fn(),
       copyImage: vi.fn(() => Promise.resolve()),
       writeText: vi.fn(),
       edit: vi.fn(),
       download: vi.fn(() => Promise.resolve<TidderDownloadResult>({
+        status: 'cancelled'
+      })),
+      downloadVideo: vi.fn(() => Promise.resolve<TidderDownloadResult>({
         status: 'cancelled'
       })),
 

@@ -30,6 +30,9 @@ export interface RedditVideo {
   fallback_url: string
   // Missing on some old posts
   hls_url?: string
+  // The DASH manifest, listing the separate video and audio files
+  // a download combines
+  dash_url: string
   has_audio: boolean
 }
 

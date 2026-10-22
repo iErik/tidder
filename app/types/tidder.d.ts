@@ -68,6 +68,13 @@ interface TidderBridge {
     // Asks where to save the URL, starting in Downloads
     download(url: string, suggestedName: string): Promise<TidderDownloadResult>
 
+    // Like download, for a Reddit video with sound: saves one MP4
+    // combining the video and audio files its DASH manifest lists
+    downloadVideo(
+      dashUrl: string,
+      suggestedName: string
+    ): Promise<TidderDownloadResult>
+
     onForwarded(
       listener: (params: TidderContextMenuParams) => void
     ): { dispose(): void }

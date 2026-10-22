@@ -48,6 +48,12 @@ contextBridge.exposeInMainWorld('tidder', {
     download: (url, suggestedName) =>
       ipcRenderer.invoke('context-menu:download', url, suggestedName),
 
+    downloadVideo: (dashUrl, suggestedName) => ipcRenderer.invoke(
+      'context-menu:download-video',
+      dashUrl,
+      suggestedName
+    ),
+
     onForwarded: (listener) => {
       contextMenuListeners.add(listener)
       return { dispose: () => contextMenuListeners.delete(listener) }

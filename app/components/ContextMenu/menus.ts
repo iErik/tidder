@@ -177,6 +177,9 @@ interface Media {
   url: string
   // The post's, for the download's file name
   title: string
+  // A Reddit video with sound's DASH manifest, which Download
+  // saves from instead of `url`, so the file has sound
+  dashUrl?: string
 }
 
 interface Point {
@@ -211,9 +214,25 @@ export function embedMenuItems(post: Post): ContextMenuItem[] {
   ]
 }
 
-async function download({ url, title }: Media) {
-  const result = await window.tidder.contextMenu
-    .download(url, downloadName(title, url))
+async function startDownload(
+  { url, title, dashUrl }: Media
+) {
+  const { contextMenu } = window.tidder
+
+  if (!dashUrl)
+    return contextMenu.download(url, downloadName(title, url))
+
+  // Named as an .mp4, which the download is, not after the
+  // manifest's .mpd
+  const mp4Url = new URL('video.mp4', dashUrl).href
+  return contextMenu.downloadVideo(
+    dashUrl,
+    downloadName(title, mp4Url)
+  )
+}
+
+async function download(media: Media) {
+  const result = await startDownload(media)
     .catch(() => ({ status: 'failed' }) as const)
 
   if (result.status === 'saved')
