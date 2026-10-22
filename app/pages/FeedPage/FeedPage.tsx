@@ -45,6 +45,8 @@ function sourceForPath(pathname: string): {
     }
   if (matchPath('/saved', pathname))
     return { source: 'saved', resetQuery: true }
+  if (matchPath('/hidden', pathname))
+    return { source: 'hidden', resetQuery: true }
 
   return { source: 'home', resetQuery: true }
 }

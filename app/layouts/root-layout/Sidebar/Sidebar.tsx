@@ -41,6 +41,11 @@ export default function Sidebar({ isActive }: Props) {
                 </Link>
               </li>
               <li className={cx('sidebar-section-entry')}>
+                <Link className={cx('entry-link')} to="/hidden">
+                  Hidden
+                </Link>
+              </li>
+              <li className={cx('sidebar-section-entry')}>
                 <Link className={cx('entry-link')} to="/r/popular">
                   Popular
                 </Link>

@@ -15,6 +15,7 @@ import {
 } from '../test/fetch'
 
 import {
+  getHiddenPosts,
   submitPost,
   unflattenComments
 } from './posts'
@@ -135,5 +136,19 @@ describe('submitPost', () => {
     stubFetch(jsonResponse({ json: { errors: [] } }))
 
     await expect(submitPost(POST_FORM)).rejects.toThrow()
+  })
+})
+
+describe('getHiddenPosts', () => {
+  it('loads a page of the user\'s hidden posts', async () => {
+    const listing = { after: 't3_b', before: null, children: [] }
+    const fetch = stubFetch(jsonResponse({ data: listing }))
+
+    const page = await getHiddenPosts('reader', 't3_a')
+
+    expect(page).toEqual(listing)
+    const url = fetch.mock.calls[0][0] as URL
+    expect(url.pathname).toBe('/user/reader/hidden')
+    expect(url.searchParams.get('after')).toBe('t3_a')
   })
 })

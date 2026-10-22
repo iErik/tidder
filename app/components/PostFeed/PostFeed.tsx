@@ -16,6 +16,7 @@ import {
 } from 'hooks/useSettledFeedParams'
 import { bindStyles } from 'utils/classNames'
 
+import { feedListsPost } from './feedListsPost'
 import styles from './PostFeed.module.scss'
 
 const cx = bindStyles(styles)
@@ -32,16 +33,16 @@ function uniqueByName<T extends { name: string }>(
 interface EntryProps {
   post: Post
   displaySubreddit: boolean
-  // The Saved feed keeps hidden posts, as Reddit does
-  keepHidden: boolean
+  feedSource: string
   onFeedAction: (action: FeedAction) => void
 }
 
-// A post in the feed, gone once the user hides it
-function PostEntry({ keepHidden, ...card }: EntryProps) {
+// A post in the feed, gone once hiding or unhiding it takes
+// it out of the feed (see feedListsPost)
+function PostEntry({ feedSource, ...card }: EntryProps) {
   const { hidden } = useThing(card.post)
 
-  if (hidden && !keepHidden) return null
+  if (!feedListsPost(feedSource, hidden)) return null
 
   return (
     <li className={cx('feed-entry')}>
@@ -83,7 +84,10 @@ export default function PostFeed({ onFeedAction }: Props) {
 
   return (
     <div className={cx('post-feed')}>
-      <PostFeedFilters onFeedAction={onFeedAction} />
+      {/* Sort and search don't apply to the Hidden feed */}
+      {feedSource !== 'hidden' && (
+        <PostFeedFilters onFeedAction={onFeedAction} />
+      )}
 
       {feed.isPending ? (
         <div className={cx('wrapper-feed-spinner')}>
@@ -108,7 +112,7 @@ export default function PostFeed({ onFeedAction }: Props) {
                   key={post.name}
                   post={post}
                   displaySubreddit={displaySub}
-                  keepHidden={feedSource === 'saved'}
+                  feedSource={feedSource}
                   onFeedAction={onFeedAction}
                 />
               ))}

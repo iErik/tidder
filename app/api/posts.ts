@@ -42,6 +42,19 @@ export async function getSavedPosts(
   return res.data
 }
 
+export async function getHiddenPosts(
+  userName: string,
+  after: string,
+  signal?: AbortSignal
+) {
+  const res = await redditFetch<ListingResponse<PostThing>>(
+    `/user/${userName}/hidden`,
+    { params: { after, limit: PAGE_SIZE }, signal }
+  )
+
+  return res.data
+}
+
 export async function searchPosts(
   q: string,
   sort: string,
