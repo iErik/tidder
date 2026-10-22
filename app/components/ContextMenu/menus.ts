@@ -149,7 +149,10 @@ export function postMenuItems(
       action: () => window.tidder
         .openExternal(`https://www.reddit.com${post.permalink}`)
     },
-    { label: 'Hide', action: () => void hide(post) },
+    {
+      label: post.hidden ? 'Unhide' : 'Hide',
+      action: () => void toggleHidden(post)
+    },
     {
       label: post.saved ? 'Unsave' : 'Save',
       action: () => void toggleSaved(post)
@@ -262,9 +265,15 @@ function copyText(text: string) {
   toast.success('Text copied')
 }
 
-async function hide(post: Post) {
-  if (await hideThing(post, true)) toast.success('Post hidden')
-  else toast.error('Couldn\'t hide the post')
+async function toggleHidden(post: Post) {
+  const hidden = !post.hidden
+  const done = await hideThing(post, hidden)
+  const [verb, participle] = hidden
+    ? ['hide', 'hidden']
+    : ['unhide', 'unhidden']
+
+  if (done) toast.success(`Post ${participle}`)
+  else toast.error(`Couldn't ${verb} the post`)
 }
 
 async function toggleSaved(post: Post) {

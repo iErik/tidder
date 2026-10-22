@@ -294,6 +294,13 @@ describe('postMenuItems', () => {
     expect(labels(items)).not.toContain('Save')
   })
 
+  it('offers Unhide on a hidden post', () => {
+    const { items } = postMenu(post({ hidden: true }))
+
+    expect(labels(items)).toContain('Unhide')
+    expect(labels(items)).not.toContain('Hide')
+  })
+
   it('enables Report on other people\'s posts', () => {
     expect(postMenu().item('Report').disabled).toBeFalsy()
   })
@@ -331,6 +338,7 @@ describe('postMenuItems', () => {
 
   it.each([
     ['Hide', post(), 'Post hidden'],
+    ['Unhide', post({ hidden: true }), 'Post unhidden'],
     ['Save', post(), 'Post saved'],
     ['Unsave', post({ saved: true }), 'Post unsaved']
   ])('%s shows a Toast once Reddit accepts', async (
@@ -350,6 +358,7 @@ describe('postMenuItems', () => {
 
   it.each([
     ['Hide', post(), 'Couldn\'t hide the post'],
+    ['Unhide', post({ hidden: true }), 'Couldn\'t unhide the post'],
     ['Save', post(), 'Couldn\'t save the post'],
     ['Unsave', post({ saved: true }), 'Couldn\'t unsave the post']
   ])('%s shows an error Toast when Reddit refuses', async (

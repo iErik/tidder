@@ -11,6 +11,7 @@ import {
 } from 'api/multis'
 
 import {
+  getHiddenPosts,
   getPostComments,
   getPosts,
   getSavedPosts,
@@ -36,7 +37,8 @@ import { useAuth } from 'core/auth'
 
 
 // What the feed shows. `source` is one of:
-//   'home', 'saved', 'r/<name>', '/user/<user>/m/<multi>/',
+//   'home', 'saved', 'hidden', 'r/<name>',
+//   '/user/<user>/m/<multi>/',
 //    or 'sr:', a search for subreddits instead of posts.
 export interface FeedParams {
   source: string
@@ -70,6 +72,8 @@ function fetchListing(
 
   if (source === 'saved')
     return getSavedPosts(userName, after, signal)
+  if (source === 'hidden')
+    return getHiddenPosts(userName, after, signal)
   if (isMulti)
     return getMultiFeed(source, sort, after, signal)
 
@@ -78,15 +82,17 @@ function fetchListing(
 }
 
 export function useFeed(params: FeedParams) {
-  // The saved feed needs the user's name, which comes with
-  // the identity.
+  // The saved and hidden feeds need the user's name, which
+  // comes with the identity.
   const userName = useAuth().user?.name ?? ''
+  const needsUser = params.source === 'saved' ||
+    params.source === 'hidden'
 
   return useInfiniteQuery({
     queryKey: [
       'feed',
       params,
-      params.source === 'saved' ? userName : null
+      needsUser ? userName : null
     ],
     queryFn: async ({
       pageParam,
@@ -119,8 +125,7 @@ export function useFeed(params: FeedParams) {
 
     // FeedPage sets the source from the route after
     // mounting.
-    enabled: !!params.source &&
-      (params.source !== 'saved' || !!userName)
+    enabled: !!params.source && (!needsUser || !!userName)
   })
 }
 
