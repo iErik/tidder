@@ -55,9 +55,24 @@ export default function PostFeedCard({
     onFeedAction({ type: 'open', thing: rawPost })
   }
 
+  // A click anywhere else on the card opens the post too,
+  // except on a link or button, which does its own thing
+  // (the title opens the post itself), and at the end of a
+  // text selection, so the card's text stays selectable
+  const openFromCard = (ev: MouseEvent) => {
+    const target = ev.target
+    const onControl = target instanceof Element
+      && target.closest('a, button') !== null
+    const selecting = window.getSelection()?.isCollapsed === false
+    if (onControl || selecting) return
+
+    onFeedAction({ type: 'open', thing: rawPost })
+  }
+
   return (
     <div
       className={cx('post-feed-card')}
+      onClick={openFromCard}
       onContextMenu={(ev) => openMenu(
         ev,
         postMenuItems(post, { user, onFeedAction })
