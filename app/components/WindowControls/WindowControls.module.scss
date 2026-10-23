@@ -28,6 +28,9 @@
       height: 100%;
       cursor: pointer;
 
+      // The icon sizes here stay in px, unlike the app's other
+      // font sizes: they imitate the OS window buttons, so they
+      // don't scale with the text
       font-size: 14.5px;
       &:nth-child(2) { margin: 0 25px; }
 
@@ -63,6 +66,7 @@
       &:hover .btn {
         @include icon { color: rgba(0, 0, 0, 0.7); }
 
+        // In px too, like the other window-control icons
         @include icon('maximize-darwin') { font-size: 6.3px; }
         @include icon('unmaximize-darwin') { font-size: 6.3px; }
         @include icon('minimize-darwin') { font-size: 8px; }

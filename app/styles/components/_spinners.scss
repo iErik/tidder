@@ -87,7 +87,7 @@
 .bar-spinner {
   position: relative;
 
-  font-size: 11px;
+  font-size: px-to-rem(11px);
   text-indent: -9999em;
 
   transform: translateZ(0);

@@ -34,7 +34,7 @@ $heading-button-spacing: 25px;
   margin: 0 0 $heading-button-spacing;
 
   font-family: $font-sans;
-  font-size: 14px;
+  font-size: px-to-rem(14px);
   font-weight: 700;
   line-height: 17px;
   letter-spacing: 2.625px;
@@ -50,7 +50,7 @@ $heading-button-spacing: 25px;
   border-radius: 5px;
 
   font-family: $font-sans;
-  font-size: 10px;
+  font-size: px-to-rem(10px);
   font-weight: 700;
   letter-spacing: 1.875px;
   text-transform: uppercase;
@@ -70,7 +70,7 @@ $heading-button-spacing: 25px;
   line-height: 40px;
 
   font-family: $font-sans;
-  font-size: 10px;
+  font-size: px-to-rem(10px);
   font-weight: 700;
   letter-spacing: 1.875px;
   text-transform: uppercase;
@@ -92,7 +92,7 @@ $heading-button-spacing: 25px;
   background: none;
 
   font-family: $font-sans;
-  font-size: 10px;
+  font-size: px-to-rem(10px);
   font-weight: 700;
   letter-spacing: 1.875px;
   text-transform: uppercase;
@@ -109,7 +109,7 @@ $heading-button-spacing: 25px;
   margin: 15px 0 0;
 
   font-family: $font-sans;
-  font-size: 12px;
+  font-size: px-to-rem(12px);
   line-height: 1.5;
   text-align: center;
   -webkit-font-smoothing: antialiased;

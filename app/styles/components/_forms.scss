@@ -89,7 +89,7 @@ label.label {
 
   outline: 0 !important;
 
-  font-size: 12px;
+  font-size: px-to-rem(12px);
   font-weight: 400;
   @include themify { color: foreground-color(); }
 
@@ -127,7 +127,7 @@ label.label {
   width: 100%;
   resize: vertical;
 
-  font-size: 13px;
+  font-size: px-to-rem(13px);
   font-weight: 400;
   letter-spacing: 0.3px;
   -webkit-font-smoothing: antialiased;
