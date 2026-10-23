@@ -278,7 +278,13 @@ const labels = (items: { label: string }[]) =>
 describe('postMenuItems', () => {
   it('lists the feed post menu', () => {
     expect(labels(postMenu().items)).toEqual([
-      'Open in browser', 'Hide', 'Save', 'Report', 'Share', 'View'
+      'Open in browser',
+      'Copy link',
+      'Hide',
+      'Save',
+      'Report',
+      'Share',
+      'View'
     ])
   })
 
@@ -321,6 +327,21 @@ describe('postMenuItems', () => {
     expect(tidder().openExternal).toHaveBeenCalledWith(
       'https://www.reddit.com/r/pics/comments/abc/a_post/'
     )
+  })
+
+  it.each([
+    ['a text post', post()],
+    ['a link post', post({ url: 'https://example.com/a' })]
+  ])('copies the comments page of %s', (_, thing) => {
+    const success = vi.spyOn(toast, 'success')
+
+    postMenu(thing).item('Copy link').action()
+
+    const { writeText } = tidder().contextMenu
+    expect(writeText).toHaveBeenCalledWith(
+      'https://www.reddit.com/r/pics/comments/abc/a_post/'
+    )
+    expect(success).toHaveBeenCalledWith('Link copied')
   })
 
   it.each([

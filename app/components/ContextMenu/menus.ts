@@ -143,12 +143,15 @@ export function postMenuItems(
   post: Post,
   { user, onFeedAction, inViewer = false }: PostMenuOptions
 ): ContextMenuItem[] {
+  // The comments page, not a link post's `url`
+  const permalink = `https://www.reddit.com${post.permalink}`
+
   const items: ContextMenuItem[] = [
     {
       label: 'Open in browser',
-      action: () => window.tidder
-        .openExternal(`https://www.reddit.com${post.permalink}`)
+      action: () => window.tidder.openExternal(permalink)
     },
+    { label: 'Copy link', action: () => copyLink(permalink) },
     {
       label: post.hidden ? 'Unhide' : 'Hide',
       action: () => void toggleHidden(post)
