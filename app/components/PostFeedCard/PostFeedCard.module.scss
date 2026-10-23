@@ -134,7 +134,7 @@ $post-card-height: 80px;
         margin: 0px 12px 0px 0px;
 
         .btn-action {
-          font-size:      8px;
+          font-size:      px-to-rem(8px);
           font-weight:    600;
           text-transform: uppercase;
           letter-spacing: 0.2px;

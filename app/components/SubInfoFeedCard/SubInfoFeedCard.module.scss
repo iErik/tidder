@@ -71,7 +71,7 @@ $card-background: #FFF;
       display: flex;
 
       .card-link {
-        font-size: 14px;
+        font-size: px-to-rem(14px);
         font-weight: 400;
 
         &:hover { text-decoration: underline; }

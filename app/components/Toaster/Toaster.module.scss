@@ -9,8 +9,8 @@
 $edge-spacing: 10px;
 $toast-max-width: 360px;
 $toast-radius: 6px;
-$font-size: 12px;
-$icon-size: 16px;
+$font-size: px-to-rem(12px);
+$icon-size: px-to-rem(16px);
 $dismiss-size: 19px;
 
 $statuses: error, warning, success;
@@ -96,7 +96,7 @@ $statuses: error, warning, success;
   background: none;
   color: inherit;
 
-  font-size: $dismiss-size;
+  font-size: px-to-rem($dismiss-size);
 
   cursor: pointer;
 }

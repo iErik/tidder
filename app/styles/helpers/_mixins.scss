@@ -1,3 +1,6 @@
+@use 'sass:math';
+@use 'sass:meta';
+
 $theme: null;
 
 // Set by styles/helpers/_component.scss. Inside a CSS Module global
@@ -127,6 +130,17 @@ $css-module: false !default;
 
 @function type-scale($scale) {
   @return map-get($type-scale, $scale);
+}
+
+// A px size in rem, assuming a 16px root: px-to-rem(12px) is
+// .75rem. It divides by a fixed 16px rather than by
+// $base-font-size, or changing that wouldn't scale the fonts.
+@function px-to-rem($px) {
+  @if meta.type-of($px) != 'number' or math.unit($px) != 'px' {
+    @error 'px-to-rem() expects a px length, got #{meta.inspect($px)}';
+  }
+
+  @return math.div($px, 16px) * 1rem;
 }
 
 // Styles the <Icon>s inside the current selector: all of them, or

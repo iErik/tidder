@@ -15,7 +15,7 @@ $item-gap: 2px;
 // 14px to the label
 $item-inset: 2px;
 $label-inset: 12px;
-$font-size: 10px;
+$font-size: px-to-rem(10px);
 $disabled-opacity: .47;
 
 //  Object Structure

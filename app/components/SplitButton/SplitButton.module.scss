@@ -34,7 +34,7 @@ $btn-red-color:   #E3472F;
     background: transparent;
 
     .label {
-      font-size: 12px;
+      font-size: px-to-rem(12px);
       font-weight: 400;
       color: #FFF;
 
@@ -59,7 +59,7 @@ $btn-red-color:   #E3472F;
 // Select the actual content that goes into the component.
 .split-button :global {
   .label {
-    font-size: 12px;
+    font-size: px-to-rem(12px);
     font-weight: 400;
     color: #FFF;
 

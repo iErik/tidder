@@ -49,9 +49,9 @@ $social-icon-border-radius: 8px;
 
       border-radius: $social-icon-border-radius;
 
-      &.facebook { background-color: #2C4484; font-size: 24px; }
+      &.facebook { background-color: #2C4484; font-size: px-to-rem(24px); }
       &.twitter { background-color: #459AE8; }
-      &.tumblr { background-color: #28364A; font-size: 22px; }
+      &.tumblr { background-color: #28364A; font-size: px-to-rem(22px); }
 
       @include icon {
         display: flex;
@@ -76,7 +76,7 @@ $social-icon-border-radius: 8px;
 
     .input {
       flex-grow: 1;
-      font-size: 13px;
+      font-size: px-to-rem(13px);
 
       padding: 8px 10px;
     }

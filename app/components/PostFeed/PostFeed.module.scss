@@ -45,7 +45,7 @@
       position: absolute;
       top: 20%;
 
-      .dot-spinner { font-size: 12px; }
+      .dot-spinner { font-size: px-to-rem(12px); }
     }
   }
 
