@@ -54,6 +54,35 @@
       }
     }
 
+    // A thread line starts just below the downvote button, not
+    // at the end of the comment: it runs down the score column,
+    // at the replies' 23px, and across the comment's bottom
+    // margin to meet their own lines. Every reply has one, and
+    // so does a top-level comment with replies
+    &.has-child > .section-comment > .comment-score::after,
+    &:not(.is-parent) > .section-comment > .comment-score::after {
+      content: '';
+      flex-grow: 1;
+      align-self: flex-start;
+
+      margin: 6px 0 -5px 3px;
+
+      border-left-width: 1px;
+      border-left-style: solid;
+
+      @include themify('parent') {
+        @if (map-get($theme, 'isDark')) {
+          @if (background-color('light')) {
+            border-left-color: background-color('light');
+          } @else {
+            border-left-color: lighten(background-color(), 9%);
+          }
+        } @else {
+          border-left-color: darken(background-color(), 15%);
+        }
+      }
+    }
+
     &.is-collapsed {
       .comment-body,
       .comment-score,
@@ -78,10 +107,20 @@
     margin: 5px 0 5px 0;
 
     .comment-score {
+      // As wide as the vote arrows, whatever the score's
+      // length, so they line up with the replies' thread line.
+      // A wider score overflows evenly on both sides. The
+      // ScoreButton keeps its own height, and the replies'
+      // thread line (::after) fills the rest of the column.
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: .87em;
+
       font-size: px-to-rem(10.5px);
 
-      margin-left: 20px;
-      padding: 4px 15px 0 0;
+      margin: 0 15px 0 20px;
+      padding-top: 4px;
     }
 
     .comment-contents {
